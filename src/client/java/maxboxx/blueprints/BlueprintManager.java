@@ -1,23 +1,29 @@
 package maxboxx.blueprints;
 
+import maxboxx.blueprints.graphics.hud.BlueprintHud;
+import maxboxx.blueprints.graphics.hud.HudRegistry;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 
 public class BlueprintManager {
 	private static boolean isActive = false;
 
+	private static final BlueprintHud HUD = new BlueprintHud();
+
 	public static void init() {
+		HUD.hide();
+		HudRegistry.register(HUD);
+
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
 			if (isActive) {
 				boolean leftClick  = KeyBinds.consume(client.options.keyAttack);
 				boolean rightClick = KeyBinds.consume(client.options.keyUse);
 
 				if (leftClick) {
-					SimpleBlueprints.LOGGER.info("Left Click Consumed");
+					handleLeftClick();
 				}
 
 				if (rightClick) {
-					SimpleBlueprints.LOGGER.info("Right Click Consumed");
+					handleRightClick();
 				}
 			}
 		});
@@ -31,12 +37,14 @@ public class BlueprintManager {
 
 	private static void toggleState() {
 		isActive = !isActive;
+		HUD.setVisible(isActive);
+	}
 
-		if (isActive) {
-			SimpleBlueprints.LOGGER.info("Entered blueprint mode");
-		}
-		else {
-			SimpleBlueprints.LOGGER.info("Exited blueprint mode");
-		}
+	private static void handleLeftClick() {
+		SimpleBlueprints.LOGGER.info("Left Click");
+	}
+
+	private static void handleRightClick() {
+		SimpleBlueprints.LOGGER.info("Right Click");
 	}
 }
