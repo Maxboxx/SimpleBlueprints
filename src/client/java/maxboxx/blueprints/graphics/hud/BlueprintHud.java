@@ -15,7 +15,7 @@ public class BlueprintHud extends HudGraphic {
 			Minecraft.getInstance().font,
 			"Blueprint Mode Active",
 			context.guiWidth() / 2,
-			context.guiHeight() - 50,
+			context.guiHeight() - 60,
 			0xffffffff
 		);
 	}
