@@ -10,11 +10,29 @@ public class BoxGraphic extends WorldGraphic {
 	private final boolean OUTLINE;
 
 	private static final float LINE_OFFSET = 0.01f;
-	private static final float OFFSET = 0.001f;
 
 	public BoxGraphic(RenderPipeline pipeline, boolean outline) {
 		super(pipeline);
 		OUTLINE = outline;
+	}
+
+	public void setMin(float x, float y, float z) {
+		minX = x;
+		minY = y;
+		minZ = z;
+	}
+
+	public void setMax(float x, float y, float z) {
+		maxX = x;
+		maxY = y;
+		maxZ = z;
+	}
+
+	public void setColor(float r, float g, float b, float a) {
+		red   = r;
+		green = g;
+		blue  = b;
+		alpha = a;
 	}
 
 	@Override

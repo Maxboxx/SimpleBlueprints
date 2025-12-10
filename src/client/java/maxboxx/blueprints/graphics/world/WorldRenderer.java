@@ -32,6 +32,15 @@ public class WorldRenderer {
 		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
 		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+		.withCull(true)
+		.build()
+	);
+
+	public static final RenderPipeline FILLED_NO_DEPTH_NO_CULL = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
+		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
+		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+		.withCull(false)
 		.build()
 	);
 
@@ -108,15 +117,12 @@ public class WorldRenderer {
 	}
 
 	private static GpuBuffer upload(MeshData.DrawState drawParameters, VertexFormat format, MeshData builtBuffer) {
-		// Calculate the size needed for the vertex buffer
 		int vertexBufferSize = drawParameters.vertexCount() * format.getVertexSize();
 
-		// Initialize or resize the vertex buffer as needed
 		if (vertexBuffer == null || vertexBuffer.size() < vertexBufferSize) {
-			vertexBuffer = new MappableRingBuffer(() -> SimpleBlueprints.MOD_ID + " example render pipeline", GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_MAP_WRITE, vertexBufferSize);
+			vertexBuffer = new MappableRingBuffer(() -> SimpleBlueprints.MOD_ID + " rendering", GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_MAP_WRITE, vertexBufferSize);
 		}
 
-		// Copy vertex data into the vertex buffer
 		CommandEncoder commandEncoder = RenderSystem.getDevice().createCommandEncoder();
 
 		try (GpuBuffer.MappedView mappedView = commandEncoder.mapBuffer(vertexBuffer.currentBuffer().slice(0, builtBuffer.vertexBuffer().remaining()), false, true)) {
@@ -131,38 +137,30 @@ public class WorldRenderer {
 		VertexFormat.IndexType indexType;
 
 		if (pipeline.getVertexFormatMode() == VertexFormat.Mode.QUADS) {
-			// Sort the quads if there is translucency
 			builtBuffer.sortQuads(allocator, RenderSystem.getProjectionType().vertexSorting());
-			// Upload the index buffer
 			indices = pipeline.getVertexFormat().uploadImmediateIndexBuffer(builtBuffer.indexBuffer());
 			indexType = builtBuffer.drawState().indexType();
 		} else {
-			// Use the general shape index buffer for non-quad draw modes
 			RenderSystem.AutoStorageIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
 			indices = shapeIndexBuffer.getBuffer(drawParameters.indexCount());
 			indexType = shapeIndexBuffer.type();
 		}
 
-		// Actually execute the draw
 		GpuBufferSlice dynamicTransforms = RenderSystem.getDynamicUniforms()
 			.writeTransform(RenderSystem.getModelViewMatrix(), COLOR_MODULATOR, new Vector3f(), RenderSystem.getTextureMatrix(), 1f);
+
 		try (RenderPass renderPass = RenderSystem.getDevice()
 			.createCommandEncoder()
-			.createRenderPass(() -> SimpleBlueprints.MOD_ID + " example render pipeline rendering", client.getMainRenderTarget().getColorTextureView(), OptionalInt.empty(), client.getMainRenderTarget().getDepthTextureView(), OptionalDouble.empty())) {
+			.createRenderPass(() -> SimpleBlueprints.MOD_ID + " rendering", client.getMainRenderTarget().getColorTextureView(), OptionalInt.empty(), client.getMainRenderTarget().getDepthTextureView(), OptionalDouble.empty())
+		) {
 			renderPass.setPipeline(pipeline);
 
 			RenderSystem.bindDefaultUniforms(renderPass);
 			renderPass.setUniform("DynamicTransforms", dynamicTransforms);
 
-			// Bind texture if applicable:
-			// Sampler0 is used for texture inputs in vertices
-			// renderPass.bindSampler("Sampler0", textureView);
-
 			renderPass.setVertexBuffer(0, vertices);
 			renderPass.setIndexBuffer(indices, indexType);
 
-			// The base vertex is the starting index when we copied the data into the vertex buffer divided by vertex size
-			//noinspection ConstantValue
 			renderPass.drawIndexed(0 / format.getVertexSize(), 0, drawParameters.indexCount(), 1);
 		}
 
