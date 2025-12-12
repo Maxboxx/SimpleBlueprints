@@ -1,23 +1,27 @@
 package maxboxx.blueprints;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import maxboxx.blueprints.graphics.hud.BlueprintHud;
 import maxboxx.blueprints.graphics.hud.HudRegistry;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
 import maxboxx.blueprints.graphics.world.WorldRenderer;
+import maxboxx.blueprints.tools.BlueprintTool;
+import maxboxx.blueprints.tools.ToolAction;
+import maxboxx.blueprints.tools.BlueprintTools;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 public class BlueprintManager {
 	private static final BlueprintHud HUD = new BlueprintHud();
 
 	private static boolean isActive = false;
-	private static Mode mode = Mode.NUDGE;
+	private static BlueprintTool tool = null;
 
+	private static boolean hasSelection = false;
 	private static BlockPos selectionMin, selectionMax;
 
 	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, false);
@@ -37,15 +41,13 @@ public class BlueprintManager {
 				boolean middleClick = KeyBinds.consume(client.options.keyPickItem);
 
 				if (leftClick) {
-					handleLeftClick();
+					handleAction(ToolAction.LEFT);
 				}
-
-				if (rightClick) {
-					handleRightClick();
+				else if (rightClick) {
+					handleAction(ToolAction.RIGHT);
 				}
-
-				if (middleClick) {
-					handleMiddleClick();
+				else if (middleClick) {
+					handleAction(ToolAction.MIDDLE);
 				}
 			}
 		});
@@ -54,22 +56,35 @@ public class BlueprintManager {
 			while (KeyBinds.TOGGLE.consumeClick()) {
 				toggleState();
 			}
+
+			if (isActive) {
+				updateMode();
+			}
 		});
 	}
 
+	public static BlueprintTool currentTool() {
+		return tool;
+	}
+
+	private static void updateMode() {
+		LocalPlayer player = Minecraft.getInstance().player;
+		if (player == null) return;
+
+		tool = BlueprintTools.get(player.getInventory().getSelectedSlot());
+	}
+
 	private static void toggleState() {
+		LocalPlayer player = Minecraft.getInstance().player;
+		if (player == null) return;
+
 		isActive = !isActive;
 		HUD.setVisible(isActive);
 
 		if (isActive) {
-			mode = Mode.NUDGE;
+			tool = BlueprintTools.get(0);
 
-			LocalPlayer player = Minecraft.getInstance().player;
-
-			if (player == null) return;
-
-			selectionMin = player.blockPosition();
-			selectionMax = selectionMin;
+			player.getInventory().setSelectedSlot(BlueprintTools.indexOf(tool));
 
 			updateGraphics();
 
@@ -82,76 +97,77 @@ public class BlueprintManager {
 		}
 	}
 
-	private static void handleLeftClick() {
-		handleClick(false);
-	}
-
-	private static void handleRightClick() {
-		handleClick(true);
-	}
-
-	private static void handleClick(boolean invert) {
+	private static void handleAction(ToolAction action) {
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player == null) return;
 
-		Direction viewDir = player.getNearestViewDirection();
-
-		switch (mode) {
-			case NUDGE  -> nudge(viewDir, invert);
-			case EXPAND -> expand(viewDir, invert);
-		}
+		tool.performAction(player, action);
 	}
 
-	private static void nudge(Direction viewDir, boolean invert) {
-		Direction nudgeDir = invert ? viewDir.getOpposite() : viewDir;
+	public static void addToSelection(BlockPos pos) {
+		if (!hasSelection) {
+			selectionMin = pos;
+			selectionMax = pos;
 
-		selectionMin = selectionMin.relative(nudgeDir);
-		selectionMax = selectionMax.relative(nudgeDir);
-
-		updateGraphics();
-	}
-
-	private static void expand(Direction viewDir, boolean invert) {
-		if (invert) {
-			if (viewDir.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
-				selectionMax = selectionMax.relative(viewDir.getOpposite());
-			}
-			else {
-				selectionMin = selectionMin.relative(viewDir.getOpposite());
-			}
+			hasSelection = true;
 		}
 		else {
-			if (viewDir.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
-				selectionMax = BlockPos.max(selectionMin, selectionMax.relative(viewDir));
-			}
-			else {
-				selectionMin = BlockPos.min(selectionMax, selectionMin.relative(viewDir));
-			}
+			selectionMin = BlockPos.min(selectionMin, pos);
+			selectionMax = BlockPos.max(selectionMax, pos);
 		}
 
 		updateGraphics();
 	}
 
-	private static void handleMiddleClick() {
-		LocalPlayer player = Minecraft.getInstance().player;
-		if (player == null) return;
+	public static void clearSelection() {
+		hasSelection = false;
+		updateGraphics();
+	}
 
-		switch (mode) {
-			case NUDGE  -> mode = Mode.EXPAND;
-			case EXPAND -> mode = Mode.NUDGE;
-		};
+	public static void moveSelection(Direction direction, int steps) {
+		if (!hasSelection) return;
+
+		selectionMin = selectionMin.relative(direction, steps);
+		selectionMax = selectionMax.relative(direction, steps);
+		updateGraphics();
+	}
+
+	public static void expandSelection(Direction direction, int steps) {
+		if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
+			selectionMax = selectionMax.relative(direction, steps);
+		}
+		else {
+			selectionMin = selectionMin.relative(direction, steps);
+		}
+
+		updateGraphics();
+	}
+
+	public static void shrinkSelection(Direction direction, int steps) {
+		if (direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
+			selectionMax = BlockPos.max(selectionMin, selectionMax.relative(direction, steps));
+		}
+		else {
+			selectionMin = BlockPos.min(selectionMax, selectionMin.relative(direction, steps));
+		}
+
+		updateGraphics();
 	}
 
 	private static void updateGraphics() {
+		if (!hasSelection) {
+			WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
+			WorldRenderer.removeGraphic(SELECTION_OUTLINE);
+			return;
+		}
+
+		WorldRenderer.addGraphic(SELECTION_GRAPHIC);
+		WorldRenderer.addGraphic(SELECTION_OUTLINE);
+
 		SELECTION_GRAPHIC.setMin(selectionMin.getX(), selectionMin.getY(), selectionMin.getZ());
 		SELECTION_GRAPHIC.setMax(selectionMax.getX() + 1, selectionMax.getY() + 1, selectionMax.getZ() + 1);
 
 		SELECTION_OUTLINE.setMin(selectionMin.getX(), selectionMin.getY(), selectionMin.getZ());
 		SELECTION_OUTLINE.setMax(selectionMax.getX() + 1, selectionMax.getY() + 1, selectionMax.getZ() + 1);
-	}
-
-	private enum Mode {
-		NUDGE,
-		EXPAND
 	}
 }

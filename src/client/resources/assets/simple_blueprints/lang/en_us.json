@@ -1,0 +1,12 @@
+{
+  "simple_blueprints.select.target": "Select Block",
+  "simple_blueprints.select.player": "Select Player Position",
+  "simple_blueprints.select.clear": "Clear Selection",
+
+  "simple_blueprints.move.away": "Move Away",
+  "simple_blueprints.move.closer": "Move Closer",
+
+  "simple_blueprints.resize.expand": "Expand",
+  "simple_blueprints.resize.shrink": "Shrink",
+  "simple_blueprints.resize.switch": "Switch Side"
+}
