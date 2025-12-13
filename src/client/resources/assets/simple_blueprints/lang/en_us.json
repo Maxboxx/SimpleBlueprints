@@ -8,5 +8,8 @@
 
   "simple_blueprints.resize.expand": "Expand",
   "simple_blueprints.resize.shrink": "Shrink",
-  "simple_blueprints.resize.switch": "Switch Side"
+  "simple_blueprints.resize.switch": "Switch Side",
+
+  "simple_blueprints.clipboard.copy": "Copy",
+  "simple_blueprints.clipboard.paste": "Paste"
 }

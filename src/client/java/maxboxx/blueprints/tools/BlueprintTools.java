@@ -11,6 +11,7 @@ public class BlueprintTools {
 		TOOLS.add(new SelectTool());
 		TOOLS.add(new MoveTool());
 		TOOLS.add(new ResizeTool());
+		TOOLS.add(new ClipboardTool());
 	}
 
 	public static BlueprintTool get(int index) {

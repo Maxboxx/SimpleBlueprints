@@ -12,8 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.core.Vec3i;
 
 public class BlueprintManager {
 	private static final BlueprintHud HUD = new BlueprintHud();
@@ -21,7 +20,7 @@ public class BlueprintManager {
 	private static boolean isActive = false;
 	private static BlueprintTool tool = null;
 
-	private static boolean hasSelection = false;
+	private static boolean selectionActive = false;
 	private static BlockPos selectionMin, selectionMax;
 
 	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, false);
@@ -87,9 +86,6 @@ public class BlueprintManager {
 			player.getInventory().setSelectedSlot(BlueprintTools.indexOf(tool));
 
 			updateGraphics();
-
-			WorldRenderer.addGraphic(SELECTION_GRAPHIC);
-			WorldRenderer.addGraphic(SELECTION_OUTLINE);
 		}
 		else {
 			WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
@@ -104,12 +100,32 @@ public class BlueprintManager {
 		tool.performAction(player, action);
 	}
 
+	public static BlockPos getSelectionMin() {
+		return selectionMin;
+	}
+
+	public static BlockPos getSelectionMax() {
+		return selectionMax;
+	}
+
+	public static Vec3i getSelectionSize() {
+		return new Vec3i(
+			selectionMax.getX() - selectionMin.getX() + 1,
+			selectionMax.getY() - selectionMin.getY() + 1,
+			selectionMax.getZ() - selectionMin.getZ() + 1
+		);
+	}
+
+	public static boolean hasSelection() {
+		return selectionActive;
+	}
+
 	public static void addToSelection(BlockPos pos) {
-		if (!hasSelection) {
+		if (!selectionActive) {
 			selectionMin = pos;
 			selectionMax = pos;
 
-			hasSelection = true;
+			selectionActive = true;
 		}
 		else {
 			selectionMin = BlockPos.min(selectionMin, pos);
@@ -120,12 +136,12 @@ public class BlueprintManager {
 	}
 
 	public static void clearSelection() {
-		hasSelection = false;
+		selectionActive = false;
 		updateGraphics();
 	}
 
 	public static void moveSelection(Direction direction, int steps) {
-		if (!hasSelection) return;
+		if (!selectionActive) return;
 
 		selectionMin = selectionMin.relative(direction, steps);
 		selectionMax = selectionMax.relative(direction, steps);
@@ -133,6 +149,8 @@ public class BlueprintManager {
 	}
 
 	public static void expandSelection(Direction direction, int steps) {
+		if (!selectionActive) return;
+
 		if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
 			selectionMax = selectionMax.relative(direction, steps);
 		}
@@ -144,6 +162,8 @@ public class BlueprintManager {
 	}
 
 	public static void shrinkSelection(Direction direction, int steps) {
+		if (!selectionActive) return;
+
 		if (direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
 			selectionMax = BlockPos.max(selectionMin, selectionMax.relative(direction, steps));
 		}
@@ -155,7 +175,7 @@ public class BlueprintManager {
 	}
 
 	private static void updateGraphics() {
-		if (!hasSelection) {
+		if (!selectionActive) {
 			WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
 			WorldRenderer.removeGraphic(SELECTION_OUTLINE);
 			return;
