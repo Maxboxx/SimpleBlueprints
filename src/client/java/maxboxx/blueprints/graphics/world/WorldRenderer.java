@@ -2,6 +2,7 @@ package maxboxx.blueprints.graphics.world;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.mojang.blaze3d.systems.CommandEncoder;
@@ -12,20 +13,17 @@ import maxboxx.blueprints.SimpleBlueprints;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MappableRingBuffer;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShapeRenderer;
+import net.minecraft.client.renderer.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.Buffer;
-import java.util.HashSet;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
+import java.util.*;
 
 public class WorldRenderer {
 	public static final RenderPipeline FILLED_NO_DEPTH = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
@@ -43,6 +41,18 @@ public class WorldRenderer {
 		.withCull(false)
 		.build()
 	);
+
+	public static final RenderPipeline FILLED_TEX = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.TERRAIN_SNIPPET)
+		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
+		.withVertexFormat(DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS)
+		.withSampler("Sampler0")
+		//.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+		.withBlend(BlendFunction.TRANSLUCENT)
+		.withCull(true)
+		.build()
+	);
+
+	public static final Map<BlockPos, BlockState> FAKE_BLOCKS = new HashMap<>();
 
 	private static final ByteBufferBuilder allocator = new ByteBufferBuilder(RenderType.SMALL_BUFFER_SIZE);
 

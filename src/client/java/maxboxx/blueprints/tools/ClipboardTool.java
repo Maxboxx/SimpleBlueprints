@@ -3,11 +3,9 @@ package maxboxx.blueprints.tools;
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.BlueprintData;
+import maxboxx.blueprints.graphics.world.BlockGraphic;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 import java.util.*;
 
@@ -17,10 +15,9 @@ public class ClipboardTool extends BlueprintTool {
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
-			case LEFT  -> Optional.of(SimpleBlueprints.text("clipboard.copy"));
-			case RIGHT -> Optional.of(SimpleBlueprints.text("clipboard.paste"));
-
-			default -> Optional.empty();
+			case LEFT   -> Optional.of(SimpleBlueprints.text("clipboard.copy"));
+			case RIGHT  -> Optional.of(SimpleBlueprints.text("clipboard.paste"));
+			case MIDDLE -> Optional.of(SimpleBlueprints.text("clipboard.clear"));
 		};
 	}
 
@@ -37,6 +34,8 @@ public class ClipboardTool extends BlueprintTool {
 					BlueprintManager.getSelectionMin(),
 					BlueprintManager.getSelectionSize()
 				);
+
+				BlueprintManager.setData(data);
 			}
 
 			case RIGHT -> {
@@ -46,6 +45,11 @@ public class ClipboardTool extends BlueprintTool {
 						BlueprintManager.getSelectionMin()
 					);
 				}
+			}
+
+			case MIDDLE -> {
+				data = null;
+				BlueprintManager.setData(null);
 			}
 		}
 	}

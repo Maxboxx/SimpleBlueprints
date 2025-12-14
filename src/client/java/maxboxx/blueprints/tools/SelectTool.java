@@ -2,7 +2,9 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.data.BlueprintData;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -27,18 +29,31 @@ public class SelectTool extends BlueprintTool {
 
 				if (hit instanceof BlockHitResult blockHit) {
 					if (blockHit.getType() == HitResult.Type.BLOCK) {
-						BlueprintManager.addToSelection(blockHit.getBlockPos());
+						selectPosition(blockHit.getBlockPos());
 					}
 				}
 			}
 
 			case RIGHT -> {
-				BlueprintManager.addToSelection(player.blockPosition());
+				selectPosition(player.blockPosition());
 			}
 
 			case MIDDLE -> {
 				BlueprintManager.clearSelection();
 			}
 		}
+	}
+
+	private void selectPosition(BlockPos pos) {
+		BlueprintData data = BlueprintManager.getData();
+
+		if (data == null) {
+			BlueprintManager.addToSelection(pos);
+			return;
+		}
+
+		BlueprintManager.clearSelection();
+		BlueprintManager.addToSelection(pos);
+		BlueprintManager.addToSelection(pos.offset(data.size()).offset(-1, -1, -1));
 	}
 }

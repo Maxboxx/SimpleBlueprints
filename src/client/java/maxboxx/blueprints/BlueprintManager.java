@@ -1,5 +1,6 @@
 package maxboxx.blueprints;
 
+import maxboxx.blueprints.data.BlueprintData;
 import maxboxx.blueprints.graphics.hud.BlueprintHud;
 import maxboxx.blueprints.graphics.hud.HudRegistry;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
@@ -22,6 +23,8 @@ public class BlueprintManager {
 
 	private static boolean selectionActive = false;
 	private static BlockPos selectionMin, selectionMax;
+
+	private static BlueprintData data = null;
 
 	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, false);
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
@@ -98,6 +101,14 @@ public class BlueprintManager {
 		if (player == null) return;
 
 		tool.performAction(player, action);
+	}
+
+	public static BlueprintData getData() {
+		return data;
+	}
+
+	public static void setData(BlueprintData data) {
+		BlueprintManager.data = data;
 	}
 
 	public static BlockPos getSelectionMin() {
@@ -189,5 +200,7 @@ public class BlueprintManager {
 
 		SELECTION_OUTLINE.setMin(selectionMin.getX(), selectionMin.getY(), selectionMin.getZ());
 		SELECTION_OUTLINE.setMax(selectionMax.getX() + 1, selectionMax.getY() + 1, selectionMax.getZ() + 1);
+
+
 	}
 }

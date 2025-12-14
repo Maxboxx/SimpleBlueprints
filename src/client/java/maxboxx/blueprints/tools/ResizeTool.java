@@ -13,6 +13,10 @@ public class ResizeTool extends BlueprintTool {
 
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
+		if (BlueprintManager.getData() != null) {
+			return Optional.empty();
+		}
+
 		return Optional.of(switch (action) {
 			case LEFT   -> SimpleBlueprints.text(targetCloserSide ? "resize.shrink" : "resize.expand");
 			case RIGHT  -> SimpleBlueprints.text(targetCloserSide ? "resize.expand" : "resize.shrink");
@@ -22,6 +26,10 @@ public class ResizeTool extends BlueprintTool {
 
 	@Override
 	public void performAction(LocalPlayer player, ToolAction action) {
+		if (BlueprintManager.getData() != null) {
+			return;
+		}
+
 		if (action == ToolAction.MIDDLE) {
 			targetCloserSide = !targetCloserSide;
 			return;

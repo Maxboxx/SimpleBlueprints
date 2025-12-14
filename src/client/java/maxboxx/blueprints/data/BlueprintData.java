@@ -1,9 +1,17 @@
 package maxboxx.blueprints.data;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import maxboxx.blueprints.BlockUtil;
+import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.graphics.world.BlockGraphic;
+import maxboxx.blueprints.graphics.world.WorldRenderer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -16,6 +24,10 @@ import java.util.List;
 public class BlueprintData {
 	private StructureTemplate structure;
 	private HashSet<Block> blocks;
+
+	public Vec3i size() {
+		return structure.getSize();
+	}
 
 	public void loadFromWorld(Level level, BlockPos position, Vec3i size) {
 		structure = new StructureTemplate();
@@ -46,7 +58,10 @@ public class BlueprintData {
 			List<StructureTemplate.StructureBlockInfo> blockInfos = structure.filterBlocks(position, new StructurePlaceSettings(), block);
 
 			for (StructureTemplate.StructureBlockInfo info : blockInfos) {
-				BlockUtil.placeBlock(player, info.pos(), info.state());
+				if (info.state().isAir()) continue;
+				WorldRenderer.addGraphic(new BlockGraphic(player.level(), info.state(), info.pos(), WorldRenderer.FILLED_TEX));
+				//return;
+				//BlockUtil.placeBlock(player, info.pos(), info.state());
 			}
 		}
 	}
