@@ -11,5 +11,6 @@
   "simple_blueprints.resize.switch": "Switch Side",
 
   "simple_blueprints.clipboard.copy": "Copy",
-  "simple_blueprints.clipboard.paste": "Paste"
+  "simple_blueprints.clipboard.paste": "Paste",
+  "simple_blueprints.clipboard.clear": "Clear"
 }

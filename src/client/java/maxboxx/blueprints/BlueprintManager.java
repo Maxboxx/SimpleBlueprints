@@ -3,6 +3,7 @@ package maxboxx.blueprints;
 import maxboxx.blueprints.data.BlueprintData;
 import maxboxx.blueprints.graphics.hud.BlueprintHud;
 import maxboxx.blueprints.graphics.hud.HudRegistry;
+import maxboxx.blueprints.graphics.world.BlockGraphic;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
 import maxboxx.blueprints.graphics.world.WorldRenderer;
 import maxboxx.blueprints.tools.BlueprintTool;
@@ -28,6 +29,8 @@ public class BlueprintManager {
 
 	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, false);
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
+
+	private static BlockGraphic blockGraphic = null;
 
 	public static void init() {
 		SELECTION_GRAPHIC.setColor(1f, 1f, 1f, 0.3f);
@@ -151,11 +154,29 @@ public class BlueprintManager {
 		updateGraphics();
 	}
 
+	public static void setBlockGraphic(BlockGraphic graphic) {
+		if (blockGraphic != null) {
+			WorldRenderer.removeGraphic(blockGraphic);
+		}
+
+		blockGraphic = graphic;
+		graphic.setPosition(selectionMin);
+		WorldRenderer.addGraphic(graphic);
+	}
+
+	public static void clearBlockGraphic() {
+		if (blockGraphic != null) {
+			WorldRenderer.removeGraphic(blockGraphic);
+			blockGraphic = null;
+		}
+	}
+
 	public static void moveSelection(Direction direction, int steps) {
 		if (!selectionActive) return;
 
 		selectionMin = selectionMin.relative(direction, steps);
 		selectionMax = selectionMax.relative(direction, steps);
+
 		updateGraphics();
 	}
 
@@ -190,6 +211,10 @@ public class BlueprintManager {
 			WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
 			WorldRenderer.removeGraphic(SELECTION_OUTLINE);
 			return;
+		}
+
+		if (blockGraphic != null) {
+			blockGraphic.setPosition(selectionMin);
 		}
 
 		WorldRenderer.addGraphic(SELECTION_GRAPHIC);

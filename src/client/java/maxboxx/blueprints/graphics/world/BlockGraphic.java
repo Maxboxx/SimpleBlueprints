@@ -3,25 +3,13 @@ package maxboxx.blueprints.graphics.world;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.fabricmc.fabric.api.renderer.v1.render.BlockVertexConsumerProvider;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Display;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
@@ -35,59 +23,77 @@ import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
-	private BlockState block;
-	private BlockPos pos;
+	private HashMap<BlockPos, BlockState> blocks;
 	private Level level;
 
-	public BlockGraphic(Level level, BlockState block, BlockPos pos, RenderPipeline pipeline) {
+	private BlockPos offset;
+
+	public BlockGraphic(Level level, HashMap<BlockPos, BlockState> blocks, RenderPipeline pipeline) {
 		super(pipeline);
-		this.block = block;
-		this.pos = pos;
+		this.blocks = blocks;
 		this.level = level;
+		this.offset = BlockPos.ZERO;
+	}
+
+	public void setPosition(BlockPos offset) {
+		this.offset = offset;
 	}
 
 	@Override
 	public void render(WorldRenderer.Context context) {
-		context.matrices().translate(pos.getX() + 0.005f, pos.getY() + 0.005f, pos.getZ() + 0.005f);
-		context.matrices().scale(0.99f, 0.99f, 0.99f);
-
 		BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
 
-		/*blockRenderer.renderBlockAsEntity(
-			block,
-			context.matrices(),
-			b -> context.builder(),
-			15,
-			0,
-			this,
-			pos
-		);*/
+		for (Map.Entry<BlockPos, BlockState> block : blocks.entrySet()) {
+			context.matrices().pushPose();
 
-		renderModel(
-			context.matrices().last(),
-			context.builder(),
-			blockRenderer.getBlockModel(block),
-			1f, 1f, 1f, 0.5f,
-			15, 0
-		);
+			BlockPos pos = block.getKey().offset(offset);
 
-		/*ModelBlockRenderer.renderModel(
-			context.matrices().last(),
-			context.builder(),
-			blockRenderer.getBlockModel(block),
-			0.2f, 1f, 1f,
-			15, 1
-		);*/
+			context.matrices().translate(pos.getX(), pos.getY(), pos.getZ());
+
+			/*blockRenderer.renderBlockAsEntity(
+				block,
+				context.matrices(),
+				b -> context.builder(),
+				15,
+				0,
+				this,
+				pos
+			);*/
+
+			renderModel(
+				context.matrices().last(),
+				block.getKey(),
+				blockRenderer,
+				context.builder(),
+				1f, 1f, 1f, 0.5f,
+				15, 0
+			);
+
+			/*ModelBlockRenderer.renderModel(
+				context.matrices().last(),
+				context.builder(),
+				blockRenderer.getBlockModel(block),
+				0.2f, 1f, 1f,
+				15, 1
+			);*/
+
+			context.matrices().popPose();
+		}
 	}
 
-	public static void renderModel(PoseStack.Pose pose, VertexConsumer vertexConsumer, BlockStateModel blockStateModel, float r, float g, float b, float a, int i, int j) {
-		for (BlockModelPart blockModelPart : blockStateModel.collectParts(RandomSource.create(42L))) {
+	private void renderModel(PoseStack.Pose pose, BlockPos pos, BlockRenderDispatcher blockRenderer, VertexConsumer vertexConsumer, float r, float g, float b, float a, int i, int j) {
+		BlockState state = blocks.get(pos);
+
+		for (BlockModelPart blockModelPart : blockRenderer.getBlockModel(state).collectParts(RandomSource.create(42L))) {
 			for (Direction direction : Direction.values()) {
-				renderQuadList(pose, vertexConsumer, r, g, b, a, blockModelPart.getQuads(direction), i, j);
+				if (Block.shouldRenderFace(getBlockState(pos), getBlockState(pos.offset(direction.getUnitVec3i())), direction)) {
+					renderQuadList(pose, vertexConsumer, r, g, b, a, blockModelPart.getQuads(direction), i, j);
+				}
 			}
 
 			renderQuadList(pose, vertexConsumer, r, g, b, a, blockModelPart.getQuads(null), i, j);
@@ -96,7 +102,10 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 
 	private static void renderQuadList(PoseStack.Pose pose, VertexConsumer vertexConsumer, float r, float g, float b, float a, List<BakedQuad> list, int i, int j) {
 		for (BakedQuad bakedQuad : list) {
-			vertexConsumer.putBulkData(pose, bakedQuad, r, g, b, a, i, j);
+			PoseStack.Pose dirPose = pose.copy();
+			Direction dir = bakedQuad.direction();
+			dirPose.translate(dir.getStepX() * -0.001f, dir.getStepY() * -0.001f, dir.getStepZ() * -0.001f);
+			vertexConsumer.putBulkData(dirPose, bakedQuad, r, g, b, a, i, j);
 		}
 	}
 
@@ -123,8 +132,8 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 
 	@Override
 	public @NotNull BlockState getBlockState(BlockPos blockPos) {
-		if (pos.equals(blockPos)) {
-			return block;
+		if (blocks.containsKey(blockPos)) {
+			return blocks.get(blockPos);
 		}
 
 		return Blocks.AIR.defaultBlockState();

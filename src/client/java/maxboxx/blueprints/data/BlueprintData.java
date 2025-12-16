@@ -14,24 +14,32 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 public class BlueprintData {
 	private StructureTemplate structure;
 	private HashSet<Block> blocks;
+	private BlockPos pos;
 
 	public Vec3i size() {
 		return structure.getSize();
 	}
 
+	public BlockPos position() {
+		return pos;
+	}
+
 	public void loadFromWorld(Level level, BlockPos position, Vec3i size) {
 		structure = new StructureTemplate();
 		blocks    = new HashSet<>();
+		pos       = position;
 
 		for (int x = 0; x < size.getX(); x++) {
 			for (int y = 0; y < size.getY(); y++) {
@@ -58,11 +66,24 @@ public class BlueprintData {
 			List<StructureTemplate.StructureBlockInfo> blockInfos = structure.filterBlocks(position, new StructurePlaceSettings(), block);
 
 			for (StructureTemplate.StructureBlockInfo info : blockInfos) {
-				if (info.state().isAir()) continue;
-				WorldRenderer.addGraphic(new BlockGraphic(player.level(), info.state(), info.pos(), WorldRenderer.FILLED_TEX));
-				//return;
-				//BlockUtil.placeBlock(player, info.pos(), info.state());
+				BlockUtil.placeBlock(player, info.pos(), info.state());
 			}
 		}
+	}
+
+	public BlockGraphic toGraphic(Level level) {
+		HashMap<BlockPos, BlockState> blockMap = new HashMap<BlockPos, BlockState>();
+
+		for (Block block : blocks) {
+			List<StructureTemplate.StructureBlockInfo> blockInfos = structure.filterBlocks(pos, new StructurePlaceSettings(), block);
+
+			for (StructureTemplate.StructureBlockInfo info : blockInfos) {
+				if (info.state().isAir()) continue;
+
+				blockMap.put(info.pos().subtract(pos), info.state());
+			}
+		}
+
+		return new BlockGraphic(level, blockMap, WorldRenderer.FILLED_TEX);
 	}
 }
