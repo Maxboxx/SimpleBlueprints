@@ -30,29 +30,30 @@ public class WorldRenderer {
 		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
 		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-		.withCull(true)
-		.build()
-	);
-
-	public static final RenderPipeline FILLED_NO_DEPTH_NO_CULL = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
-		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
-		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-		.withCull(false)
-		.build()
-	);
-
-	public static final RenderPipeline FILLED_TEX = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.TERRAIN_SNIPPET)
-		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
-		.withVertexFormat(DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS)
-		.withSampler("Sampler0")
-		//.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 		.withBlend(BlendFunction.TRANSLUCENT)
 		.withCull(true)
 		.build()
 	);
 
-	public static final Map<BlockPos, BlockState> FAKE_BLOCKS = new HashMap<>();
+	public static final RenderPipeline FILLED = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled"))
+		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
+		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+		.withBlend(BlendFunction.TRANSLUCENT)
+		.withCull(true)
+		.build()
+	);
+
+	public static final RenderPipeline FILLED_TEX = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.TERRAIN_SNIPPET)
+		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_tex"))
+		.withVertexFormat(DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS)
+		.withSampler("Sampler0")
+		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+		.withBlend(BlendFunction.TRANSLUCENT)
+		.withDepthWrite(true)
+		.withCull(true)
+		.build()
+	);
 
 	private static final ByteBufferBuilder allocator = new ByteBufferBuilder(RenderType.SMALL_BUFFER_SIZE);
 
@@ -66,7 +67,7 @@ public class WorldRenderer {
 	}
 
 	public static void init() {
-		WorldRenderEvents.BEFORE_TRANSLUCENT.register(WorldRenderer::renderGraphics);
+		WorldRenderEvents.BEFORE_ENTITIES.register(WorldRenderer::renderGraphics);
 	}
 
 	public static void cleanup() {

@@ -27,7 +27,7 @@ public class BlueprintManager {
 
 	private static BlueprintData data = null;
 
-	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, false);
+	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED, false);
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
 
 	private static BlockGraphic blockGraphic = null;
@@ -210,22 +210,26 @@ public class BlueprintManager {
 		if (!selectionActive) {
 			WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
 			WorldRenderer.removeGraphic(SELECTION_OUTLINE);
+
+			if (blockGraphic != null) {
+				WorldRenderer.removeGraphic(blockGraphic);
+			}
+
 			return;
 		}
 
 		if (blockGraphic != null) {
 			blockGraphic.setPosition(selectionMin);
+			WorldRenderer.addGraphic(blockGraphic);
 		}
 
 		WorldRenderer.addGraphic(SELECTION_GRAPHIC);
 		WorldRenderer.addGraphic(SELECTION_OUTLINE);
 
-		SELECTION_GRAPHIC.setMin(selectionMin.getX(), selectionMin.getY(), selectionMin.getZ());
-		SELECTION_GRAPHIC.setMax(selectionMax.getX() + 1, selectionMax.getY() + 1, selectionMax.getZ() + 1);
+		SELECTION_GRAPHIC.setMin(selectionMin.getX() - 0.001f, selectionMin.getY() - 0.001f, selectionMin.getZ() - 0.001f);
+		SELECTION_GRAPHIC.setMax(selectionMax.getX() + 1.001f, selectionMax.getY() + 1.001f, selectionMax.getZ() + 1.001f);
 
 		SELECTION_OUTLINE.setMin(selectionMin.getX(), selectionMin.getY(), selectionMin.getZ());
 		SELECTION_OUTLINE.setMax(selectionMax.getX() + 1, selectionMax.getY() + 1, selectionMax.getZ() + 1);
-
-
 	}
 }
