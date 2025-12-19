@@ -31,6 +31,7 @@ public class BlueprintManager {
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
 
 	private static BlockGraphic blockGraphic = null;
+	private static float blockAlpha = 0.5f;
 
 	public static void init() {
 		SELECTION_GRAPHIC.setColor(1f, 1f, 1f, 0.3f);
@@ -162,6 +163,10 @@ public class BlueprintManager {
 		blockGraphic = graphic;
 		graphic.setPosition(selectionMin);
 		WorldRenderer.addGraphic(graphic);
+
+		if (blockGraphic != null) {
+			blockGraphic.setAlpha(blockAlpha);
+		}
 	}
 
 	public static void clearBlockGraphic() {
@@ -169,6 +174,18 @@ public class BlueprintManager {
 			WorldRenderer.removeGraphic(blockGraphic);
 			blockGraphic = null;
 		}
+	}
+
+	public static void setBlockAlpha(float alpha) {
+		blockAlpha = alpha;
+
+		if (blockGraphic != null) {
+			blockGraphic.setAlpha(alpha);
+		}
+	}
+
+	public static float getBlockAlpha() {
+		return blockAlpha;
 	}
 
 	public static void moveSelection(Direction direction, int steps) {

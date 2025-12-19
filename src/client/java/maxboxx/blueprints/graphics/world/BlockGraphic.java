@@ -3,10 +3,16 @@ package maxboxx.blueprints.graphics.world;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.fabricmc.fabric.api.renderer.v1.Renderer;
+import net.fabricmc.fabric.api.renderer.v1.render.RenderLayerHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -20,9 +26,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +40,7 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 	private Level level;
 
 	private BlockPos offset;
+	private float alpha = 0.5f;
 
 	public BlockGraphic(Level level, HashMap<BlockPos, BlockState> blocks, RenderPipeline pipeline) {
 		super(pipeline);
@@ -42,6 +51,14 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 
 	public void setPosition(BlockPos offset) {
 		this.offset = offset;
+	}
+
+	public void setAlpha(float alpha) {
+		this.alpha = alpha;
+	}
+
+	public float getAlpha() {
+		return alpha;
 	}
 
 	@Override
@@ -56,29 +73,39 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 			context.matrices().translate(pos.getX(), pos.getY(), pos.getZ());
 
 			/*blockRenderer.renderBlockAsEntity(
-				block,
+				block.getValue(),
 				context.matrices(),
-				b -> context.builder(),
-				15,
+				context.context().consumers(),
+				0xffffff,
 				0,
 				this,
 				pos
+			);*/
+
+			/*blockRenderer.renderBatched(
+				block.getValue(),
+				block.getKey(),
+				this,
+				context.matrices(),
+				context.builder(),
+				true,
+				blockRenderer.getBlockModel(block.getValue()).collectParts(RandomSource.create())
 			);*/
 
 			renderModel(
 				context.matrices().last(),
 				block.getKey(),
 				blockRenderer,
-				context.builder(),
-				1f, 1f, 1f, 0.5f,
-				15, 0
+				RenderLayerHelper.entityDelegate(context.context().consumers()).getBuffer(ChunkSectionLayer.TRANSLUCENT),
+				1f, 1f, 1f, alpha,
+				0xffffff, OverlayTexture.NO_OVERLAY
 			);
 
 			/*ModelBlockRenderer.renderModel(
 				context.matrices().last(),
 				context.builder(),
-				blockRenderer.getBlockModel(block),
-				0.2f, 1f, 1f,
+				blockRenderer.getBlockModel(block.getValue()),
+				1f, 1f, 1f,
 				15, 1
 			);*/
 
@@ -121,7 +148,7 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 
 	@Override
 	public int getBlockTint(BlockPos blockPos, ColorResolver colorResolver) {
-		return 1;
+		return level.getBlockTint(blockPos.offset(offset), colorResolver);
 	}
 
 	@Nullable

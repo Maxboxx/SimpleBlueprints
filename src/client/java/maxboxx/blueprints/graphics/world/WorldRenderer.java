@@ -50,7 +50,7 @@ public class WorldRenderer {
 		.withSampler("Sampler0")
 		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
 		.withBlend(BlendFunction.TRANSLUCENT)
-		.withDepthWrite(true)
+		.withDepthWrite(false)
 		.withCull(true)
 		.build()
 	);
@@ -62,12 +62,12 @@ public class WorldRenderer {
 
 	private static final HashSet<WorldGraphic> activeGraphics = new HashSet<>();
 
-	public record Context(PoseStack matrices, BufferBuilder builder) {
+	public record Context(PoseStack matrices, BufferBuilder builder, WorldRenderContext context) {
 
 	}
 
 	public static void init() {
-		WorldRenderEvents.BEFORE_ENTITIES.register(WorldRenderer::renderGraphics);
+		WorldRenderEvents.BEFORE_DEBUG_RENDER.register(WorldRenderer::renderGraphics);
 	}
 
 	public static void cleanup() {
@@ -108,7 +108,7 @@ public class WorldRenderer {
 
 		BufferBuilder builder = new BufferBuilder(allocator, graphic.pipeline().getVertexFormatMode(), graphic.pipeline().getVertexFormat());
 
-		graphic.render(new Context(matrices, builder));
+		graphic.render(new Context(matrices, builder, context));
 
 		matrices.popPose();
 
@@ -116,7 +116,12 @@ public class WorldRenderer {
 	}
 
 	private static void drawGraphic(Minecraft client, BufferBuilder builder, WorldGraphic graphic) {
-		MeshData builtBuffer = builder.buildOrThrow();
+		MeshData builtBuffer = builder.build();
+
+		if (builtBuffer == null) {
+			return;
+		}
+
 		MeshData.DrawState drawParameters = builtBuffer.drawState();
 		VertexFormat format = drawParameters.format();
 
