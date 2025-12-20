@@ -8,7 +8,11 @@ import net.minecraft.network.chat.Component;
 
 import java.util.Optional;
 
-public class BluprintOptionsTool extends BlueprintTool {
+public class BlueprintOptionsTool extends BlueprintTool {
+	public BlueprintOptionsTool() {
+		super("visibility");
+	}
+
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {

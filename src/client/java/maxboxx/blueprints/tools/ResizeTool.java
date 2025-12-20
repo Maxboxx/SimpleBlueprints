@@ -11,6 +11,10 @@ import java.util.Optional;
 public class ResizeTool extends BlueprintTool {
 	private boolean targetCloserSide = true;
 
+	public ResizeTool() {
+		super("resize");
+	}
+
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		if (BlueprintManager.getData() != null) {

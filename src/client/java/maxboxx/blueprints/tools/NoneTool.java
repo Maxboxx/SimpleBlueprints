@@ -6,6 +6,10 @@ import net.minecraft.network.chat.Component;
 import java.util.Optional;
 
 public class NoneTool extends BlueprintTool {
+	public NoneTool() {
+		super(null);
+	}
+
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return Optional.empty();

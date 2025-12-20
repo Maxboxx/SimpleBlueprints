@@ -9,6 +9,10 @@ import net.minecraft.network.chat.Component;
 import java.util.Optional;
 
 public class MoveTool extends BlueprintTool {
+	public MoveTool() {
+		super("move");
+	}
+
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {

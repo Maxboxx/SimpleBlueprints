@@ -19,7 +19,7 @@ import net.minecraft.core.Vec3i;
 public class BlueprintManager {
 	private static final BlueprintHud HUD = new BlueprintHud();
 
-	private static boolean isActive = false;
+	private static boolean active = false;
 	private static BlueprintTool tool = null;
 
 	private static boolean selectionActive = false;
@@ -41,7 +41,7 @@ public class BlueprintManager {
 		HudRegistry.register(HUD);
 
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
-			if (isActive) {
+			if (active) {
 				boolean leftClick   = KeyBinds.consume(client.options.keyAttack);
 				boolean rightClick  = KeyBinds.consume(client.options.keyUse);
 				boolean middleClick = KeyBinds.consume(client.options.keyPickItem);
@@ -63,10 +63,14 @@ public class BlueprintManager {
 				toggleState();
 			}
 
-			if (isActive) {
+			if (active) {
 				updateMode();
 			}
 		});
+	}
+
+	public static boolean isActive() {
+		return active;
 	}
 
 	public static BlueprintTool currentTool() {
@@ -84,10 +88,10 @@ public class BlueprintManager {
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player == null) return;
 
-		isActive = !isActive;
-		HUD.setVisible(isActive);
+		active = !active;
+		HUD.setVisible(active);
 
-		if (isActive) {
+		if (active) {
 			tool = BlueprintTools.get(0);
 
 			player.getInventory().setSelectedSlot(BlueprintTools.indexOf(tool));

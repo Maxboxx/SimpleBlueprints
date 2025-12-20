@@ -3,7 +3,7 @@
 	"package": "maxboxx.blueprints.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"ExampleClientMixin"
+		"GuiMixins"
 	],
 	"injectors": {
 		"defaultRequire": 1

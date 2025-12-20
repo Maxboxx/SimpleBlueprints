@@ -5,11 +5,16 @@ import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.BlueprintData;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 
 public class ClipboardTool extends BlueprintTool {
 	private BlueprintData data;
+
+	public ClipboardTool() {
+		super("clipboard");
+	}
 
 	@Override
 	public Optional<Component> getAction(ToolAction action) {

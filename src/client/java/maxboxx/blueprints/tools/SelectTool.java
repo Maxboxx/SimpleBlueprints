@@ -12,6 +12,10 @@ import net.minecraft.world.phys.HitResult;
 import java.util.Optional;
 
 public class SelectTool extends BlueprintTool {
+	public SelectTool() {
+		super("select");
+	}
+
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return Optional.of(switch (action) {
