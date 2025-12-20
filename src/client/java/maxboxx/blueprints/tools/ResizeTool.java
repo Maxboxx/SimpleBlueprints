@@ -2,6 +2,7 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.graphics.world.BoxGraphic;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -13,6 +14,11 @@ public class ResizeTool extends BlueprintTool {
 
 	public ResizeTool() {
 		super("resize");
+	}
+
+	@Override
+	public BoxGraphic.Mode getGraphicMode() {
+		return targetCloserSide ? BoxGraphic.Mode.CLOSE_FACE : BoxGraphic.Mode.FAR_FACE;
 	}
 
 	@Override

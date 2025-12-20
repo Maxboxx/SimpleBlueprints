@@ -27,7 +27,7 @@ public class BlueprintManager {
 
 	private static BlueprintData data = null;
 
-	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED, false);
+	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_QUADS, false);
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
 
 	private static BlockGraphic blockGraphic = null;
@@ -36,6 +36,14 @@ public class BlueprintManager {
 	public static void init() {
 		SELECTION_GRAPHIC.setColor(1f, 1f, 1f, 0.3f);
 		SELECTION_OUTLINE.setColor(1f, 1f, 1f, 1f);
+
+		SELECTION_GRAPHIC.red2 = 0.8f;
+		SELECTION_GRAPHIC.green2 = 1f;
+		SELECTION_GRAPHIC.blue2 = 1f;
+
+		SELECTION_OUTLINE.red2 = 0.8f;
+		SELECTION_OUTLINE.green2 = 1f;
+		SELECTION_OUTLINE.blue2 = 1f;
 
 		HUD.hide();
 		HudRegistry.register(HUD);
@@ -82,6 +90,8 @@ public class BlueprintManager {
 		if (player == null) return;
 
 		tool = BlueprintTools.get(player.getInventory().getSelectedSlot());
+		SELECTION_GRAPHIC.mode = tool.getGraphicMode();
+		SELECTION_OUTLINE.mode = tool.getGraphicMode();
 	}
 
 	private static void toggleState() {

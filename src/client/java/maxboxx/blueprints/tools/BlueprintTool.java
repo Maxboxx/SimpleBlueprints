@@ -1,6 +1,7 @@
 package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.graphics.world.BoxGraphic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -23,6 +24,10 @@ public abstract class BlueprintTool {
 		else {
 			ICON = ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/" + iconName);
 		}
+	}
+
+	public BoxGraphic.Mode getGraphicMode() {
+		return BoxGraphic.Mode.NONE;
 	}
 
 	public abstract Optional<Component> getAction(ToolAction action);

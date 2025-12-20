@@ -2,6 +2,7 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.graphics.world.BoxGraphic;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -11,6 +12,11 @@ import java.util.Optional;
 public class MoveTool extends BlueprintTool {
 	public MoveTool() {
 		super("move");
+	}
+
+	@Override
+	public BoxGraphic.Mode getGraphicMode() {
+		return BoxGraphic.Mode.AXIS;
 	}
 
 	@Override
