@@ -1,4 +1,9 @@
 {
+  "key.category.simple_blueprints.keys": "Simple Blueprints",
+  "simple_blueprints.keys.toggle": "Open/Close Tools",
+
+  "simple_blueprints.tool.unavailable": "Tool Unavailable",
+
   "simple_blueprints.select.target": "Select Block",
   "simple_blueprints.select.player": "Select Player Position",
   "simple_blueprints.select.clear": "Clear Selection",
@@ -12,5 +17,7 @@
 
   "simple_blueprints.clipboard.copy": "Copy",
   "simple_blueprints.clipboard.paste": "Paste",
-  "simple_blueprints.clipboard.clear": "Clear"
+  "simple_blueprints.clipboard.clear": "Clear",
+
+  "simple_blueprints.visibility.alpha": "Change Transparency"
 }

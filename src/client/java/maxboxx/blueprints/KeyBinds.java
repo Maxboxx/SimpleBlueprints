@@ -15,7 +15,7 @@ public class KeyBinds {
 	}
 
 	private static KeyMapping create_key(String name, int keyCode, KeyMapping.Category category) {
-		return new KeyMapping(name, keyCode, category);
+		return new KeyMapping(SimpleBlueprints.MOD_ID + ".keys." + name, keyCode, category);
 	}
 
 	public static void init() {

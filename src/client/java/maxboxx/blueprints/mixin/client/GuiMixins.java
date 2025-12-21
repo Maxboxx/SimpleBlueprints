@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,8 +25,9 @@ public class GuiMixins {
 			BlueprintTool tool = BlueprintTools.get(k - 1);
 
 			if (tool.ICON != null) {
-				guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, tool.ICON, i, j, 16, 16);
-				//guiGraphics.blit(tool.ICON, i, j, 16, 16, 1f, 1f, 1f, 1f);
+				int color = tool.isAvailable() ? ARGB.color(255, 255, 255) : ARGB.color(128, 128, 128, 128);
+
+				guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, tool.ICON, i, j, 16, 16, color);
 			}
 
 			info.cancel();

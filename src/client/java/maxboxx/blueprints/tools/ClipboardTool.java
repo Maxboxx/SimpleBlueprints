@@ -17,6 +17,11 @@ public class ClipboardTool extends BlueprintTool {
 	}
 
 	@Override
+	public boolean isAvailable() {
+		return BlueprintManager.hasSelection();
+	}
+
+	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
 			case LEFT   -> Optional.of(SimpleBlueprints.text("clipboard.copy"));

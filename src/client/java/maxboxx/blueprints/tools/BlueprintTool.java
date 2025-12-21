@@ -30,6 +30,10 @@ public abstract class BlueprintTool {
 		return BoxGraphic.Mode.NONE;
 	}
 
+	public boolean isAvailable() {
+		return true;
+	}
+
 	public abstract Optional<Component> getAction(ToolAction action);
 	public abstract void performAction(LocalPlayer player, ToolAction action);
 }

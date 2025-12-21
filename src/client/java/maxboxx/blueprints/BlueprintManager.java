@@ -117,6 +117,7 @@ public class BlueprintManager {
 	private static void handleAction(ToolAction action) {
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player == null) return;
+		if (!tool.isAvailable()) return;
 
 		tool.performAction(player, action);
 	}

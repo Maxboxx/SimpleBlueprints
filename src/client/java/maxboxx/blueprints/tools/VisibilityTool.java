@@ -2,22 +2,26 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
-import maxboxx.blueprints.graphics.world.BlockGraphic;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 
 import java.util.Optional;
 
-public class BlueprintOptionsTool extends BlueprintTool {
-	public BlueprintOptionsTool() {
+public class VisibilityTool extends BlueprintTool {
+	public VisibilityTool() {
 		super("visibility");
+	}
+
+	@Override
+	public boolean isAvailable() {
+		return BlueprintManager.hasSelection() && BlueprintManager.getData() != null;
 	}
 
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
-			case LEFT  -> Optional.of(SimpleBlueprints.text("options.alpha"));
-			case RIGHT -> Optional.of(SimpleBlueprints.text("options.color"));
+			case LEFT  -> Optional.of(SimpleBlueprints.text("visibility.alpha"));
+			case RIGHT -> Optional.of(SimpleBlueprints.text("visibility.color"));
 
 			default -> Optional.empty();
 		};

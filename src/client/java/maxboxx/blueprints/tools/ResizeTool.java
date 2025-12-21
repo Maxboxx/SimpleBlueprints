@@ -22,6 +22,11 @@ public class ResizeTool extends BlueprintTool {
 	}
 
 	@Override
+	public boolean isAvailable() {
+		return BlueprintManager.hasSelection() && BlueprintManager.getData() == null;
+	}
+
+	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		if (BlueprintManager.getData() != null) {
 			return Optional.empty();
