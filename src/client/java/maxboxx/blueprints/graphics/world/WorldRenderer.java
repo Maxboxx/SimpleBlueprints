@@ -47,8 +47,9 @@ public class WorldRenderer {
 	public static final RenderPipeline FILLED_QUADS = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
 		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled2"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
-		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
 		.withBlend(BlendFunction.TRANSLUCENT)
+		.withDepthWrite(false)
 		.withCull(true)
 		.build()
 	);

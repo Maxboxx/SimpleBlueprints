@@ -7,6 +7,9 @@
   "simple_blueprints.select.target": "Select Block",
   "simple_blueprints.select.player": "Select Player Position",
   "simple_blueprints.select.clear": "Clear Selection",
+  "simple_blueprints.select.target_place": "Move to Block",
+  "simple_blueprints.select.player_place": "Move to Player Position",
+  "simple_blueprints.select.clear_place": "Clear Placement",
 
   "simple_blueprints.move.away": "Move Away",
   "simple_blueprints.move.closer": "Move Closer",
@@ -19,5 +22,6 @@
   "simple_blueprints.clipboard.paste": "Paste",
   "simple_blueprints.clipboard.clear": "Clear",
 
-  "simple_blueprints.visibility.alpha": "Change Transparency"
+  "simple_blueprints.visibility.alpha": "Change Transparency",
+  "simple_blueprints.visibility.color": "Change Color"
 }

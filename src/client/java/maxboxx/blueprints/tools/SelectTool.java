@@ -18,10 +18,18 @@ public class SelectTool extends BlueprintTool {
 
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
+		if (BlueprintManager.getData() == null) {
+			return Optional.of(switch (action) {
+				case LEFT   -> SimpleBlueprints.text("select.target");
+				case RIGHT  -> SimpleBlueprints.text("select.player");
+				case MIDDLE -> SimpleBlueprints.text("select.clear");
+			});
+		}
+
 		return Optional.of(switch (action) {
-			case LEFT   -> SimpleBlueprints.text("select.target");
-			case RIGHT  -> SimpleBlueprints.text("select.player");
-			case MIDDLE -> SimpleBlueprints.text("select.clear");
+			case LEFT   -> SimpleBlueprints.text("select.target_place");
+			case RIGHT  -> SimpleBlueprints.text("select.player_place");
+			case MIDDLE -> SimpleBlueprints.text("select.clear_place");
 		});
 	}
 

@@ -1,6 +1,7 @@
 package maxboxx.blueprints;
 
 import maxboxx.blueprints.data.BlueprintData;
+import maxboxx.blueprints.data.Color;
 import maxboxx.blueprints.graphics.hud.BlueprintHud;
 import maxboxx.blueprints.graphics.hud.HudRegistry;
 import maxboxx.blueprints.graphics.world.BlockGraphic;
@@ -9,6 +10,7 @@ import maxboxx.blueprints.graphics.world.WorldRenderer;
 import maxboxx.blueprints.tools.BlueprintTool;
 import maxboxx.blueprints.tools.ToolAction;
 import maxboxx.blueprints.tools.BlueprintTools;
+import maxboxx.blueprints.tools.VisibilityTool;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -31,19 +33,17 @@ public class BlueprintManager {
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
 
 	private static BlockGraphic blockGraphic = null;
-	private static float blockAlpha = 0.5f;
+	private static Color blockColor = Color.WHITE;
+	private static float blockAlpha = VisibilityTool.DEFAULT_ALPHA;
 
 	public static void init() {
-		SELECTION_GRAPHIC.setColor(1f, 1f, 1f, 0.3f);
-		SELECTION_OUTLINE.setColor(1f, 1f, 1f, 1f);
+		SELECTION_GRAPHIC.color  = Color.WHITE;
+		SELECTION_GRAPHIC.color2 = new Color(0.8f, 1f, 1f);
+		SELECTION_GRAPHIC.alpha  = 0.3f;
 
-		SELECTION_GRAPHIC.red2 = 0.8f;
-		SELECTION_GRAPHIC.green2 = 1f;
-		SELECTION_GRAPHIC.blue2 = 1f;
-
-		SELECTION_OUTLINE.red2 = 0.8f;
-		SELECTION_OUTLINE.green2 = 1f;
-		SELECTION_OUTLINE.blue2 = 1f;
+		SELECTION_OUTLINE.color  = Color.WHITE;
+		SELECTION_OUTLINE.color2 = new Color(0.8f, 1f, 1f);
+		SELECTION_OUTLINE.alpha  = 1f;
 
 		HUD.hide();
 		HudRegistry.register(HUD);
@@ -201,6 +201,18 @@ public class BlueprintManager {
 
 	public static float getBlockAlpha() {
 		return blockAlpha;
+	}
+
+	public static void setBlockColor(Color color) {
+		blockColor = color;
+
+		if (blockGraphic != null) {
+			blockGraphic.setTint(color);
+		}
+	}
+
+	public static Color getBlockColor() {
+		return blockColor;
 	}
 
 	public static void moveSelection(Direction direction, int steps) {

@@ -3,34 +3,35 @@ package maxboxx.blueprints.graphics.world;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.fabricmc.fabric.api.renderer.v1.Renderer;
+import maxboxx.blueprints.data.Color;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderLayerHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 	private Level level;
 
 	private BlockPos offset;
+	private Color color;
 	private float alpha = 0.5f;
 
 	public BlockGraphic(Level level, HashMap<BlockPos, BlockState> blocks, RenderPipeline pipeline) {
@@ -47,10 +49,16 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 		this.blocks = blocks;
 		this.level = level;
 		this.offset = BlockPos.ZERO;
+
+		this.color = Color.WHITE;
 	}
 
 	public void setPosition(BlockPos offset) {
 		this.offset = offset;
+	}
+
+	public void setTint(Color color) {
+		this.color = color;
 	}
 
 	public void setAlpha(float alpha) {
@@ -97,9 +105,32 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 				block.getKey(),
 				blockRenderer,
 				RenderLayerHelper.entityDelegate(context.context().consumers()).getBuffer(ChunkSectionLayer.TRANSLUCENT),
-				1f, 1f, 1f, alpha,
+				color.red(), color.green(), color.blue(), alpha,
 				0xffffff, OverlayTexture.NO_OVERLAY
 			);
+
+			/*
+			BlockState state = block.getValue();
+
+			BlockEntity entity = this.getBlockEntity(block.getKey());
+
+			if (entity != null) {
+				BlockEntityRenderer<BlockEntity, BlockEntityRenderState> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
+
+				renderer.();
+			}
+			//*/
+
+			/*
+			blockRenderer.getBlockModelShaper().getModelManager().specialBlockModelRenderer().get().renderByBlock(
+				state.getBlock(),
+				ItemDisplayContext.NONE,
+				context.matrices(),
+				Minecraft.getInstance().gameRenderer.getSubmitNodeStorage(),
+				0xffffff,
+				OverlayTexture.NO_OVERLAY, 0x00ff00
+			);
+			*/
 
 			/*ModelBlockRenderer.renderModel(
 				context.matrices().last(),
@@ -154,6 +185,12 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 	@Nullable
 	@Override
 	public BlockEntity getBlockEntity(BlockPos blockPos) {
+		if (blocks.containsKey(blockPos)) {
+			if (blocks.get(blockPos).getBlock() instanceof EntityBlock entityBlock) {
+				return entityBlock.newBlockEntity(blockPos, blocks.get(blockPos));
+			}
+		}
+
 		return null;
 	}
 
