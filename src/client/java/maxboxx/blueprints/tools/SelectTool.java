@@ -18,6 +18,10 @@ public class SelectTool extends BlueprintTool {
 
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
+		if (BlueprintManager.hasSelection() && action == ToolAction.MIDDLE) {
+			return Optional.empty();
+		}
+
 		if (BlueprintManager.getData() == null) {
 			return Optional.of(switch (action) {
 				case LEFT   -> SimpleBlueprints.text("select.target");

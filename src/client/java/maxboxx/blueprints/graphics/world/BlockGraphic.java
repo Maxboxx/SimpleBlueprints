@@ -32,13 +32,16 @@ import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
-	private HashMap<BlockPos, BlockState> blocks;
-	private Level level;
+	private final HashMap<BlockPos, BlockState> blocks;
+	private final Level level;
+
+	private final VertexCache vertexCache = new VertexCache();
 
 	private BlockPos offset;
 	private Color color;
@@ -51,6 +54,8 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 		this.offset = BlockPos.ZERO;
 
 		this.color = Color.WHITE;
+
+		setupQuads();
 	}
 
 	public void setPosition(BlockPos offset) {
@@ -59,10 +64,12 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 
 	public void setTint(Color color) {
 		this.color = color;
+		vertexCache.setColor(color.red(), color.green(), color.blue(), alpha);
 	}
 
 	public void setAlpha(float alpha) {
 		this.alpha = alpha;
+		vertexCache.setColor(color.red(), color.green(), color.blue(), alpha);
 	}
 
 	public float getAlpha() {
@@ -71,6 +78,11 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 
 	@Override
 	public void render(WorldRenderer.Context context) {
+		//renderOld(context);
+		renderQuads(context);
+	}
+
+	private void renderOld(WorldRenderer.Context context) {
 		BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
 
 		for (Map.Entry<BlockPos, BlockState> block : blocks.entrySet()) {
@@ -164,6 +176,56 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 			Direction dir = bakedQuad.direction();
 			dirPose.translate(dir.getStepX() * -0.001f, dir.getStepY() * -0.001f, dir.getStepZ() * -0.001f);
 			vertexConsumer.putBulkData(dirPose, bakedQuad, r, g, b, a, i, j);
+
+		}
+	}
+
+	private void renderQuads(WorldRenderer.Context context) {
+		VertexConsumer consumer = RenderLayerHelper.entityDelegate(context.context().consumers()).getBuffer(ChunkSectionLayer.TRANSLUCENT);
+
+		context.matrices().pushPose();
+		context.matrices().translate(offset.getX(), offset.getY(), offset.getZ());
+
+		vertexCache.transferTo(consumer, context.matrices().last());
+
+		context.matrices().popPose();
+	}
+
+	private void setupQuads() {
+		BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+
+		for (Map.Entry<BlockPos, BlockState> block : blocks.entrySet()) {
+			BlockState state = block.getValue();
+
+			for (BlockModelPart blockModelPart : blockRenderer.getBlockModel(state).collectParts(RandomSource.create(42L))) {
+				for (Direction direction : Direction.values()) {
+					if (Block.shouldRenderFace(getBlockState(block.getKey()), getBlockState(block.getKey().offset(direction.getUnitVec3i())), direction)) {
+						setupQuadList(block.getKey(), blockModelPart.getQuads(direction));
+					}
+				}
+
+				setupQuadList(block.getKey(), blockModelPart.getQuads(null));
+			}
+		}
+	}
+
+	private void setupQuadList(BlockPos pos, List<BakedQuad> list) {
+		PoseStack stack = new PoseStack();
+
+		for (BakedQuad bakedQuad : list) {
+			BlockPos blockPos = pos.offset(offset);
+			Direction dir = bakedQuad.direction();
+
+			stack.pushPose();
+			stack.translate(
+				blockPos.getX() + dir.getStepX() * -0.002f,
+				blockPos.getY() + dir.getStepY() * -0.002f,
+				blockPos.getZ() + dir.getStepZ() * -0.002f
+			);
+
+			vertexCache.putBulkData(stack.last(), bakedQuad, 1f, 1f, 1f, 1f,  15, OverlayTexture.NO_OVERLAY);
+
+			stack.popPose();
 		}
 	}
 
