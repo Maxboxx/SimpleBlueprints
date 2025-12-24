@@ -13,6 +13,7 @@ public class BlueprintTools {
 		TOOLS.add(new ResizeTool());
 		TOOLS.add(new ClipboardTool());
 		TOOLS.add(new VisibilityTool());
+		TOOLS.add(new LayerTool());
 	}
 
 	public static BlueprintTool get(int index) {

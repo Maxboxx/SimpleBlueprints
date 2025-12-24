@@ -23,5 +23,9 @@
   "simple_blueprints.clipboard.clear": "Clear",
 
   "simple_blueprints.visibility.alpha": "Change Transparency",
-  "simple_blueprints.visibility.color": "Change Color"
+  "simple_blueprints.visibility.color": "Change Color",
+
+  "simple_blueprints.layers.away": "Move Layer Visibility Away",
+  "simple_blueprints.layers.closer": "Move Layer Visibility Closer",
+  "simple_blueprints.layers.mode": "Switch Layer Mode"
 }

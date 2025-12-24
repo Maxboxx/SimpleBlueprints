@@ -32,6 +32,7 @@ public class BlueprintManager {
 	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_QUADS, false);
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
 
+	private static boolean showBlocks = true;
 	private static BlockGraphic blockGraphic = null;
 	private static Color blockColor = Color.WHITE;
 	private static float blockAlpha = VisibilityTool.DEFAULT_ALPHA;
@@ -69,6 +70,19 @@ public class BlueprintManager {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (KeyBinds.TOGGLE.consumeClick()) {
 				toggleState();
+			}
+
+			while (KeyBinds.VISIBILITY.consumeClick()) {
+				showBlocks = !showBlocks;
+
+				if (blockGraphic != null) {
+					if (showBlocks && hasSelection()) {
+						blockGraphic.setPosition(selectionMin);
+						WorldRenderer.addGraphic(blockGraphic);
+					} else {
+						WorldRenderer.removeGraphic(blockGraphic);
+					}
+				}
 			}
 
 			if (active) {
@@ -177,7 +191,10 @@ public class BlueprintManager {
 
 		blockGraphic = graphic;
 		graphic.setPosition(selectionMin);
-		WorldRenderer.addGraphic(graphic);
+
+		if (showBlocks) {
+			WorldRenderer.addGraphic(graphic);
+		}
 
 		if (blockGraphic != null) {
 			blockGraphic.setAlpha(blockAlpha);
@@ -213,6 +230,34 @@ public class BlueprintManager {
 
 	public static Color getBlockColor() {
 		return blockColor;
+	}
+
+	public static int getBlockLayer() {
+		if (blockGraphic != null) {
+			return blockGraphic.getSelectedLayer();
+		}
+
+		return 0;
+	}
+
+	public static void setBlockLayer(int layer) {
+		if (blockGraphic != null) {
+			blockGraphic.setSelectedLayer(layer);
+		}
+	}
+
+	public static BlockGraphic.LayerMode getBlockLayerMode() {
+		if (blockGraphic != null) {
+			return blockGraphic.getLayerMode();
+		}
+
+		return BlockGraphic.LayerMode.SHOW_ALL;
+	}
+
+	public static void setBlockLayerMode(BlockGraphic.LayerMode mode) {
+		if (blockGraphic != null) {
+			blockGraphic.setLayerMode(mode);
+		}
 	}
 
 	public static void moveSelection(Direction direction, int steps) {
@@ -262,7 +307,7 @@ public class BlueprintManager {
 			return;
 		}
 
-		if (blockGraphic != null) {
+		if (blockGraphic != null && showBlocks) {
 			blockGraphic.setPosition(selectionMin);
 			WorldRenderer.addGraphic(blockGraphic);
 		}

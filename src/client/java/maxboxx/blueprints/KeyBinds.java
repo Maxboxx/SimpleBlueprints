@@ -9,6 +9,7 @@ public class KeyBinds {
 	public static final KeyMapping.Category main_category = create_category("keys");
 
 	public static final KeyMapping TOGGLE = create_key("toggle", GLFW.GLFW_KEY_B, main_category);
+	public static final KeyMapping VISIBILITY = create_key("visibility", GLFW.GLFW_KEY_UNKNOWN, main_category);
 
 	private static KeyMapping.Category create_category(String name) {
 		return KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, name));
@@ -20,6 +21,7 @@ public class KeyBinds {
 
 	public static void init() {
 		KeyBindingHelper.registerKeyBinding(TOGGLE);
+		KeyBindingHelper.registerKeyBinding(VISIBILITY);
 	}
 
 	public static boolean consume(KeyMapping key) {

@@ -58,6 +58,10 @@ public class BlueprintData {
 		);
 	}
 
+	public boolean canPlace(LocalPlayer player) {
+		return structure != null && player.isCreative();
+	}
+
 	public void placeInWorld(LocalPlayer player, BlockPos position) {
 		if (structure == null) return;
 		if (!player.isCreative()) return;
@@ -72,7 +76,7 @@ public class BlueprintData {
 	}
 
 	public BlockGraphic toGraphic(Level level) {
-		HashMap<BlockPos, BlockState> blockMap = new HashMap<BlockPos, BlockState>();
+		HashMap<BlockPos, BlockState> blockMap = new HashMap<>();
 
 		for (Block block : blocks) {
 			List<StructureTemplate.StructureBlockInfo> blockInfos = structure.filterBlocks(pos, new StructurePlaceSettings(), block);

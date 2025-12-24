@@ -44,6 +44,10 @@ public class VertexCache implements VertexConsumer {
 		}
 	}
 
+	public void clear() {
+		vertices.clear();
+	}
+
 	@Override
 	public @NotNull VertexConsumer addVertex(float f, float g, float h) {
 		vertices.add(new Vertex(f, g, h));

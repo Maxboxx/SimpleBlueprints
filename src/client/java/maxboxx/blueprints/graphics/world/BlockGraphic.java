@@ -6,18 +6,14 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import maxboxx.blueprints.data.Color;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderLayerHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
@@ -38,22 +34,61 @@ import java.util.List;
 import java.util.Map;
 
 public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
-	private final HashMap<BlockPos, BlockState> blocks;
+	private final ArrayList<HashMap<BlockPos, BlockState>> blocks = new ArrayList<>();
 	private final Level level;
+	private final int minY;
 
-	private final VertexCache vertexCache = new VertexCache();
+	private final ArrayList<VertexCache> vertexLayers = new ArrayList<>();
+
+	private int selectedLayer;
+	private LayerMode layerMode = LayerMode.SHOW_ALL;
 
 	private BlockPos offset;
 	private Color color;
 	private float alpha = 0.5f;
 
+	public enum LayerMode {
+		SHOW_ALL,
+		SHOW_BELOW,
+		SHOW_ABOVE,
+		SHOW_SELECTED
+	}
+
 	public BlockGraphic(Level level, HashMap<BlockPos, BlockState> blocks, RenderPipeline pipeline) {
 		super(pipeline);
-		this.blocks = blocks;
+
+		int minY = 100000;
+		int maxY = -100000;
+
+		for (BlockPos pos : blocks.keySet()) {
+			if (pos.getY() < minY) {
+				minY = pos.getY();
+			}
+
+			if (pos.getY() > maxY) {
+				maxY = pos.getY();
+			}
+		}
+
+		int height = maxY - minY + 1;
+
+		for (int i = 0; i < height; i++) {
+			vertexLayers.add(new VertexCache());
+			this.blocks.add(new HashMap<>());
+		}
+
+		for (Map.Entry<BlockPos, BlockState> block : blocks.entrySet()) {
+			int i = block.getKey().getY() - minY;
+			this.blocks.get(i).put(block.getKey(), block.getValue());
+		}
+
+		selectedLayer = height - 1;
+		this.minY = minY;
 		this.level = level;
 		this.offset = BlockPos.ZERO;
 
 		this.color = Color.WHITE;
+		layerMode = LayerMode.SHOW_BELOW;
 
 		setupQuads();
 	}
@@ -64,129 +99,94 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 
 	public void setTint(Color color) {
 		this.color = color;
-		vertexCache.setColor(color.red(), color.green(), color.blue(), alpha);
+
+		for (VertexCache layer : vertexLayers) {
+			layer.setColor(color.red(), color.green(), color.blue(), alpha);
+		}
 	}
 
 	public void setAlpha(float alpha) {
 		this.alpha = alpha;
-		vertexCache.setColor(color.red(), color.green(), color.blue(), alpha);
+
+		for (VertexCache layer : vertexLayers) {
+			layer.setColor(color.red(), color.green(), color.blue(), alpha);
+		}
 	}
 
 	public float getAlpha() {
 		return alpha;
 	}
 
+	public int getSelectedLayer() {
+		return selectedLayer;
+	}
+
+	public void setSelectedLayer(int layer) {
+		if (layer < 0) {
+			layer = 0;
+		}
+		else if (layer >= vertexLayers.size()) {
+			layer = vertexLayers.size() - 1;
+		}
+
+		int diff = layer - selectedLayer;
+
+		if (diff == 0) return;
+
+		selectedLayer = layer;
+
+		PoseStack stack = new PoseStack();
+		RandomSource random = RandomSource.create(42L);
+		BlockRenderDispatcher renderer = Minecraft.getInstance().getBlockRenderer();
+
+		if (diff < 0) {
+			for (int i = selectedLayer - diff; i >= selectedLayer; i--) {
+				setupLayer(stack, renderer, random, i);
+			}
+		}
+		else {
+			for (int i = selectedLayer - diff; i <= selectedLayer; i++) {
+				setupLayer(stack, renderer, random, i);
+			}
+		}
+	}
+
+	public LayerMode getLayerMode() {
+		return layerMode;
+	}
+
+	public void setLayerMode(LayerMode mode) {
+		if (mode == layerMode) return;
+
+		layerMode = mode;
+
+		PoseStack stack = new PoseStack();
+		RandomSource random = RandomSource.create(42L);
+		BlockRenderDispatcher renderer = Minecraft.getInstance().getBlockRenderer();
+
+		if (selectedLayer > 0) {
+			setupLayer(stack, renderer, random, selectedLayer - 1);
+		}
+
+		setupLayer(stack, renderer, random, selectedLayer);
+
+		if (selectedLayer < vertexLayers.size() - 1) {
+			setupLayer(stack, renderer, random, selectedLayer + 1);
+		}
+	}
+
 	@Override
 	public void render(WorldRenderer.Context context) {
-		//renderOld(context);
-		renderQuads(context);
-	}
-
-	private void renderOld(WorldRenderer.Context context) {
-		BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
-
-		for (Map.Entry<BlockPos, BlockState> block : blocks.entrySet()) {
-			context.matrices().pushPose();
-
-			BlockPos pos = block.getKey().offset(offset);
-
-			context.matrices().translate(pos.getX(), pos.getY(), pos.getZ());
-
-			/*blockRenderer.renderBlockAsEntity(
-				block.getValue(),
-				context.matrices(),
-				context.context().consumers(),
-				0xffffff,
-				0,
-				this,
-				pos
-			);*/
-
-			/*blockRenderer.renderBatched(
-				block.getValue(),
-				block.getKey(),
-				this,
-				context.matrices(),
-				context.builder(),
-				true,
-				blockRenderer.getBlockModel(block.getValue()).collectParts(RandomSource.create())
-			);*/
-
-			renderModel(
-				context.matrices().last(),
-				block.getKey(),
-				blockRenderer,
-				RenderLayerHelper.entityDelegate(context.context().consumers()).getBuffer(ChunkSectionLayer.TRANSLUCENT),
-				color.red(), color.green(), color.blue(), alpha,
-				0xffffff, OverlayTexture.NO_OVERLAY
-			);
-
-			/*
-			BlockState state = block.getValue();
-
-			BlockEntity entity = this.getBlockEntity(block.getKey());
-
-			if (entity != null) {
-				BlockEntityRenderer<BlockEntity, BlockEntityRenderState> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
-
-				renderer.();
-			}
-			//*/
-
-			/*
-			blockRenderer.getBlockModelShaper().getModelManager().specialBlockModelRenderer().get().renderByBlock(
-				state.getBlock(),
-				ItemDisplayContext.NONE,
-				context.matrices(),
-				Minecraft.getInstance().gameRenderer.getSubmitNodeStorage(),
-				0xffffff,
-				OverlayTexture.NO_OVERLAY, 0x00ff00
-			);
-			*/
-
-			/*ModelBlockRenderer.renderModel(
-				context.matrices().last(),
-				context.builder(),
-				blockRenderer.getBlockModel(block.getValue()),
-				1f, 1f, 1f,
-				15, 1
-			);*/
-
-			context.matrices().popPose();
-		}
-	}
-
-	private void renderModel(PoseStack.Pose pose, BlockPos pos, BlockRenderDispatcher blockRenderer, VertexConsumer vertexConsumer, float r, float g, float b, float a, int i, int j) {
-		BlockState state = blocks.get(pos);
-
-		for (BlockModelPart blockModelPart : blockRenderer.getBlockModel(state).collectParts(RandomSource.create(42L))) {
-			for (Direction direction : Direction.values()) {
-				if (Block.shouldRenderFace(getBlockState(pos), getBlockState(pos.offset(direction.getUnitVec3i())), direction)) {
-					renderQuadList(pose, vertexConsumer, r, g, b, a, blockModelPart.getQuads(direction), i, j);
-				}
-			}
-
-			renderQuadList(pose, vertexConsumer, r, g, b, a, blockModelPart.getQuads(null), i, j);
-		}
-	}
-
-	private static void renderQuadList(PoseStack.Pose pose, VertexConsumer vertexConsumer, float r, float g, float b, float a, List<BakedQuad> list, int i, int j) {
-		for (BakedQuad bakedQuad : list) {
-			PoseStack.Pose dirPose = pose.copy();
-			Direction dir = bakedQuad.direction();
-			dirPose.translate(dir.getStepX() * -0.001f, dir.getStepY() * -0.001f, dir.getStepZ() * -0.001f);
-			vertexConsumer.putBulkData(dirPose, bakedQuad, r, g, b, a, i, j);
-
-		}
-	}
-
-	private void renderQuads(WorldRenderer.Context context) {
 		VertexConsumer consumer = RenderLayerHelper.entityDelegate(context.context().consumers()).getBuffer(ChunkSectionLayer.TRANSLUCENT);
 
 		context.matrices().pushPose();
 		context.matrices().translate(offset.getX(), offset.getY(), offset.getZ());
 
-		vertexCache.transferTo(consumer, context.matrices().last());
+		for (int i = 0; i < vertexLayers.size(); i++) {
+			if (!isLayerVisible(i)) continue;
+
+			vertexLayers.get(i).transferTo(consumer, context.matrices().last());
+		}
 
 		context.matrices().popPose();
 	}
@@ -194,36 +194,49 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 	private void setupQuads() {
 		BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
 
-		for (Map.Entry<BlockPos, BlockState> block : blocks.entrySet()) {
-			BlockState state = block.getValue();
+		RandomSource random = RandomSource.create(42L);
+		PoseStack stack = new PoseStack();
 
-			for (BlockModelPart blockModelPart : blockRenderer.getBlockModel(state).collectParts(RandomSource.create(42L))) {
-				for (Direction direction : Direction.values()) {
-					if (Block.shouldRenderFace(getBlockState(block.getKey()), getBlockState(block.getKey().offset(direction.getUnitVec3i())), direction)) {
-						setupQuadList(block.getKey(), blockModelPart.getQuads(direction));
-					}
-				}
-
-				setupQuadList(block.getKey(), blockModelPart.getQuads(null));
-			}
+		for (int i = 0; i < vertexLayers.size(); i++) {
+			setupLayer(stack, blockRenderer, random, i);
 		}
 	}
 
-	private void setupQuadList(BlockPos pos, List<BakedQuad> list) {
-		PoseStack stack = new PoseStack();
+	private void setupLayer(PoseStack stack, BlockRenderDispatcher blockRenderer, RandomSource random, int index) {
+		VertexCache layer = vertexLayers.get(index);
+		layer.clear();
 
+		boolean isVisible = isLayerVisible(index);
+
+		for (Map.Entry<BlockPos, BlockState> block : blocks.get(index).entrySet()) {
+			BlockState state = block.getValue();
+
+			for (BlockModelPart blockModelPart : blockRenderer.getBlockModel(state).collectParts(random)) {
+				for (Direction direction : Direction.values()) {
+					if (Block.shouldRenderFace(state, getBlockState(block.getKey().offset(direction.getUnitVec3i()), isVisible), direction)) {
+						setupQuadList(stack, block.getKey(), layer, blockModelPart.getQuads(direction));
+					}
+				}
+
+				setupQuadList(stack, block.getKey(), layer, blockModelPart.getQuads(null));
+			}
+		}
+
+		layer.setColor(color.red(), color.green(), color.blue(), alpha);
+	}
+
+	private void setupQuadList(PoseStack stack, BlockPos pos, VertexCache cache, List<BakedQuad> list) {
 		for (BakedQuad bakedQuad : list) {
-			BlockPos blockPos = pos.offset(offset);
 			Direction dir = bakedQuad.direction();
 
 			stack.pushPose();
 			stack.translate(
-				blockPos.getX() + dir.getStepX() * -0.002f,
-				blockPos.getY() + dir.getStepY() * -0.002f,
-				blockPos.getZ() + dir.getStepZ() * -0.002f
+				pos.getX() + dir.getStepX() * -0.002f,
+				pos.getY() + dir.getStepY() * -0.002f,
+				pos.getZ() + dir.getStepZ() * -0.002f
 			);
 
-			vertexCache.putBulkData(stack.last(), bakedQuad, 1f, 1f, 1f, 1f,  15, OverlayTexture.NO_OVERLAY);
+			cache.putBulkData(stack.last(), bakedQuad, 1f, 1f, 1f, 1f,  15, OverlayTexture.NO_OVERLAY);
 
 			stack.popPose();
 		}
@@ -247,10 +260,14 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 	@Nullable
 	@Override
 	public BlockEntity getBlockEntity(BlockPos blockPos) {
-		if (blocks.containsKey(blockPos)) {
-			if (blocks.get(blockPos).getBlock() instanceof EntityBlock entityBlock) {
-				return entityBlock.newBlockEntity(blockPos, blocks.get(blockPos));
-			}
+		BlockState state = getBlockOrNull(blockPos);
+
+		if (state == null) {
+			return null;
+		}
+
+		if (state.getBlock() instanceof EntityBlock entityBlock) {
+			return entityBlock.newBlockEntity(blockPos, state);
 		}
 
 		return null;
@@ -258,11 +275,23 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 
 	@Override
 	public @NotNull BlockState getBlockState(BlockPos blockPos) {
-		if (blocks.containsKey(blockPos)) {
-			return blocks.get(blockPos);
+		BlockState state = getBlockOrNull(blockPos);
+
+		if (state == null) {
+			return Blocks.AIR.defaultBlockState();
 		}
 
-		return Blocks.AIR.defaultBlockState();
+		return state;
+	}
+
+	public @NotNull BlockState getBlockState(BlockPos blockPos, boolean useLayerVisibility) {
+		BlockState state = useLayerVisibility ? getBlockOrNull(blockPos) : getBlockOrNullRaw(blockPos);
+
+		if (state == null) {
+			return Blocks.AIR.defaultBlockState();
+		}
+
+		return state;
 	}
 
 	@Override
@@ -278,5 +307,38 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 	@Override
 	public int getMinY() {
 		return level.getMinY();
+	}
+
+	private boolean isInVisibleLayer(BlockPos pos) {
+		return isLayerVisible(pos.getY() - minY);
+	}
+
+	private boolean isLayerVisible(int layer) {
+		return switch (layerMode) {
+			case SHOW_ALL -> true;
+			case SHOW_ABOVE -> layer >= selectedLayer;
+			case SHOW_BELOW -> layer <= selectedLayer;
+			case SHOW_SELECTED -> layer == selectedLayer;
+		};
+	}
+
+	private BlockState getBlockOrNull(BlockPos pos) {
+		if (!isInVisibleLayer(pos)) {
+			return null;
+		}
+
+		return getBlockOrNullRaw(pos);
+	}
+
+	private BlockState getBlockOrNullRaw(BlockPos pos) {
+		int i = pos.getY() - minY;
+
+		if (i >= 0 && i < blocks.size()) {
+			if (blocks.get(i).containsKey(pos)) {
+				return blocks.get(i).get(pos);
+			}
+		}
+
+		return null;
 	}
 }

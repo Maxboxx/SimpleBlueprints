@@ -18,7 +18,7 @@ public class SelectTool extends BlueprintTool {
 
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
-		if (BlueprintManager.hasSelection() && action == ToolAction.MIDDLE) {
+		if (!BlueprintManager.hasSelection() && action == ToolAction.MIDDLE) {
 			return Optional.empty();
 		}
 
