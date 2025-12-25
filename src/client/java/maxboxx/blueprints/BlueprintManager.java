@@ -12,6 +12,7 @@ import maxboxx.blueprints.tools.ToolAction;
 import maxboxx.blueprints.tools.BlueprintTools;
 import maxboxx.blueprints.tools.VisibilityTool;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -89,6 +90,10 @@ public class BlueprintManager {
 				updateMode();
 			}
 		});
+
+		ClientPlayConnectionEvents.DISCONNECT.register((a, d) -> {
+			disable();
+		});
 	}
 
 	public static boolean isActive() {
@@ -113,19 +118,37 @@ public class BlueprintManager {
 		if (player == null) return;
 
 		active = !active;
-		HUD.setVisible(active);
 
 		if (active) {
-			tool = BlueprintTools.get(0);
-
-			player.getInventory().setSelectedSlot(BlueprintTools.indexOf(tool));
-
-			updateGraphics();
+			enable();
 		}
 		else {
-			WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
-			WorldRenderer.removeGraphic(SELECTION_OUTLINE);
+			disable();
 		}
+	}
+
+	private static void enable() {
+		LocalPlayer player = Minecraft.getInstance().player;
+		if (player == null) return;
+
+		active = true;
+		HUD.setVisible(true);
+
+		if (tool == null) {
+			tool = BlueprintTools.get(0);
+		}
+
+		player.getInventory().setSelectedSlot(BlueprintTools.indexOf(tool));
+
+		updateGraphics();
+	}
+
+	private static void disable() {
+		active = false;
+		HUD.setVisible(false);
+
+		WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
+		WorldRenderer.removeGraphic(SELECTION_OUTLINE);
 	}
 
 	private static void handleAction(ToolAction action) {
