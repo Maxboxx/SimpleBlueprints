@@ -17,7 +17,8 @@ public class BoxGraphic extends WorldGraphic {
 	public Mode mode = Mode.NONE;
 	private final boolean OUTLINE;
 
-	private static final float LINE_OFFSET = 0.01f;
+	private static final float LINE_OFFSET = 0.02f;
+	private static final float FACE_OFFSET = 0.02f;
 
 	public enum Mode {
 		NONE,
@@ -146,11 +147,13 @@ public class BoxGraphic extends WorldGraphic {
 
 		Color color = useColor2 ? this.color2 : this.color;
 
+		Direction transformedDir = inverted ? direction.getOpposite() : direction;
+
 		ShapeRenderer.renderFace(
-			context.matrices().last().pose(), context.builder(), inverted ? direction.getOpposite() : direction,
-			x1, y1, z1,
-			x2, y2, z2,
-			color.red(), color.green(), color.blue(), inverted ? alpha * 0.5f : alpha
+			context.matrices().last().pose(), context.builder(), transformedDir,
+			x1 + transformedDir.getStepX() * FACE_OFFSET, y1 + transformedDir.getStepY() * FACE_OFFSET, z1 + transformedDir.getStepZ() * FACE_OFFSET,
+			x2 + transformedDir.getStepX() * FACE_OFFSET, y2 + transformedDir.getStepY() * FACE_OFFSET, z2 + transformedDir.getStepZ() * FACE_OFFSET,
+			color.red(), color.green(), color.blue(), inverted ? alpha : alpha * 0.8f
 		);
 	}
 }

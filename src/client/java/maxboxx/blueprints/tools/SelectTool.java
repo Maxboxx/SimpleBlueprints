@@ -5,6 +5,8 @@ import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.BlueprintData;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -41,17 +43,17 @@ public class SelectTool extends BlueprintTool {
 	public void performAction(LocalPlayer player, ToolAction action) {
 		switch (action) {
 			case LEFT -> {
-				HitResult hit = player.pick(32, 0, false);
+				HitResult hit = player.pick(64, 0, false);
 
 				if (hit instanceof BlockHitResult blockHit) {
 					if (blockHit.getType() == HitResult.Type.BLOCK) {
-						selectPosition(blockHit.getBlockPos());
+						selectPosition(blockHit.getBlockPos(), blockHit.getDirection());
 					}
 				}
 			}
 
 			case RIGHT -> {
-				selectPosition(player.blockPosition());
+				selectPosition(player.blockPosition(), Direction.UP);
 			}
 
 			case MIDDLE -> {
@@ -60,7 +62,7 @@ public class SelectTool extends BlueprintTool {
 		}
 	}
 
-	private void selectPosition(BlockPos pos) {
+	private void selectPosition(BlockPos pos, Direction normal) {
 		BlueprintData data = BlueprintManager.getData();
 
 		if (data == null) {
@@ -69,7 +71,19 @@ public class SelectTool extends BlueprintTool {
 		}
 
 		BlueprintManager.clearSelection();
-		BlueprintManager.addToSelection(pos);
-		BlueprintManager.addToSelection(pos.offset(data.size()).offset(-1, -1, -1));
+
+		Vec3i halfSize = data.halfSize();
+
+		BlockPos placePos = switch (normal) {
+			case UP    -> pos.offset(-halfSize.getX(), 1, -halfSize.getZ());
+			case DOWN  -> pos.offset(-halfSize.getX(), -data.size().getY(), -halfSize.getZ());
+			case WEST  -> pos.offset(-data.size().getX(), -halfSize.getY(), -halfSize.getZ());
+			case EAST  -> pos.offset(1, -halfSize.getY(), -halfSize.getZ());
+			case NORTH -> pos.offset(-halfSize.getX(), -halfSize.getY(), -data.size().getZ());
+			case SOUTH -> pos.offset(-halfSize.getX(), -halfSize.getY(), 1);
+		};
+
+		BlueprintManager.addToSelection(placePos);
+		BlueprintManager.addToSelection(placePos.offset(data.size()).offset(-1, -1, -1));
 	}
 }

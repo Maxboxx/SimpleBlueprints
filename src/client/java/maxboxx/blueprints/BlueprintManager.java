@@ -41,11 +41,11 @@ public class BlueprintManager {
 
 	public static void init() {
 		SELECTION_GRAPHIC.color  = Color.WHITE;
-		SELECTION_GRAPHIC.color2 = new Color(0.8f, 1f, 1f);
+		SELECTION_GRAPHIC.color2 = new Color(0.5f, 0.9f, 1f);
 		SELECTION_GRAPHIC.alpha  = 0.3f;
 
 		SELECTION_OUTLINE.color  = Color.WHITE;
-		SELECTION_OUTLINE.color2 = new Color(0.8f, 1f, 1f);
+		SELECTION_OUTLINE.color2 = new Color(0.5f, 0.9f, 1f);
 		SELECTION_OUTLINE.alpha  = 1f;
 
 		HUD.hide();
@@ -221,6 +221,7 @@ public class BlueprintManager {
 		}
 
 		if (blueprintGraphic != null) {
+			blueprintGraphic.setTint(blockColor);
 			blueprintGraphic.setAlpha(blockAlpha);
 		}
 	}

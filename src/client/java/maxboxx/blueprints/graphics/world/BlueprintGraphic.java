@@ -294,12 +294,12 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 
 			stack.pushPose();
 			stack.translate(
-				pos.getX() + dir.getStepX() * -0.002f,
-				pos.getY() + dir.getStepY() * -0.002f,
-				pos.getZ() + dir.getStepZ() * -0.002f
+				pos.getX() + dir.getStepX() * -0.005f,
+				pos.getY() + dir.getStepY() * -0.005f,
+				pos.getZ() + dir.getStepZ() * -0.005f
 			);
 
-			cache.putBulkData(stack.last(), bakedQuad, 1f, 1f, 1f, 1f,  15, OverlayTexture.NO_OVERLAY);
+			cache.putBulkData(stack.last(), bakedQuad, 1f, 1f, 1f, 1f,  0xffffff, OverlayTexture.NO_OVERLAY);
 
 			stack.popPose();
 		}

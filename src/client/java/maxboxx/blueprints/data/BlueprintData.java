@@ -31,6 +31,11 @@ public class BlueprintData {
 		return structure.getSize();
 	}
 
+	public Vec3i halfSize() {
+		Vec3i size = structure.getSize();
+		return new Vec3i(size.getX() / 2, size.getY() / 2, size.getZ() / 2);
+	}
+
 	public Vec3i transformedSize() {
 		return structure.getSize(mirrorRotation.rotation());
 	}
