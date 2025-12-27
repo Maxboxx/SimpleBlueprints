@@ -25,14 +25,14 @@ public class BlueprintData {
 	private StructureTemplate structure;
 	private HashSet<Block> blocks;
 	private BlockPos pos;
-	private final StructurePlaceSettings settings = new StructurePlaceSettings();
+	private MirrorRotation mirrorRotation = MirrorRotation.NONE;
 
 	public Vec3i size() {
 		return structure.getSize();
 	}
 
 	public Vec3i transformedSize() {
-		return structure.getSize(settings.getRotation());
+		return structure.getSize(mirrorRotation.rotation());
 	}
 
 	public BlockPos position() {
@@ -75,8 +75,8 @@ public class BlueprintData {
 			for (StructureTemplate.StructureBlockInfo info : blockInfos) {
 				BlockUtil.placeBlock(
 					player,
-					PositionUtil.mirrorAndRotateInBox(info.pos(), size(), settings.getMirror(), settings.getRotation()).offset(position),
-					info.state().mirror(settings.getMirror()).rotate(settings.getRotation())
+					PositionUtil.mirrorAndRotateInBox(info.pos(), size(), mirrorRotation.mirror(), mirrorRotation.rotation()).offset(position),
+					info.state().mirror(mirrorRotation.mirror()).rotate(mirrorRotation.rotation())
 				);
 			}
 		}
@@ -99,44 +99,22 @@ public class BlueprintData {
 	}
 
 	public void rotate() {
-		settings.setRotation(switch (settings.getRotation()) {
-			case NONE -> Rotation.CLOCKWISE_90;
-			case CLOCKWISE_90 -> Rotation.CLOCKWISE_180;
-			case CLOCKWISE_180 -> Rotation.COUNTERCLOCKWISE_90;
-			case COUNTERCLOCKWISE_90 -> Rotation.NONE;
-		});
+		mirrorRotation = mirrorRotation.rotate();
 	}
 
 	public Rotation getRotation() {
-		return settings.getRotation();
+		return mirrorRotation.rotation();
 	}
 
 	public void mirror(Direction.Axis axis) {
-		if (axis == Direction.Axis.Y) return;
-
-		if (settings.getRotation() == Rotation.NONE || settings.getRotation() == Rotation.CLOCKWISE_180) {
-			if (axis == Direction.Axis.X) {
-				settings.setMirror(settings.getMirror() == Mirror.FRONT_BACK ? Mirror.NONE : Mirror.FRONT_BACK);
-			}
-			else {
-				settings.setMirror(settings.getMirror() == Mirror.LEFT_RIGHT ? Mirror.NONE : Mirror.LEFT_RIGHT);
-			}
-		}
-		else {
-			if (axis == Direction.Axis.X) {
-				settings.setMirror(settings.getMirror() == Mirror.LEFT_RIGHT ? Mirror.NONE : Mirror.LEFT_RIGHT);
-			}
-			else {
-				settings.setMirror(settings.getMirror() == Mirror.FRONT_BACK ? Mirror.NONE : Mirror.FRONT_BACK);
-			}
-		}
+		mirrorRotation = mirrorRotation.mirrorAxis(axis);
 	}
 
 	public void setMirror(Mirror mirror) {
-		settings.setMirror(mirror);
+		mirrorRotation = mirrorRotation.mirrorTo(mirror);
 	}
 
 	public Mirror getMirror() {
-		return settings.getMirror();
+		return mirrorRotation.mirror();
 	}
 }

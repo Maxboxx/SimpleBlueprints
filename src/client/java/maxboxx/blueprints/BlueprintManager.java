@@ -336,6 +336,7 @@ public class BlueprintManager {
 
 		data.mirror(axis);
 		blueprintGraphic.setMirror(data.getMirror());
+		blueprintGraphic.setRotation(data.getRotation());
 
 		selectionMax = selectionMin.offset(data.transformedSize()).offset(-1, -1, -1);
 
