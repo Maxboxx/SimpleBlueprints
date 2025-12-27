@@ -3,24 +3,24 @@ package maxboxx.blueprints.graphics.hud;
 import maxboxx.blueprints.SimpleBlueprints;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public abstract class HudGraphic {
-	private final ResourceLocation ID;
-	private final ResourceLocation TARGET;
+	private final Identifier ID;
+	private final Identifier TARGET;
 
 	private boolean hidden = false;
 
-	protected HudGraphic(String idName, ResourceLocation target) {
-		ID = ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, idName);
+	protected HudGraphic(String idName, Identifier target) {
+		ID = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, idName);
 		TARGET = target;
 	}
 
-	public ResourceLocation id() {
+	public Identifier id() {
 		return ID;
 	}
 
-	public ResourceLocation target() {
+	public Identifier target() {
 		return TARGET;
 	}
 

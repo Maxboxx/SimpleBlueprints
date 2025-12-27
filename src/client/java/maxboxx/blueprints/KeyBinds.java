@@ -2,7 +2,7 @@ package maxboxx.blueprints;
 
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class KeyBinds {
@@ -12,7 +12,7 @@ public class KeyBinds {
 	public static final KeyMapping VISIBILITY = create_key("visibility", GLFW.GLFW_KEY_UNKNOWN, main_category);
 
 	private static KeyMapping.Category create_category(String name) {
-		return KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, name));
+		return KeyMapping.Category.register(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, name));
 	}
 
 	private static KeyMapping create_key(String name, int keyCode, KeyMapping.Category category) {

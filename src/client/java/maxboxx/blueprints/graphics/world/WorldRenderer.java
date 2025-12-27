@@ -14,21 +14,20 @@ import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
-import java.nio.Buffer;
 import java.util.*;
 
 public class WorldRenderer {
 	public static final RenderPipeline FILLED_NO_DEPTH = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
-		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
+		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
+		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 		.withBlend(BlendFunction.TRANSLUCENT)
 		.withCull(true)
@@ -36,8 +35,8 @@ public class WorldRenderer {
 	);
 
 	public static final RenderPipeline FILLED = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled"))
-		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
+		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled"))
+		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 		.withBlend(BlendFunction.TRANSLUCENT)
 		.withCull(true)
@@ -45,7 +44,7 @@ public class WorldRenderer {
 	);
 
 	public static final RenderPipeline FILLED_QUADS = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled2"))
+		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled2"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
 		.withBlend(BlendFunction.TRANSLUCENT)
@@ -55,7 +54,7 @@ public class WorldRenderer {
 	);
 
 	public static final RenderPipeline FILLED_TEX = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.TERRAIN_SNIPPET)
-		.withLocation(ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_tex"))
+		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_tex"))
 		.withVertexFormat(DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS)
 		.withSampler("Sampler0")
 		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
@@ -68,6 +67,8 @@ public class WorldRenderer {
 	private static final ByteBufferBuilder allocator = new ByteBufferBuilder(RenderType.SMALL_BUFFER_SIZE);
 
 	private static final Vector4f COLOR_MODULATOR = new Vector4f(1f, 1f, 1f, 1f);
+	private static final Vector3f MODEL_OFFSET = new Vector3f();
+	private static final Matrix4f TEXTURE_MATRIX = new Matrix4f();
 	private static MappableRingBuffer vertexBuffer;
 
 	private static final HashSet<WorldGraphic> activeGraphics = new HashSet<>();
@@ -77,7 +78,7 @@ public class WorldRenderer {
 	}
 
 	public static void init() {
-		WorldRenderEvents.BEFORE_DEBUG_RENDER.register(WorldRenderer::renderGraphics);
+		WorldRenderEvents.BEFORE_TRANSLUCENT.register(WorldRenderer::renderGraphics);
 	}
 
 	public static void cleanup() {
@@ -112,7 +113,6 @@ public class WorldRenderer {
 		PoseStack matrices = context.matrices();
 		Vec3 camera = context.worldState().cameraRenderState.pos;
 
-		assert matrices != null;
 		matrices.pushPose();
 		matrices.translate(-camera.x, -camera.y, -camera.z);
 
@@ -173,11 +173,11 @@ public class WorldRenderer {
 		}
 
 		GpuBufferSlice dynamicTransforms = RenderSystem.getDynamicUniforms()
-			.writeTransform(RenderSystem.getModelViewMatrix(), COLOR_MODULATOR, new Vector3f(), RenderSystem.getTextureMatrix(), 1f);
+			.writeTransform(RenderSystem.getModelViewMatrix(), COLOR_MODULATOR, MODEL_OFFSET, TEXTURE_MATRIX);
 
 		try (RenderPass renderPass = RenderSystem.getDevice()
 			.createCommandEncoder()
-			.createRenderPass(() -> SimpleBlueprints.MOD_ID + " rendering", client.getMainRenderTarget().getColorTextureView(), OptionalInt.empty(), client.getMainRenderTarget().getDepthTextureView(), OptionalDouble.empty())
+			.createRenderPass(() -> SimpleBlueprints.MOD_ID + " example render pipeline rendering", client.getMainRenderTarget().getColorTextureView(), OptionalInt.empty(), client.getMainRenderTarget().getDepthTextureView(), OptionalDouble.empty())
 		) {
 			renderPass.setPipeline(pipeline);
 

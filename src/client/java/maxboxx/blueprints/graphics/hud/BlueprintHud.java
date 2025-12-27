@@ -11,14 +11,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
 public class BlueprintHud extends HudGraphic {
-	private static final ResourceLocation LEFT_ICON   = ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_left");
-	private static final ResourceLocation RIGHT_ICON  = ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_right");
-	private static final ResourceLocation MIDDLE_ICON = ResourceLocation.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_middle");
+	private static final Identifier LEFT_ICON   = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_left");
+	private static final Identifier RIGHT_ICON  = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_right");
+	private static final Identifier MIDDLE_ICON = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_middle");
 
 	public BlueprintHud() {
 		super("hud", VanillaHudElements.HOTBAR);
@@ -44,7 +44,7 @@ public class BlueprintHud extends HudGraphic {
 		}
 	}
 
-	private void drawAction(GuiGraphics context, int y, ResourceLocation icon, Component text) {
+	private void drawAction(GuiGraphics context, int y, Identifier icon, Component text) {
 		context.blitSprite(RenderPipelines.GUI_TEXTURED, icon, context.guiWidth() / 2 - 66, context.guiHeight() - y - 2, 12, 12);
 
 		context.drawString(

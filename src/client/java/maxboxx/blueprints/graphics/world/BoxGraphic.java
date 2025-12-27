@@ -1,14 +1,10 @@
 package maxboxx.blueprints.graphics.world;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import maxboxx.blueprints.data.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.core.Direction;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 
 public class BoxGraphic extends WorldGraphic {
 	public float minX, maxX, minY, maxY, minZ, maxZ;
@@ -103,7 +99,7 @@ public class BoxGraphic extends WorldGraphic {
 	}
 
 	private void renderLine(WorldRenderer.Context context, Color color, float x1, float y1, float z1, float x2, float y2, float z2) {
-		ShapeRenderer.addChainedFilledBoxVertices(
+		ShapeVertexUtil.createBox(
 			context.matrices(), context.builder(),
 			x1 - LINE_OFFSET, y1 - LINE_OFFSET, z1 - LINE_OFFSET,
 			x2 + LINE_OFFSET, y2 + LINE_OFFSET, z2 + LINE_OFFSET,
@@ -149,8 +145,8 @@ public class BoxGraphic extends WorldGraphic {
 
 		Direction transformedDir = inverted ? direction.getOpposite() : direction;
 
-		ShapeRenderer.renderFace(
-			context.matrices().last().pose(), context.builder(), transformedDir,
+		ShapeVertexUtil.createFace(
+			context.matrices(), context.builder(), transformedDir,
 			x1 + transformedDir.getStepX() * FACE_OFFSET, y1 + transformedDir.getStepY() * FACE_OFFSET, z1 + transformedDir.getStepZ() * FACE_OFFSET,
 			x2 + transformedDir.getStepX() * FACE_OFFSET, y2 + transformedDir.getStepY() * FACE_OFFSET, z2 + transformedDir.getStepZ() * FACE_OFFSET,
 			color.red(), color.green(), color.blue(), inverted ? alpha : alpha * 0.8f
