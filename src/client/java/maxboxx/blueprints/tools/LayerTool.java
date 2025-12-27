@@ -2,8 +2,7 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
-import maxboxx.blueprints.graphics.world.BlockGraphic;
-import maxboxx.blueprints.graphics.world.BoxGraphic;
+import maxboxx.blueprints.graphics.world.BlueprintGraphic;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 
@@ -40,10 +39,10 @@ public class LayerTool extends BlueprintTool {
 
 			case MIDDLE -> {
 				BlueprintManager.setBlockLayerMode(switch (BlueprintManager.getBlockLayerMode()) {
-					case SHOW_ALL -> BlockGraphic.LayerMode.SHOW_BELOW;
-					case SHOW_BELOW -> BlockGraphic.LayerMode.SHOW_ABOVE;
-					case SHOW_ABOVE -> BlockGraphic.LayerMode.SHOW_SELECTED;
-					case SHOW_SELECTED -> BlockGraphic.LayerMode.SHOW_ALL;
+					case SHOW_ALL -> BlueprintGraphic.LayerMode.SHOW_BELOW;
+					case SHOW_BELOW -> BlueprintGraphic.LayerMode.SHOW_ABOVE;
+					case SHOW_ABOVE -> BlueprintGraphic.LayerMode.SHOW_SELECTED;
+					case SHOW_SELECTED -> BlueprintGraphic.LayerMode.SHOW_ALL;
 				});
 			}
 		}

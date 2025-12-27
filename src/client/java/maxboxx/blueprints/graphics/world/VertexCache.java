@@ -3,6 +3,7 @@ package maxboxx.blueprints.graphics.world;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.level.block.Mirror;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -31,16 +32,42 @@ public class VertexCache implements VertexConsumer {
 		}
 	}
 
-	public void transferTo(VertexConsumer consumer, PoseStack.Pose pose) {
+	public void transferTo(VertexConsumer consumer, PoseStack.Pose pose, Mirror mirror) {
 		Matrix4f mat = pose.pose();
 
-		for (Vertex vert : vertices) {
-			consumer.addVertex(mat, vert.x, vert.y, vert.z);
-			consumer.setColor(r, g, b, a);
-			consumer.setUv(vert.u, vert.v);
-			consumer.setLight(0xffffff);
-			consumer.setOverlay(OverlayTexture.NO_OVERLAY);
-			consumer.setNormal(pose, vert.nx, vert.ny, vert.nz);
+		switch (mirror) {
+			case NONE -> {
+				for (Vertex vert : vertices) {
+					consumer.addVertex(mat, vert.x, vert.y, vert.z);
+					consumer.setColor(r, g, b, a);
+					consumer.setUv(vert.u, vert.v);
+					consumer.setLight(0xffffff);
+					consumer.setOverlay(OverlayTexture.NO_OVERLAY);
+					consumer.setNormal(pose, vert.nx, vert.ny, vert.nz);
+				}
+			}
+
+			case LEFT_RIGHT -> {
+				for (Vertex vert : vertices.reversed()) {
+					consumer.addVertex(mat, vert.x, vert.y, -vert.z);
+					consumer.setColor(r, g, b, a);
+					consumer.setUv(vert.u, vert.v);
+					consumer.setLight(0xffffff);
+					consumer.setOverlay(OverlayTexture.NO_OVERLAY);
+					consumer.setNormal(pose, vert.nx, vert.ny, -vert.nz);
+				}
+			}
+
+			case FRONT_BACK -> {
+				for (Vertex vert : vertices.reversed()) {
+					consumer.addVertex(mat, -vert.x, vert.y, vert.z);
+					consumer.setColor(r, g, b, a);
+					consumer.setUv(vert.u, vert.v);
+					consumer.setLight(0xffffff);
+					consumer.setOverlay(OverlayTexture.NO_OVERLAY);
+					consumer.setNormal(pose, -vert.nx, vert.ny, vert.nz);
+				}
+			}
 		}
 	}
 

@@ -14,6 +14,7 @@ public class BlueprintTools {
 		TOOLS.add(new ClipboardTool());
 		TOOLS.add(new VisibilityTool());
 		TOOLS.add(new LayerTool());
+		TOOLS.add(new RotateTool());
 	}
 
 	public static BlueprintTool get(int index) {
@@ -26,5 +27,10 @@ public class BlueprintTools {
 
 	public static int indexOf(BlueprintTool tool) {
 		return TOOLS.indexOf(tool);
+	}
+
+	public static int indexOfSafe(BlueprintTool tool) {
+		int slot = TOOLS.indexOf(tool);
+		return Math.max(slot, 0);
 	}
 }

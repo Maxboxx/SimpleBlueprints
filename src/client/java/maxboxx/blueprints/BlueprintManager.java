@@ -4,7 +4,7 @@ import maxboxx.blueprints.data.BlueprintData;
 import maxboxx.blueprints.data.Color;
 import maxboxx.blueprints.graphics.hud.BlueprintHud;
 import maxboxx.blueprints.graphics.hud.HudRegistry;
-import maxboxx.blueprints.graphics.world.BlockGraphic;
+import maxboxx.blueprints.graphics.world.BlueprintGraphic;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
 import maxboxx.blueprints.graphics.world.WorldRenderer;
 import maxboxx.blueprints.tools.BlueprintTool;
@@ -18,6 +18,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.block.Mirror;
 
 public class BlueprintManager {
 	private static final BlueprintHud HUD = new BlueprintHud();
@@ -34,7 +35,7 @@ public class BlueprintManager {
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
 
 	private static boolean showBlocks = true;
-	private static BlockGraphic blockGraphic = null;
+	private static BlueprintGraphic blueprintGraphic = null;
 	private static Color blockColor = Color.WHITE;
 	private static float blockAlpha = VisibilityTool.DEFAULT_ALPHA;
 
@@ -76,12 +77,12 @@ public class BlueprintManager {
 			while (KeyBinds.VISIBILITY.consumeClick()) {
 				showBlocks = !showBlocks;
 
-				if (blockGraphic != null) {
+				if (blueprintGraphic != null) {
 					if (showBlocks && hasSelection()) {
-						blockGraphic.setPosition(selectionMin);
-						WorldRenderer.addGraphic(blockGraphic);
+						blueprintGraphic.setPosition(selectionMin);
+						WorldRenderer.addGraphic(blueprintGraphic);
 					} else {
-						WorldRenderer.removeGraphic(blockGraphic);
+						WorldRenderer.removeGraphic(blueprintGraphic);
 					}
 				}
 			}
@@ -138,7 +139,7 @@ public class BlueprintManager {
 			tool = BlueprintTools.get(0);
 		}
 
-		player.getInventory().setSelectedSlot(BlueprintTools.indexOf(tool));
+		player.getInventory().setSelectedSlot(BlueprintTools.indexOfSafe(tool));
 
 		updateGraphics();
 	}
@@ -207,35 +208,35 @@ public class BlueprintManager {
 		updateGraphics();
 	}
 
-	public static void setBlockGraphic(BlockGraphic graphic) {
-		if (blockGraphic != null) {
-			WorldRenderer.removeGraphic(blockGraphic);
+	public static void setBlockGraphic(BlueprintGraphic graphic) {
+		if (blueprintGraphic != null) {
+			WorldRenderer.removeGraphic(blueprintGraphic);
 		}
 
-		blockGraphic = graphic;
+		blueprintGraphic = graphic;
 		graphic.setPosition(selectionMin);
 
 		if (showBlocks) {
 			WorldRenderer.addGraphic(graphic);
 		}
 
-		if (blockGraphic != null) {
-			blockGraphic.setAlpha(blockAlpha);
+		if (blueprintGraphic != null) {
+			blueprintGraphic.setAlpha(blockAlpha);
 		}
 	}
 
 	public static void clearBlockGraphic() {
-		if (blockGraphic != null) {
-			WorldRenderer.removeGraphic(blockGraphic);
-			blockGraphic = null;
+		if (blueprintGraphic != null) {
+			WorldRenderer.removeGraphic(blueprintGraphic);
+			blueprintGraphic = null;
 		}
 	}
 
 	public static void setBlockAlpha(float alpha) {
 		blockAlpha = alpha;
 
-		if (blockGraphic != null) {
-			blockGraphic.setAlpha(alpha);
+		if (blueprintGraphic != null) {
+			blueprintGraphic.setAlpha(alpha);
 		}
 	}
 
@@ -246,8 +247,8 @@ public class BlueprintManager {
 	public static void setBlockColor(Color color) {
 		blockColor = color;
 
-		if (blockGraphic != null) {
-			blockGraphic.setTint(color);
+		if (blueprintGraphic != null) {
+			blueprintGraphic.setTint(color);
 		}
 	}
 
@@ -256,30 +257,30 @@ public class BlueprintManager {
 	}
 
 	public static int getBlockLayer() {
-		if (blockGraphic != null) {
-			return blockGraphic.getSelectedLayer();
+		if (blueprintGraphic != null) {
+			return blueprintGraphic.getSelectedLayer();
 		}
 
 		return 0;
 	}
 
 	public static void setBlockLayer(int layer) {
-		if (blockGraphic != null) {
-			blockGraphic.setSelectedLayer(layer);
+		if (blueprintGraphic != null) {
+			blueprintGraphic.setSelectedLayer(layer);
 		}
 	}
 
-	public static BlockGraphic.LayerMode getBlockLayerMode() {
-		if (blockGraphic != null) {
-			return blockGraphic.getLayerMode();
+	public static BlueprintGraphic.LayerMode getBlockLayerMode() {
+		if (blueprintGraphic != null) {
+			return blueprintGraphic.getLayerMode();
 		}
 
-		return BlockGraphic.LayerMode.SHOW_ALL;
+		return BlueprintGraphic.LayerMode.SHOW_ALL;
 	}
 
-	public static void setBlockLayerMode(BlockGraphic.LayerMode mode) {
-		if (blockGraphic != null) {
-			blockGraphic.setLayerMode(mode);
+	public static void setBlockLayerMode(BlueprintGraphic.LayerMode mode) {
+		if (blueprintGraphic != null) {
+			blueprintGraphic.setLayerMode(mode);
 		}
 	}
 
@@ -318,21 +319,44 @@ public class BlueprintManager {
 		updateGraphics();
 	}
 
+	public static void rotateSelection() {
+		if (data == null) return;
+
+		data.rotate();
+		blueprintGraphic.setRotation(data.getRotation());
+
+		selectionMax = selectionMin.offset(data.transformedSize()).offset(-1, -1, -1);
+
+		updateGraphics();
+	}
+
+	public static void mirrorSelection(Direction.Axis axis) {
+		if (data == null) return;
+		if (axis == Direction.Axis.Y) return;
+
+		data.mirror(axis);
+		blueprintGraphic.setMirror(data.getMirror());
+
+		selectionMax = selectionMin.offset(data.transformedSize()).offset(-1, -1, -1);
+
+		updateGraphics();
+	}
+
 	private static void updateGraphics() {
 		if (!selectionActive) {
 			WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
 			WorldRenderer.removeGraphic(SELECTION_OUTLINE);
 
-			if (blockGraphic != null) {
-				WorldRenderer.removeGraphic(blockGraphic);
+			if (blueprintGraphic != null) {
+				WorldRenderer.removeGraphic(blueprintGraphic);
 			}
 
 			return;
 		}
 
-		if (blockGraphic != null && showBlocks) {
-			blockGraphic.setPosition(selectionMin);
-			WorldRenderer.addGraphic(blockGraphic);
+		if (blueprintGraphic != null && showBlocks) {
+			blueprintGraphic.setPosition(selectionMin);
+			WorldRenderer.addGraphic(blueprintGraphic);
 		}
 
 		WorldRenderer.addGraphic(SELECTION_GRAPHIC);

@@ -1,6 +1,5 @@
-package maxboxx.blueprints;
+package maxboxx.blueprints.utils;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;

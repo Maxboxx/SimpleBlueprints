@@ -17,9 +17,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
@@ -27,21 +25,28 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
+public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter {
 	private final ArrayList<HashMap<BlockPos, BlockState>> blocks = new ArrayList<>();
 	private final Level level;
 	private final int minY;
+
+	private final int sizeX, sizeZ;
 
 	private final ArrayList<VertexCache> vertexLayers = new ArrayList<>();
 
 	private int selectedLayer;
 	private LayerMode layerMode = LayerMode.SHOW_ALL;
+
+	private Rotation rotation = Rotation.NONE;
+	private Mirror mirror = Mirror.NONE;
 
 	private BlockPos offset;
 	private Color color;
@@ -54,23 +59,31 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 		SHOW_SELECTED
 	}
 
-	public BlockGraphic(Level level, HashMap<BlockPos, BlockState> blocks, RenderPipeline pipeline) {
+	public BlueprintGraphic(Level level, HashMap<BlockPos, BlockState> blocks, RenderPipeline pipeline) {
 		super(pipeline);
+
+		int minX = 100000;
+		int maxX = -100000;
 
 		int minY = 100000;
 		int maxY = -100000;
 
-		for (BlockPos pos : blocks.keySet()) {
-			if (pos.getY() < minY) {
-				minY = pos.getY();
-			}
+		int minZ = 100000;
+		int maxZ = -100000;
 
-			if (pos.getY() > maxY) {
-				maxY = pos.getY();
-			}
+		for (BlockPos pos : blocks.keySet()) {
+			if (pos.getX() < minX) minX = pos.getX();
+			if (pos.getX() > maxX) maxX = pos.getX();
+			if (pos.getY() < minY) minY = pos.getY();
+			if (pos.getY() > maxY) maxY = pos.getY();
+			if (pos.getZ() < minZ) minZ = pos.getZ();
+			if (pos.getZ() > maxZ) maxZ = pos.getZ();
 		}
 
 		int height = maxY - minY + 1;
+
+		sizeX = maxX - minX + 1;
+		sizeZ = maxZ - minZ + 1;
 
 		for (int i = 0; i < height; i++) {
 			vertexLayers.add(new VertexCache());
@@ -175,17 +188,67 @@ public class BlockGraphic extends WorldGraphic implements BlockAndTintGetter {
 		}
 	}
 
+	public void setRotation(Rotation rotation) {
+		this.rotation = rotation;
+	}
+
+	public void setMirror(Mirror mirror) {
+		this.mirror = mirror;
+	}
+
 	@Override
 	public void render(WorldRenderer.Context context) {
 		VertexConsumer consumer = RenderLayerHelper.entityDelegate(context.context().consumers()).getBuffer(ChunkSectionLayer.TRANSLUCENT);
 
 		context.matrices().pushPose();
-		context.matrices().translate(offset.getX(), offset.getY(), offset.getZ());
+
+		switch (rotation) {
+			case NONE -> {
+				context.matrices().translate(offset.getX(), offset.getY(), offset.getZ());
+			}
+
+			case CLOCKWISE_90 -> {
+				context.matrices().translate(offset.getX() + sizeZ, offset.getY(), offset.getZ());
+
+				context.matrices().rotateAround(
+					new Quaternionf(new AxisAngle4f((float)(Math.PI * -0.5f), 0f, 1f, 0f)),
+					0f, 0f, 0f
+				);
+			}
+
+			case CLOCKWISE_180 -> {
+				context.matrices().translate(offset.getX() + sizeX, offset.getY(), offset.getZ() + sizeZ);
+
+				context.matrices().rotateAround(
+					new Quaternionf(new AxisAngle4f((float)Math.PI, 0f, 1f, 0f)),
+					0f, 0f, 0f
+				);
+			}
+
+			case COUNTERCLOCKWISE_90 -> {
+				context.matrices().translate(offset.getX(), offset.getY(), offset.getZ() + sizeX);
+
+				context.matrices().rotateAround(
+					new Quaternionf(new AxisAngle4f((float)(Math.PI * 0.5f), 0f, 1f, 0f)),
+					0f, 0f, 0f
+				);
+			}
+		}
+
+		switch (mirror) {
+			case LEFT_RIGHT -> {
+				context.matrices().translate(0f, 0f, sizeZ);
+			}
+
+			case FRONT_BACK -> {
+				context.matrices().translate(sizeX, 0f, 0f);
+			}
+		}
 
 		for (int i = 0; i < vertexLayers.size(); i++) {
 			if (!isLayerVisible(i)) continue;
 
-			vertexLayers.get(i).transferTo(consumer, context.matrices().last());
+			vertexLayers.get(i).transferTo(consumer, context.matrices().last(), mirror);
 		}
 
 		context.matrices().popPose();
