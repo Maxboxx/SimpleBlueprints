@@ -6,27 +6,50 @@ import maxboxx.blueprints.data.BlueprintData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 
 public class ClipboardTool extends BlueprintTool {
-	private BlueprintData data;
-
 	public ClipboardTool() {
 		super("clipboard");
 	}
 
 	@Override
 	public boolean isAvailable() {
+		if (BlueprintManager.getData() != null) {
+			return true;
+		}
+
 		return BlueprintManager.hasSelection();
+	}
+
+	@Override
+	public int getColor() {
+		if (BlueprintManager.getData() != null) {
+			return BLUE;
+		}
+
+		return super.getColor();
 	}
 
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
-			case LEFT   -> Optional.of(SimpleBlueprints.text("clipboard.copy"));
-			case RIGHT  -> {
-				if (data != null && Minecraft.getInstance().player != null && data.canPlace(Minecraft.getInstance().player)) {
+			case LEFT -> {
+				if (BlueprintManager.hasSelection()) {
+					yield Optional.of(SimpleBlueprints.text("clipboard.copy"));
+				}
+				else {
+					yield Optional.empty();
+				}
+			}
+
+			case RIGHT -> {
+				if (!BlueprintManager.hasSelection()) yield Optional.empty();
+
+				if (BlueprintManager.getData() != null && Minecraft.getInstance().player != null && BlueprintManager.getData().canPlace(Minecraft.getInstance().player)) {
 					yield Optional.of(SimpleBlueprints.text("clipboard.paste"));
 				}
 				else {
@@ -35,7 +58,7 @@ public class ClipboardTool extends BlueprintTool {
 			}
 
 			case MIDDLE -> {
-				if (data != null) {
+				if (BlueprintManager.getData() != null) {
 					yield Optional.of(SimpleBlueprints.text("clipboard.clear"));
 				}
 				else {
@@ -47,11 +70,11 @@ public class ClipboardTool extends BlueprintTool {
 
 	@Override
 	public void performAction(LocalPlayer player, ToolAction action) {
-		if (!BlueprintManager.hasSelection()) return;
-
 		switch (action) {
 			case LEFT -> {
-				data = new BlueprintData();
+				if (!BlueprintManager.hasSelection()) break;
+
+				BlueprintData data = new BlueprintData();
 
 				data.loadFromWorld(
 					player.level(),
@@ -64,8 +87,10 @@ public class ClipboardTool extends BlueprintTool {
 			}
 
 			case RIGHT -> {
-				if (data != null && data.canPlace(player)) {
-					data.placeInWorld(
+				if (!BlueprintManager.hasSelection()) break;
+
+				if (BlueprintManager.getData() != null && BlueprintManager.getData().canPlace(player)) {
+					BlueprintManager.getData().placeInWorld(
 						player,
 						BlueprintManager.getSelectionMin()
 					);
@@ -73,7 +98,6 @@ public class ClipboardTool extends BlueprintTool {
 			}
 
 			case MIDDLE -> {
-				data = null;
 				BlueprintManager.setData(null);
 				BlueprintManager.clearBlockGraphic();
 				BlueprintManager.clearSelection();

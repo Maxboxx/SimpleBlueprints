@@ -18,26 +18,41 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.block.Mirror;
 
 public class BlueprintManager {
+	public static final int SLOT_COUNT = 9;
+
 	private static final BlueprintHud HUD = new BlueprintHud();
 
 	private static boolean active = false;
 	private static BlueprintTool tool = null;
 
-	private static boolean selectionActive = false;
-	private static BlockPos selectionMin, selectionMax;
-
-	private static BlueprintData data = null;
+	private static int selectedSlot = 0;
+	private static BlueprintSelection selection;
+	private static BlueprintSelection[] selectionData = new BlueprintSelection[SLOT_COUNT];
 
 	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_QUADS, false);
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
 
 	private static boolean showBlocks = true;
-	private static BlueprintGraphic blueprintGraphic = null;
 	private static Color blockColor = Color.WHITE;
 	private static float blockAlpha = VisibilityTool.DEFAULT_ALPHA;
+
+	private static class BlueprintSelection {
+		private boolean isActive = false;
+		private BlockPos min, max;
+
+		private BlueprintData data = null;
+		private BlueprintGraphic graphic = null;
+	}
+
+	static {
+		for (int i = 0; i < selectionData.length; i++) {
+			selectionData[i] = new BlueprintSelection();
+		}
+
+		selection = selectionData[0];
+	}
 
 	public static void init() {
 		SELECTION_GRAPHIC.color  = Color.WHITE;
@@ -77,12 +92,14 @@ public class BlueprintManager {
 			while (KeyBinds.VISIBILITY.consumeClick()) {
 				showBlocks = !showBlocks;
 
-				if (blueprintGraphic != null) {
-					if (showBlocks && hasSelection()) {
-						blueprintGraphic.setPosition(selectionMin);
-						WorldRenderer.addGraphic(blueprintGraphic);
+				for (BlueprintSelection selection : selectionData) {
+					if (selection.graphic == null) continue;
+
+					if (showBlocks && selection.data != null) {
+						selection.graphic.setPosition(selection.min);
+						WorldRenderer.addGraphic(selection.graphic);
 					} else {
-						WorldRenderer.removeGraphic(blueprintGraphic);
+						WorldRenderer.removeGraphic(selection.graphic);
 					}
 				}
 			}
@@ -103,6 +120,24 @@ public class BlueprintManager {
 
 	public static BlueprintTool currentTool() {
 		return tool;
+	}
+
+	public static void setToolSlot(int i) {
+		LocalPlayer player = Minecraft.getInstance().player;
+		if (player == null) return;
+
+		player.getInventory().setSelectedSlot(i);
+	}
+
+	public static int getBlueprintSlot() {
+		return selectedSlot;
+	}
+
+	public static void setBlueprintSlot(int slot) {
+		selectedSlot = slot;
+		selection = selectionData[slot];
+
+		updateGraphics();
 	}
 
 	private static void updateMode() {
@@ -161,83 +196,119 @@ public class BlueprintManager {
 	}
 
 	public static BlueprintData getData() {
-		return data;
+		return selection.data;
+	}
+
+	public static boolean hasData() {
+		return selection.data != null;
+	}
+
+	public static boolean hasDataInSlot(int i) {
+		if (i >= 0 && i < selectionData.length) {
+			return selectionData[i].data != null;
+		}
+
+		return false;
+	}
+
+	public static boolean hasSelectionForSlot(int i) {
+		if (i >= 0 && i < selectionData.length) {
+			return selectionData[i].isActive;
+		}
+
+		return false;
+	}
+
+	public static boolean hasPlacedData() {
+		return selection.isActive && selection.data != null;
+	}
+
+	public static boolean hasAnyPlacedData() {
+		for (BlueprintSelection selection : selectionData) {
+			if (selection.isActive && selection.data != null) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static void setData(BlueprintData data) {
-		BlueprintManager.data = data;
+		BlueprintManager.selection.data = data;
 	}
 
 	public static BlockPos getSelectionMin() {
-		return selectionMin;
+		return selection.min;
 	}
 
 	public static BlockPos getSelectionMax() {
-		return selectionMax;
+		return selection.max;
 	}
 
 	public static Vec3i getSelectionSize() {
 		return new Vec3i(
-			selectionMax.getX() - selectionMin.getX() + 1,
-			selectionMax.getY() - selectionMin.getY() + 1,
-			selectionMax.getZ() - selectionMin.getZ() + 1
+			selection.max.getX() - selection.min.getX() + 1,
+			selection.max.getY() - selection.min.getY() + 1,
+			selection.max.getZ() - selection.min.getZ() + 1
 		);
 	}
 
 	public static boolean hasSelection() {
-		return selectionActive;
+		return selection.isActive;
 	}
 
 	public static void addToSelection(BlockPos pos) {
-		if (!selectionActive) {
-			selectionMin = pos;
-			selectionMax = pos;
+		if (!selection.isActive) {
+			selection.min = pos;
+			selection.max = pos;
 
-			selectionActive = true;
+			selection.isActive = true;
 		}
 		else {
-			selectionMin = BlockPos.min(selectionMin, pos);
-			selectionMax = BlockPos.max(selectionMax, pos);
+			selection.min = BlockPos.min(selection.min, pos);
+			selection.max = BlockPos.max(selection.max, pos);
 		}
 
 		updateGraphics();
 	}
 
 	public static void clearSelection() {
-		selectionActive = false;
+		selection.isActive = false;
 		updateGraphics();
 	}
 
 	public static void setBlockGraphic(BlueprintGraphic graphic) {
-		if (blueprintGraphic != null) {
-			WorldRenderer.removeGraphic(blueprintGraphic);
+		if (selection.graphic != null) {
+			WorldRenderer.removeGraphic(selection.graphic);
 		}
 
-		blueprintGraphic = graphic;
-		graphic.setPosition(selectionMin);
+		selection.graphic = graphic;
+		graphic.setPosition(selection.min);
 
 		if (showBlocks) {
 			WorldRenderer.addGraphic(graphic);
 		}
 
-		if (blueprintGraphic != null) {
-			blueprintGraphic.setTint(blockColor);
-			blueprintGraphic.setAlpha(blockAlpha);
+		if (selection.graphic != null) {
+			selection.graphic.setTint(blockColor);
+			selection.graphic.setAlpha(blockAlpha);
 		}
 	}
 
 	public static void clearBlockGraphic() {
-		if (blueprintGraphic != null) {
-			WorldRenderer.removeGraphic(blueprintGraphic);
-			blueprintGraphic = null;
+		if (selection.graphic != null) {
+			WorldRenderer.removeGraphic(selection.graphic);
+			selection.graphic = null;
 		}
 	}
 
 	public static void setBlockAlpha(float alpha) {
 		blockAlpha = alpha;
 
-		if (blueprintGraphic != null) {
-			blueprintGraphic.setAlpha(alpha);
+		for (BlueprintSelection selection : selectionData) {
+			if (selection.graphic != null) {
+				selection.graphic.setAlpha(alpha);
+			}
 		}
 	}
 
@@ -248,8 +319,10 @@ public class BlueprintManager {
 	public static void setBlockColor(Color color) {
 		blockColor = color;
 
-		if (blueprintGraphic != null) {
-			blueprintGraphic.setTint(color);
+		for (BlueprintSelection selection : selectionData) {
+			if (selection.graphic != null) {
+				selection.graphic.setTint(color);
+			}
 		}
 	}
 
@@ -258,116 +331,116 @@ public class BlueprintManager {
 	}
 
 	public static int getBlockLayer() {
-		if (blueprintGraphic != null) {
-			return blueprintGraphic.getSelectedLayer();
+		if (selection.graphic != null) {
+			return selection.graphic.getSelectedLayer();
 		}
 
 		return 0;
 	}
 
 	public static void setBlockLayer(int layer) {
-		if (blueprintGraphic != null) {
-			blueprintGraphic.setSelectedLayer(layer);
+		if (selection.graphic != null) {
+			selection.graphic.setSelectedLayer(layer);
 		}
 	}
 
 	public static BlueprintGraphic.LayerMode getBlockLayerMode() {
-		if (blueprintGraphic != null) {
-			return blueprintGraphic.getLayerMode();
+		if (selection.graphic != null) {
+			return selection.graphic.getLayerMode();
 		}
 
 		return BlueprintGraphic.LayerMode.SHOW_ALL;
 	}
 
 	public static void setBlockLayerMode(BlueprintGraphic.LayerMode mode) {
-		if (blueprintGraphic != null) {
-			blueprintGraphic.setLayerMode(mode);
+		if (selection.graphic != null) {
+			selection.graphic.setLayerMode(mode);
 		}
 	}
 
 	public static void moveSelection(Direction direction, int steps) {
-		if (!selectionActive) return;
+		if (!selection.isActive) return;
 
-		selectionMin = selectionMin.relative(direction, steps);
-		selectionMax = selectionMax.relative(direction, steps);
+		selection.min = selection.min.relative(direction, steps);
+		selection.max = selection.max.relative(direction, steps);
 
 		updateGraphics();
 	}
 
 	public static void expandSelection(Direction direction, int steps) {
-		if (!selectionActive) return;
+		if (!selection.isActive) return;
 
 		if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-			selectionMax = selectionMax.relative(direction, steps);
+			selection.max = selection.max.relative(direction, steps);
 		}
 		else {
-			selectionMin = selectionMin.relative(direction, steps);
+			selection.min = selection.min.relative(direction, steps);
 		}
 
 		updateGraphics();
 	}
 
 	public static void shrinkSelection(Direction direction, int steps) {
-		if (!selectionActive) return;
+		if (!selection.isActive) return;
 
 		if (direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
-			selectionMax = BlockPos.max(selectionMin, selectionMax.relative(direction, steps));
+			selection.max = BlockPos.max(selection.min, selection.max.relative(direction, steps));
 		}
 		else {
-			selectionMin = BlockPos.min(selectionMax, selectionMin.relative(direction, steps));
+			selection.min = BlockPos.min(selection.max, selection.min.relative(direction, steps));
 		}
 
 		updateGraphics();
 	}
 
 	public static void rotateSelection() {
-		if (data == null) return;
+		if (selection.data == null) return;
 
-		data.rotate();
-		blueprintGraphic.setRotation(data.getRotation());
+		selection.data.rotate();
+		selection.graphic.setRotation(selection.data.getRotation());
 
-		selectionMax = selectionMin.offset(data.transformedSize()).offset(-1, -1, -1);
+		selection.max = selection.min.offset(selection.data.transformedSize()).offset(-1, -1, -1);
 
 		updateGraphics();
 	}
 
 	public static void mirrorSelection(Direction.Axis axis) {
-		if (data == null) return;
+		if (selection.data == null) return;
 		if (axis == Direction.Axis.Y) return;
 
-		data.mirror(axis);
-		blueprintGraphic.setMirror(data.getMirror());
-		blueprintGraphic.setRotation(data.getRotation());
+		selection.data.mirror(axis);
+		selection.graphic.setMirror(selection.data.getMirror());
+		selection.graphic.setRotation(selection.data.getRotation());
 
-		selectionMax = selectionMin.offset(data.transformedSize()).offset(-1, -1, -1);
+		selection.max = selection.min.offset(selection.data.transformedSize()).offset(-1, -1, -1);
 
 		updateGraphics();
 	}
 
 	private static void updateGraphics() {
-		if (!selectionActive) {
+		if (!selection.isActive) {
 			WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
 			WorldRenderer.removeGraphic(SELECTION_OUTLINE);
 
-			if (blueprintGraphic != null) {
-				WorldRenderer.removeGraphic(blueprintGraphic);
+			if (!selection.isActive && selection.graphic != null) {
+				WorldRenderer.removeGraphic(selection.graphic);
 			}
 
 			return;
 		}
 
-		if (blueprintGraphic != null && showBlocks) {
-			blueprintGraphic.setPosition(selectionMin);
-			WorldRenderer.addGraphic(blueprintGraphic);
+		if (selection.graphic != null && showBlocks) {
+			selection.graphic.setPosition(selection.min);
+			WorldRenderer.addGraphic(selection.graphic);
 		}
 
 		WorldRenderer.addGraphic(SELECTION_GRAPHIC);
 		WorldRenderer.addGraphic(SELECTION_OUTLINE);
 
-		SELECTION_GRAPHIC.setMin(selectionMin.getX() - 0.001f, selectionMin.getY() - 0.001f, selectionMin.getZ() - 0.001f);
-		SELECTION_GRAPHIC.setMax(selectionMax.getX() + 1.001f, selectionMax.getY() + 1.001f, selectionMax.getZ() + 1.001f);
+		SELECTION_GRAPHIC.setMin(selection.min.getX() - 0.001f, selection.min.getY() - 0.001f, selection.min.getZ() - 0.001f);
+		SELECTION_GRAPHIC.setMax(selection.max.getX() + 1.001f, selection.max.getY() + 1.001f, selection.max.getZ() + 1.001f);
 
-		SELECTION_OUTLINE.setMin(selectionMin.getX(), selectionMin.getY(), selectionMin.getZ());
-		SELECTION_OUTLINE.setMax(selectionMax.getX() + 1, selectionMax.getY() + 1, selectionMax.getZ() + 1);
+		SELECTION_OUTLINE.setMin(selection.min.getX(), selection.min.getY(), selection.min.getZ());
+		SELECTION_OUTLINE.setMax(selection.max.getX() + 1, selection.max.getY() + 1, selection.max.getZ() + 1);
 	}
 }

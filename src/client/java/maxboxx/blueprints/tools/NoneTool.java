@@ -2,12 +2,13 @@ package maxboxx.blueprints.tools;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
 public class NoneTool extends BlueprintTool {
 	public NoneTool() {
-		super(null);
+		super((Identifier)null);
 	}
 
 	@Override

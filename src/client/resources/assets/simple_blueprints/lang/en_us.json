@@ -30,5 +30,8 @@
   "simple_blueprints.layers.mode": "Switch Layer Mode",
 
   "simple_blueprints.rotate.rotate": "Rotate",
-  "simple_blueprints.rotate.mirror": "Mirror"
+  "simple_blueprints.rotate.mirror": "Mirror",
+
+  "simple_blueprints.slots.change": "Change Slot",
+  "simple_blueprints.slots.select": "Select"
 }

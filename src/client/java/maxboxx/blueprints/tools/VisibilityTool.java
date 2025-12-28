@@ -28,7 +28,7 @@ public class VisibilityTool extends BlueprintTool {
 
 	@Override
 	public boolean isAvailable() {
-		return BlueprintManager.hasSelection() && BlueprintManager.getData() != null;
+		return BlueprintManager.hasAnyPlacedData();
 	}
 
 	@Override

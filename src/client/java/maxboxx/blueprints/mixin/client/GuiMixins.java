@@ -24,10 +24,8 @@ public class GuiMixins {
 		if (BlueprintManager.isActive()) {
 			BlueprintTool tool = BlueprintTools.get(k - 1);
 
-			if (tool.ICON != null) {
-				int color = tool.isAvailable() ? ARGB.color(255, 255, 255) : ARGB.color(128, 128, 128, 128);
-
-				guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, tool.ICON, i, j, 16, 16, color);
+			if (tool.getIcon() != null) {
+				guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, tool.getIcon(), i, j, 16, 16, tool.getColor());
 			}
 
 			info.cancel();

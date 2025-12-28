@@ -15,7 +15,7 @@ public class LayerTool extends BlueprintTool {
 
 	@Override
 	public boolean isAvailable() {
-		return BlueprintManager.getData() != null;
+		return BlueprintManager.hasPlacedData();
 	}
 
 	@Override
