@@ -17,6 +17,7 @@ public class BlueprintTools {
 		TOOLS.add(new ClipboardTool());
 		TOOLS.add(new VisibilityTool());
 		TOOLS.add(new LayerTool());
+		TOOLS.add(new BlockListTool());
 		TOOLS.add(new SlotSelectTool());
 	}
 

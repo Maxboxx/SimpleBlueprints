@@ -2,9 +2,9 @@ package maxboxx.blueprints.graphics.hud;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
-import maxboxx.blueprints.SimpleBlueprintsClient;
+import maxboxx.blueprints.data.BlueprintData;
+import maxboxx.blueprints.tools.BlockListTool;
 import maxboxx.blueprints.tools.BlueprintTool;
-import maxboxx.blueprints.tools.BlueprintTools;
 import maxboxx.blueprints.tools.ToolAction;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
@@ -16,6 +16,8 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 
 import java.util.Optional;
 
@@ -23,6 +25,10 @@ public class BlueprintHud extends HudGraphic {
 	private static final Identifier LEFT_ICON   = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_left");
 	private static final Identifier RIGHT_ICON  = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_right");
 	private static final Identifier MIDDLE_ICON = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_middle");
+
+	private static final int BLOCK_LIST_Y_OFFSET = 5;
+	private static final int BLOCK_LIST_X_OFFSET = -20;
+	private static final int BLOCK_OFFSET = 18;
 
 	public BlueprintHud() {
 		super("hud", VanillaHudElements.HOTBAR);
@@ -47,9 +53,9 @@ public class BlueprintHud extends HudGraphic {
 			);
 		}
 
-		if (BlueprintManager.hasSelection()) {
-			Font font = Minecraft.getInstance().font;
+		Font font = Minecraft.getInstance().font;
 
+		if (BlueprintManager.hasSelection()) {
 			BlockPos min = BlueprintManager.getSelectionMin();
 			BlockPos max = BlueprintManager.getSelectionMax();
 			Vec3i   size = BlueprintManager.getSelectionSize();
@@ -64,7 +70,39 @@ public class BlueprintHud extends HudGraphic {
 			context.drawString(font, minText, 10, 10, 0xffffffff);
 			context.drawString(font, maxText, 10, 20, 0xffffffff);
 			context.drawString(font, sizeText, 10, 30, 0xffffffff);
+		}
 
+		if (BlueprintManager.hasData() && BlueprintManager.currentTool() instanceof BlockListTool) {
+			BlueprintData data = BlueprintManager.getData();
+
+			final int blockCount = data.getBlocks().size();
+			final int maxRows = (context.guiHeight() - BLOCK_LIST_Y_OFFSET * 2) / BLOCK_OFFSET;
+			final int cols = Math.ceilDiv(blockCount, maxRows);
+
+			int row = 0;
+			int col = cols - 1;
+
+			for (BlueprintData.BlockData block : data.getBlocks()) {
+				ItemStack stack = new ItemStack(block.block(), block.count());
+				if (stack.getCount() <= 0) continue;
+
+				context.renderItem(stack, context.guiWidth() + BLOCK_LIST_X_OFFSET - BLOCK_OFFSET * col, BLOCK_LIST_Y_OFFSET + row * BLOCK_OFFSET);
+
+				context.pose().pushMatrix();
+				context.pose().scale(0.5f);
+
+				String count = String.valueOf(stack.getCount());
+				context.drawString(font, count, (context.guiWidth() + BLOCK_LIST_X_OFFSET + BLOCK_OFFSET - 2 - BLOCK_OFFSET * col) * 2 - font.width(count), (BLOCK_LIST_Y_OFFSET + row * BLOCK_OFFSET + 12) * 2, 0xffffffff);
+
+				context.pose().popMatrix();
+
+				col--;
+
+				if (col < 0) {
+					col = cols - 1;
+					row++;
+				}
+			}
 		}
 	}
 

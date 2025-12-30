@@ -8,6 +8,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
@@ -16,16 +18,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class BlueprintData {
 	private StructureTemplate structure;
 	private HashSet<Block> blocks;
 	private BlockPos pos;
 	private MirrorRotation mirrorRotation = MirrorRotation.NONE;
+
+	private final ArrayList<BlockData> sortedBlocks = new ArrayList<>();
+
+	public record BlockData(Block block, int count) {
+
+	}
 
 	public Vec3i size() {
 		return structure.getSize();
@@ -49,13 +54,27 @@ public class BlueprintData {
 		blocks    = new HashSet<>();
 		pos       = position;
 
+		HashMap<Block, Integer> blockData = new HashMap<>();
+
 		for (int x = 0; x < size.getX(); x++) {
 			for (int y = 0; y < size.getY(); y++) {
 				for (int z = 0; z < size.getZ(); z++) {
-					blocks.add(level.getBlockState(new BlockPos(position.offset(new Vec3i(x, y, z)))).getBlock());
+					Block block = level.getBlockState(new BlockPos(position.offset(new Vec3i(x, y, z)))).getBlock();
+					blocks.add(block);
+					blockData.put(block, blockData.getOrDefault(block, 0) + 1);
 				}
 			}
 		}
+
+		for (Map.Entry<Block, Integer> block : blockData.entrySet()) {
+			if (block.getKey().asItem() == Items.AIR) {
+				continue;
+			}
+
+			sortedBlocks.add(new BlockData(block.getKey(), block.getValue()));
+		}
+
+		sortedBlocks.sort((a, b) -> b.count - a.count);
 
 		structure.fillFromWorld(
 			level,
@@ -121,5 +140,9 @@ public class BlueprintData {
 
 	public Mirror getMirror() {
 		return mirrorRotation.mirror();
+	}
+
+	public List<BlockData> getBlocks() {
+		return sortedBlocks;
 	}
 }
