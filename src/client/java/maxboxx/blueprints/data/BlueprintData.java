@@ -1,5 +1,6 @@
 package maxboxx.blueprints.data;
 
+import maxboxx.blueprints.mixin.client.StructureTemplateMixins;
 import maxboxx.blueprints.utils.BlockUtil;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
 import maxboxx.blueprints.graphics.world.WorldRenderer;
@@ -7,8 +8,11 @@ import maxboxx.blueprints.utils.PositionUtil;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -144,5 +148,50 @@ public class BlueprintData {
 
 	public List<BlockData> getBlocks() {
 		return sortedBlocks;
+	}
+
+	public CompoundTag save() {
+		CompoundTag tag = new CompoundTag();
+		tag.putInt("rot", mirrorRotation.encode());
+		tag.put("blocks", structure.save(new CompoundTag()));
+		return tag;
+	}
+
+	public void load(CompoundTag tag, BlockPos position) {
+		structure = new StructureTemplate();
+		blocks    = new HashSet<>();
+		pos       = position;
+
+		tag.getInt("rot").ifPresent(d -> mirrorRotation = MirrorRotation.decode(d));
+
+		Tag blocksTag = tag.get("blocks");
+
+		if (!(blocksTag instanceof CompoundTag blockNbt)) {
+			return;
+		}
+
+		structure.load(BuiltInRegistries.BLOCK, blockNbt);
+
+		HashMap<Block, Integer> blockData = new HashMap<>();
+
+		List<StructureTemplate.Palette> palettes = ((StructureTemplateMixins)structure).getStructurePalettes();
+
+		for (StructureTemplate.Palette palette : palettes) {
+			for (StructureTemplate.StructureBlockInfo blockInfo : palette.blocks()) {
+				Block block = blockInfo.state().getBlock();
+				blocks.add(block);
+				blockData.put(block, blockData.getOrDefault(block, 0) + 1);
+			}
+		}
+
+		for (Map.Entry<Block, Integer> block : blockData.entrySet()) {
+			if (block.getKey().asItem() == Items.AIR) {
+				continue;
+			}
+
+			sortedBlocks.add(new BlockData(block.getKey(), block.getValue()));
+		}
+
+		sortedBlocks.sort((a, b) -> b.count - a.count);
 	}
 }

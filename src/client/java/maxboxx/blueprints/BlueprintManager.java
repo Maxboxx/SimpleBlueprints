@@ -1,6 +1,7 @@
 package maxboxx.blueprints;
 
 import maxboxx.blueprints.data.BlueprintData;
+import maxboxx.blueprints.data.BlueprintSelectionData;
 import maxboxx.blueprints.data.Color;
 import maxboxx.blueprints.graphics.hud.BlueprintHud;
 import maxboxx.blueprints.graphics.hud.HudRegistry;
@@ -11,13 +12,17 @@ import maxboxx.blueprints.tools.BlueprintTool;
 import maxboxx.blueprints.tools.ToolAction;
 import maxboxx.blueprints.tools.BlueprintTools;
 import maxboxx.blueprints.tools.VisibilityTool;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+
+import java.nio.file.Path;
 
 public class BlueprintManager {
 	public static final int SLOT_COUNT = 9;
@@ -26,11 +31,12 @@ public class BlueprintManager {
 
 	private static boolean active = false;
 	private static BlueprintTool tool = null;
+	private static boolean hasLoaded = false;
 
 	private static int hotbarSlot = 0;
 	private static int selectedSlot = 0;
-	private static BlueprintSelection selection;
-	private static BlueprintSelection[] selectionData = new BlueprintSelection[SLOT_COUNT];
+	private static BlueprintSelectionData selection;
+	private static final BlueprintSelectionData[] selectionData = new BlueprintSelectionData[SLOT_COUNT];
 
 	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_QUADS, false);
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
@@ -39,17 +45,9 @@ public class BlueprintManager {
 	private static Color blockColor = Color.WHITE;
 	private static float blockAlpha = VisibilityTool.DEFAULT_ALPHA;
 
-	private static class BlueprintSelection {
-		private boolean isActive = false;
-		private BlockPos min, max;
-
-		private BlueprintData data = null;
-		private BlueprintGraphic graphic = null;
-	}
-
 	static {
 		for (int i = 0; i < selectionData.length; i++) {
-			selectionData[i] = new BlueprintSelection();
+			selectionData[i] = new BlueprintSelectionData();
 		}
 
 		selection = selectionData[0];
@@ -93,13 +91,14 @@ public class BlueprintManager {
 			while (KeyBinds.VISIBILITY.consumeClick()) {
 				showBlocks = !showBlocks;
 
-				for (BlueprintSelection selection : selectionData) {
+				for (BlueprintSelectionData selection : selectionData) {
 					if (selection.graphic == null) continue;
 
 					if (showBlocks && selection.data != null) {
 						selection.graphic.setPosition(selection.min);
 						WorldRenderer.addGraphic(selection.graphic);
-					} else {
+					}
+					else {
 						WorldRenderer.removeGraphic(selection.graphic);
 					}
 				}
@@ -110,8 +109,49 @@ public class BlueprintManager {
 			}
 		});
 
+		ClientPlayConnectionEvents.INIT.register((a, d) -> {
+			if (hasLoaded) return;
+
+			Path configPath = SimpleBlueprints.configPath();
+
+			for (int i = 0; i < selectionData.length; i++) {
+				Path path = configPath.resolve("selection" + (i + 1) + ".dat");
+				selectionData[i].loadData(path);
+
+				if (selectionData[i].data == null) continue;
+
+				selectionData[i].graphic = selectionData[i].data.toGraphic(Minecraft.getInstance().level);
+				selectionData[i].graphic.setMirror(selectionData[i].data.getMirror());
+				selectionData[i].graphic.setRotation(selectionData[i].data.getRotation());
+
+				if (showBlocks) {
+					selectionData[i].graphic.setPosition(selectionData[i].min);
+					WorldRenderer.addGraphic(selectionData[i].graphic);
+				}
+			}
+
+			hasLoaded = true;
+		});
+
 		ClientPlayConnectionEvents.DISCONNECT.register((a, d) -> {
 			disable();
+		});
+
+		ClientLifecycleEvents.CLIENT_STOPPING.register((a) -> {
+			if (!hasLoaded) return;
+
+			Path configPath = SimpleBlueprints.configPath();
+
+			for (int i = 0; i < selectionData.length; i++) {
+				if (!selectionData[i].isDirty()) continue;
+
+				Path path = configPath.resolve("selection" + (i + 1) + ".dat");
+				selectionData[i].saveData(path);
+
+				if (selectionData[i].graphic != null) {
+					WorldRenderer.removeGraphic(selectionData[i].graphic);
+				}
+			}
 		});
 	}
 
@@ -232,7 +272,7 @@ public class BlueprintManager {
 	}
 
 	public static boolean hasAnyPlacedData() {
-		for (BlueprintSelection selection : selectionData) {
+		for (BlueprintSelectionData selection : selectionData) {
 			if (selection.isActive && selection.data != null) {
 				return true;
 			}
@@ -242,7 +282,8 @@ public class BlueprintManager {
 	}
 
 	public static void setData(BlueprintData data) {
-		BlueprintManager.selection.data = data;
+		selection.data = data;
+		selection.markDirty();
 	}
 
 	public static BlockPos getSelectionMin() {
@@ -277,11 +318,13 @@ public class BlueprintManager {
 			selection.max = BlockPos.max(selection.max, pos);
 		}
 
+		selection.markDirty();
 		updateGraphics();
 	}
 
 	public static void clearSelection() {
 		selection.isActive = false;
+		selection.markDirty();
 		updateGraphics();
 	}
 
@@ -313,7 +356,7 @@ public class BlueprintManager {
 	public static void setBlockAlpha(float alpha) {
 		blockAlpha = alpha;
 
-		for (BlueprintSelection selection : selectionData) {
+		for (BlueprintSelectionData selection : selectionData) {
 			if (selection.graphic != null) {
 				selection.graphic.setAlpha(alpha);
 			}
@@ -327,7 +370,7 @@ public class BlueprintManager {
 	public static void setBlockColor(Color color) {
 		blockColor = color;
 
-		for (BlueprintSelection selection : selectionData) {
+		for (BlueprintSelectionData selection : selectionData) {
 			if (selection.graphic != null) {
 				selection.graphic.setTint(color);
 			}
@@ -372,6 +415,7 @@ public class BlueprintManager {
 		selection.min = selection.min.relative(direction, steps);
 		selection.max = selection.max.relative(direction, steps);
 
+		selection.markDirty();
 		updateGraphics();
 	}
 
@@ -385,6 +429,7 @@ public class BlueprintManager {
 			selection.min = selection.min.relative(direction, steps);
 		}
 
+		selection.markDirty();
 		updateGraphics();
 	}
 
@@ -398,6 +443,7 @@ public class BlueprintManager {
 			selection.min = BlockPos.min(selection.max, selection.min.relative(direction, steps));
 		}
 
+		selection.markDirty();
 		updateGraphics();
 	}
 
@@ -409,6 +455,7 @@ public class BlueprintManager {
 
 		selection.max = selection.min.offset(selection.data.transformedSize()).offset(-1, -1, -1);
 
+		selection.markDirty();
 		updateGraphics();
 	}
 
@@ -422,6 +469,7 @@ public class BlueprintManager {
 
 		selection.max = selection.min.offset(selection.data.transformedSize()).offset(-1, -1, -1);
 
+		selection.markDirty();
 		updateGraphics();
 	}
 

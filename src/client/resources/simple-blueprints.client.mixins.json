@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"GuiMixins",
-		"HandRendererMixins"
+		"HandRendererMixins",
+		"StructureTemplateMixins"
 	],
 	"injectors": {
 		"defaultRequire": 1

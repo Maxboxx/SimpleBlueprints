@@ -46,4 +46,40 @@ public record MirrorRotation(Mirror mirror, Rotation rotation) {
 			};
 		}
 	}
+
+	public int encode() {
+		int data = switch (rotation) {
+			case NONE -> 0;
+			case CLOCKWISE_90 -> 1;
+			case CLOCKWISE_180 -> 2;
+			case COUNTERCLOCKWISE_90 -> 3;
+		};
+
+		data |= switch (mirror) {
+			case NONE -> 0;
+			case LEFT_RIGHT -> 1;
+			case FRONT_BACK -> 2;
+		} << 2;
+
+		return data;
+	}
+
+	public static MirrorRotation decode(int data) {
+		Rotation rot = switch (data & 3) {
+			case 1 -> Rotation.CLOCKWISE_90;
+			case 2 -> Rotation.CLOCKWISE_180;
+			case 3 -> Rotation.COUNTERCLOCKWISE_90;
+
+			default -> Rotation.NONE;
+		};
+
+		Mirror mirror = switch ((data >> 2) & 3) {
+			case 1 -> Mirror.LEFT_RIGHT;
+			case 2 -> Mirror.FRONT_BACK;
+
+			default -> Mirror.NONE;
+		};
+
+		return new MirrorRotation(mirror, rot);
+	}
 }
