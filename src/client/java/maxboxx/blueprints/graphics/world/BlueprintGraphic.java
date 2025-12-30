@@ -3,6 +3,7 @@ package maxboxx.blueprints.graphics.world;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.Color;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderLayerHelper;
 import net.minecraft.client.Minecraft;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
@@ -56,7 +58,16 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 		SHOW_ALL,
 		SHOW_BELOW,
 		SHOW_ABOVE,
-		SHOW_SELECTED
+		SHOW_SELECTED;
+
+		public Component getText() {
+			return switch (this) {
+				case SHOW_ALL      -> SimpleBlueprints.text("layers.mode.show_all");
+				case SHOW_BELOW    -> SimpleBlueprints.text("layers.mode.bottom");
+				case SHOW_ABOVE    -> SimpleBlueprints.text("layers.mode.top");
+				case SHOW_SELECTED -> SimpleBlueprints.text("layers.mode.slice");
+			};
+		}
 	}
 
 	public BlueprintGraphic(Level level, HashMap<BlockPos, BlockState> blocks, RenderPipeline pipeline) {

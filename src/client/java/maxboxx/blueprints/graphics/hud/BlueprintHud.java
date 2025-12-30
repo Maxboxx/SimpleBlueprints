@@ -8,10 +8,14 @@ import maxboxx.blueprints.tools.BlueprintTools;
 import maxboxx.blueprints.tools.ToolAction;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 
 import java.util.Optional;
 
@@ -41,6 +45,26 @@ public class BlueprintHud extends HudGraphic {
 				context.guiHeight() - 72,
 				0xffff8888
 			);
+		}
+
+		if (BlueprintManager.hasSelection()) {
+			Font font = Minecraft.getInstance().font;
+
+			BlockPos min = BlueprintManager.getSelectionMin();
+			BlockPos max = BlueprintManager.getSelectionMax();
+			Vec3i   size = BlueprintManager.getSelectionSize();
+
+			Component minText  = SimpleBlueprints.text("bounds.min", min.getX(), min.getY(), min.getZ());
+			Component maxText  = SimpleBlueprints.text("bounds.max", max.getX(), max.getY(), max.getZ());
+			Component sizeText = SimpleBlueprints.text("bounds.size", size.getX(), size.getY(), size.getZ());
+
+			int width = Math.max(Math.max(font.width(minText), font.width(maxText)), font.width(sizeText));
+			context.fill(7, 7, 14 + width, 40, ARGB.color(64, 0, 0, 0));
+
+			context.drawString(font, minText, 10, 10, 0xffffffff);
+			context.drawString(font, maxText, 10, 20, 0xffffffff);
+			context.drawString(font, sizeText, 10, 30, 0xffffffff);
+
 		}
 	}
 

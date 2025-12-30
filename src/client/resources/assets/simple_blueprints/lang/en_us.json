@@ -27,11 +27,19 @@
 
   "simple_blueprints.layers.away": "Move Layer Visibility Away",
   "simple_blueprints.layers.closer": "Move Layer Visibility Closer",
-  "simple_blueprints.layers.mode": "Switch Layer Mode",
+  "simple_blueprints.layers.mode": "Switch Layer Mode (Current: %1$s)",
+  "simple_blueprints.layers.mode.bottom": "Bottom",
+  "simple_blueprints.layers.mode.top": "Top",
+  "simple_blueprints.layers.mode.slice": "Slice",
+  "simple_blueprints.layers.mode.show_all": "Show All",
 
   "simple_blueprints.rotate.rotate": "Rotate",
   "simple_blueprints.rotate.mirror": "Mirror",
 
   "simple_blueprints.slots.change": "Change Slot",
-  "simple_blueprints.slots.select": "Select"
+  "simple_blueprints.slots.select": "Select",
+
+  "simple_blueprints.bounds.min": "Min: %1$s, %2$s, %3$s",
+  "simple_blueprints.bounds.max": "Max: %1$s, %2$s, %3$s",
+  "simple_blueprints.bounds.size": "Size: %1$s, %2$s, %3$s"
 }

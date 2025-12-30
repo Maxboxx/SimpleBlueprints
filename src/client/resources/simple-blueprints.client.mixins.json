@@ -3,7 +3,8 @@
 	"package": "maxboxx.blueprints.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"GuiMixins"
+		"GuiMixins",
+		"HandRendererMixins"
 	],
 	"injectors": {
 		"defaultRequire": 1

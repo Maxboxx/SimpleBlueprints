@@ -12,11 +12,11 @@ public class BlueprintTools {
 	public static void init() {
 		TOOLS.add(new SelectTool());
 		TOOLS.add(new MoveTool());
+		TOOLS.add(new RotateTool());
 		TOOLS.add(new ResizeTool());
 		TOOLS.add(new ClipboardTool());
 		TOOLS.add(new VisibilityTool());
 		TOOLS.add(new LayerTool());
-		TOOLS.add(new RotateTool());
 		TOOLS.add(new SlotSelectTool());
 	}
 

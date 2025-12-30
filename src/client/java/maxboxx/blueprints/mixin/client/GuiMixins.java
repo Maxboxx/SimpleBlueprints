@@ -1,15 +1,12 @@
 package maxboxx.blueprints.mixin.client;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.tools.BlueprintTool;
 import maxboxx.blueprints.tools.BlueprintTools;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;

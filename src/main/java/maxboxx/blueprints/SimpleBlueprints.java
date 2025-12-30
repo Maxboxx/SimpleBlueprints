@@ -19,4 +19,8 @@ public class SimpleBlueprints implements ModInitializer {
 	public static Component text(String key) {
 		return Component.translatable(MOD_ID + "." + key);
 	}
+
+	public static Component text(String key, Object... objects) {
+		return Component.translatable(MOD_ID + "." + key, objects);
+	}
 }

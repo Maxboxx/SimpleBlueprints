@@ -27,6 +27,7 @@ public class BlueprintManager {
 	private static boolean active = false;
 	private static BlueprintTool tool = null;
 
+	private static int hotbarSlot = 0;
 	private static int selectedSlot = 0;
 	private static BlueprintSelection selection;
 	private static BlueprintSelection[] selectionData = new BlueprintSelection[SLOT_COUNT];
@@ -170,9 +171,11 @@ public class BlueprintManager {
 		active = true;
 		HUD.setVisible(true);
 
-		if (tool == null) {
+		if (tool == null || (!hasData() && !hasSelection())) {
 			tool = BlueprintTools.get(0);
 		}
+
+		hotbarSlot = player.getInventory().getSelectedSlot();
 
 		player.getInventory().setSelectedSlot(BlueprintTools.indexOfSafe(tool));
 
@@ -185,6 +188,11 @@ public class BlueprintManager {
 
 		WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
 		WorldRenderer.removeGraphic(SELECTION_OUTLINE);
+
+		LocalPlayer player = Minecraft.getInstance().player;
+		if (player == null) return;
+
+		player.getInventory().setSelectedSlot(hotbarSlot);
 	}
 
 	private static void handleAction(ToolAction action) {

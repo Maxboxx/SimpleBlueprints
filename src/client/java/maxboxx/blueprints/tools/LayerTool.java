@@ -23,7 +23,7 @@ public class LayerTool extends BlueprintTool {
 		return Optional.of(switch (action) {
 			case LEFT -> SimpleBlueprints.text("layers.away");
 			case RIGHT -> SimpleBlueprints.text("layers.closer");
-			case MIDDLE -> SimpleBlueprints.text("layers.mode");
+			case MIDDLE -> SimpleBlueprints.text("layers.mode", BlueprintManager.getBlockLayerMode().getText());
 		});
 	}
 
