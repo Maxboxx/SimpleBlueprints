@@ -35,9 +35,9 @@ public class SlotSelectTool extends BlueprintTool {
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
-			case LEFT -> Optional.of(SimpleBlueprints.text("slots.change"));
-
-			default -> Optional.empty();
+			case LEFT   -> Optional.of(SimpleBlueprints.text("slots.change"));
+			case RIGHT  -> Optional.of(SimpleBlueprints.text("slots.next_used"));
+			case MIDDLE -> Optional.of(SimpleBlueprints.text("slots.first_empty"));
 		};
 	}
 
@@ -47,6 +47,32 @@ public class SlotSelectTool extends BlueprintTool {
 			case LEFT -> {
 				BlueprintTools.setSubTools(slotTools);
 				BlueprintManager.setToolSlot(BlueprintManager.getBlueprintSlot());
+			}
+
+			case RIGHT -> {
+				int slot = BlueprintManager.getBlueprintSlot();
+
+				for (int i = 0; i < BlueprintManager.SLOT_COUNT; i++) {
+					slot++;
+
+					if (slot >= BlueprintManager.SLOT_COUNT) {
+						slot = 0;
+					}
+
+					if (!BlueprintManager.isSlotEmpty(slot)) {
+						BlueprintManager.setBlueprintSlot(slot);
+						return;
+					}
+				}
+			}
+
+			case MIDDLE -> {
+				for (int i = 0; i < BlueprintManager.SLOT_COUNT; i++) {
+					if (BlueprintManager.isSlotEmpty(i)) {
+						BlueprintManager.setBlueprintSlot(i);
+						return;
+					}
+				}
 			}
 		}
 	}

@@ -5,7 +5,8 @@
 	"client": [
 		"GuiMixins",
 		"HandRendererMixins",
-		"StructureTemplateMixins"
+		"StructureTemplateMixins",
+		"SharedSuggestionProviderMixins"
 	],
 	"injectors": {
 		"defaultRequire": 1

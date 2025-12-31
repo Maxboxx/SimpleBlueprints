@@ -40,7 +40,11 @@
   "simple_blueprints.rotate.rotate": "Rotate",
   "simple_blueprints.rotate.mirror": "Mirror",
 
+  "simple_blueprints.delete.clear": "Delete All Blocks",
+
   "simple_blueprints.slots.change": "Change Slot",
+  "simple_blueprints.slots.next_used": "Select Next Used Slot",
+  "simple_blueprints.slots.first_empty": "Select First Empty Slot",
   "simple_blueprints.slots.select": "Select",
 
   "simple_blueprints.bounds.min": "Min: %1$s, %2$s, %3$s",

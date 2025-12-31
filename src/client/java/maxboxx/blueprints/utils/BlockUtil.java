@@ -53,6 +53,16 @@ public class BlockUtil {
 		player.connection.sendCommand("setblock " + posString + " " + blockIdAndProperties(block));
 	}
 
+	public static void fillBlocks(LocalPlayer player, BlockPos min, BlockPos max, BlockState block) {
+		for (int x = min.getX(); x <= max.getX(); x++) {
+			for (int y = min.getY(); y <= max.getY(); y++) {
+				for (int z = min.getZ(); z <= max.getZ(); z++) {
+					placeBlock(player, new BlockPos(x, y, z), block);
+				}
+			}
+		}
+	}
+
 	private static String getPropertyValueString(Map.Entry<Property<?>, Comparable<?>> entry) {
 		Property<?> key = entry.getKey();
 		Comparable<?> value = entry.getValue();

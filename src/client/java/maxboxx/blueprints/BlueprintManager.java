@@ -275,6 +275,10 @@ public class BlueprintManager {
 		return false;
 	}
 
+	public static boolean isSlotEmpty(int slot) {
+		return !hasSelectionForSlot(slot) && !hasDataInSlot(slot);
+	}
+
 	public static boolean hasPlacedData() {
 		return selection.isActive && selection.data != null;
 	}

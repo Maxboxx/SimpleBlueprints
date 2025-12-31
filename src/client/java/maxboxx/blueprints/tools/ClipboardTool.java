@@ -16,16 +16,12 @@ public class ClipboardTool extends BlueprintTool {
 
 	@Override
 	public boolean isAvailable() {
-		if (BlueprintManager.getData() != null) {
-			return true;
-		}
-
-		return BlueprintManager.hasSelection();
+		return BlueprintManager.hasData() || BlueprintManager.hasSelection();
 	}
 
 	@Override
 	public int getColor() {
-		if (BlueprintManager.getData() != null) {
+		if (BlueprintManager.hasData()) {
 			return BLUE;
 		}
 
@@ -47,7 +43,7 @@ public class ClipboardTool extends BlueprintTool {
 			case RIGHT -> {
 				if (!BlueprintManager.hasSelection()) yield Optional.empty();
 
-				if (BlueprintManager.getData() != null && Minecraft.getInstance().player != null && BlueprintManager.getData().canPlace(Minecraft.getInstance().player)) {
+				if (BlueprintManager.hasData() && Minecraft.getInstance().player != null && BlueprintManager.getData().canPlace(Minecraft.getInstance().player)) {
 					yield Optional.of(SimpleBlueprints.text("clipboard.paste"));
 				}
 				else {
@@ -56,7 +52,7 @@ public class ClipboardTool extends BlueprintTool {
 			}
 
 			case MIDDLE -> {
-				if (BlueprintManager.getData() != null) {
+				if (BlueprintManager.hasData()) {
 					yield Optional.of(SimpleBlueprints.text("clipboard.clear"));
 				}
 				else {
@@ -87,7 +83,7 @@ public class ClipboardTool extends BlueprintTool {
 			case RIGHT -> {
 				if (!BlueprintManager.hasSelection()) break;
 
-				if (BlueprintManager.getData() != null && BlueprintManager.getData().canPlace(player)) {
+				if (BlueprintManager.hasData() && BlueprintManager.getData().canPlace(player)) {
 					BlueprintManager.getData().placeInWorld(
 						player,
 						BlueprintManager.getSelectionMin()
@@ -96,6 +92,8 @@ public class ClipboardTool extends BlueprintTool {
 			}
 
 			case MIDDLE -> {
+				if (!BlueprintManager.hasData()) break;
+
 				BlueprintManager.setData(null);
 				BlueprintManager.clearBlockGraphic();
 				BlueprintManager.clearSelection();
