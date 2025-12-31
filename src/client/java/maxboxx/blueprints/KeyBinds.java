@@ -6,10 +6,13 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class KeyBinds {
-	public static final KeyMapping.Category main_category = create_category("keys");
+	public static final KeyMapping.Category mainCategory = create_category("keys");
+	public static final KeyMapping.Category quickCategory = create_category("quick_keys");
 
-	public static final KeyMapping TOGGLE = create_key("toggle", GLFW.GLFW_KEY_B, main_category);
-	public static final KeyMapping VISIBILITY = create_key("visibility", GLFW.GLFW_KEY_UNKNOWN, main_category);
+	public static final KeyMapping TOGGLE = create_key("toggle", GLFW.GLFW_KEY_B, mainCategory);
+	public static final KeyMapping VISIBILITY = create_key("visibility", GLFW.GLFW_KEY_UNKNOWN, mainCategory);
+	public static final KeyMapping LAYER_UP = create_key("layer_up", GLFW.GLFW_KEY_UNKNOWN, quickCategory);
+	public static final KeyMapping LAYER_DOWN = create_key("layer_down", GLFW.GLFW_KEY_UNKNOWN, quickCategory);
 
 	private static KeyMapping.Category create_category(String name) {
 		return KeyMapping.Category.register(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, name));
@@ -22,6 +25,8 @@ public class KeyBinds {
 	public static void init() {
 		KeyBindingHelper.registerKeyBinding(TOGGLE);
 		KeyBindingHelper.registerKeyBinding(VISIBILITY);
+		KeyBindingHelper.registerKeyBinding(LAYER_UP);
+		KeyBindingHelper.registerKeyBinding(LAYER_DOWN);
 	}
 
 	public static boolean consume(KeyMapping key) {

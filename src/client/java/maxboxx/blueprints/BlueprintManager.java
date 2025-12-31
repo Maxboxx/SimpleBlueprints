@@ -104,6 +104,14 @@ public class BlueprintManager {
 				}
 			}
 
+			while (KeyBinds.LAYER_UP.consumeClick()) {
+				setBlockLayer(getBlockLayer() + 1);
+			}
+
+			while (KeyBinds.LAYER_DOWN.consumeClick()) {
+				setBlockLayer(getBlockLayer() - 1);
+			}
+
 			if (active) {
 				updateMode();
 			}

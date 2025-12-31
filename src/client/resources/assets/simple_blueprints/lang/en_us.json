@@ -1,6 +1,10 @@
 {
   "key.category.simple_blueprints.keys": "Simple Blueprints",
+  "key.category.simple_blueprints.quick_keys": "Simple Blueprints Quick Actions",
   "simple_blueprints.keys.toggle": "Open/Close Tools",
+  "simple_blueprints.keys.visibility": "Show/Hide Blueprints",
+  "simple_blueprints.keys.layer_up": "Layer Visibility Up",
+  "simple_blueprints.keys.layer_down": "Layer Visibility Down",
 
   "simple_blueprints.tool.unavailable": "Tool Unavailable",
 
