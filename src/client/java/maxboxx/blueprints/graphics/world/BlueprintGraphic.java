@@ -1,19 +1,19 @@
 package maxboxx.blueprints.graphics.world;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.Color;
-import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderLayerHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.*;
@@ -55,6 +56,10 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 	private BlockPos offset;
 	private Color color;
 	private float alpha = 0.5f;
+
+	private record Entity(BlockPos pos, BlockState block) {
+
+	}
 
 	public enum LayerMode {
 		SHOW_ALL,
@@ -287,14 +292,45 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 		for (Map.Entry<BlockPos, BlockState> block : blocks.get(index).entrySet()) {
 			BlockState state = block.getValue();
 
-			for (BlockModelPart blockModelPart : blockRenderer.getBlockModel(state).collectParts(random)) {
+			boolean hasQuads = false;
+
+			BlockStateModel model = blockRenderer.getBlockModel(state);
+
+			for (BlockModelPart blockModelPart : model.collectParts(random)) {
 				for (Direction direction : Direction.values()) {
+					List<BakedQuad> list = blockModelPart.getQuads(direction);
+
+					if (!list.isEmpty()) hasQuads = true;
+
 					if (Block.shouldRenderFace(state, getBlockState(block.getKey().offset(direction.getUnitVec3i()), isVisible), direction)) {
-						setupQuadList(stack, block.getKey(), layer, blockModelPart.getQuads(direction));
+						setupQuadList(stack, block.getKey(), layer, list);
 					}
 				}
 
-				setupQuadList(stack, block.getKey(), layer, blockModelPart.getQuads(null));
+				List<BakedQuad> list = blockModelPart.getQuads(null);
+
+				if (!list.isEmpty()) {
+					hasQuads = true;
+					setupQuadList(stack, block.getKey(), layer, list);
+				}
+			}
+
+			if (!hasQuads) {
+				BlockPos pos = block.getKey();
+
+				VoxelShape shape = block.getValue().getShape(this, pos.offset(offset));
+
+				try (TextureAtlasSprite sprite = model.particleIcon()) {
+					shape.forAllBoxes((a, b, c, d, e, f) -> {
+						ShapeVertexUtil.createBoxWithUV(
+							stack, layer,
+							(float)a + pos.getX() + 0.02f, (float)b + pos.getY() + 0.02f, (float)c + pos.getZ() + 0.02f,
+							(float)d + pos.getX() - 0.02f, (float)e + pos.getY() - 0.02f, (float)f + pos.getZ() - 0.02f,
+							color.red(), color.green(), color.blue(), alpha,
+							sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1()
+						);
+					});
+				}
 			}
 		}
 
@@ -319,7 +355,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 	}
 
 	@Override
-	public float getShade(Direction direction, boolean bl) {
+	public float getShade(@NotNull Direction direction, boolean bl) {
 		return 0;
 	}
 
@@ -329,13 +365,13 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 	}
 
 	@Override
-	public int getBlockTint(BlockPos blockPos, ColorResolver colorResolver) {
+	public int getBlockTint(BlockPos blockPos, @NotNull ColorResolver colorResolver) {
 		return level.getBlockTint(blockPos.offset(offset), colorResolver);
 	}
 
 	@Nullable
 	@Override
-	public BlockEntity getBlockEntity(BlockPos blockPos) {
+	public BlockEntity getBlockEntity(@NotNull BlockPos blockPos) {
 		BlockState state = getBlockOrNull(blockPos);
 
 		if (state == null) {
@@ -350,7 +386,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 	}
 
 	@Override
-	public @NotNull BlockState getBlockState(BlockPos blockPos) {
+	public @NotNull BlockState getBlockState(@NotNull BlockPos blockPos) {
 		BlockState state = getBlockOrNull(blockPos);
 
 		if (state == null) {
@@ -371,7 +407,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 	}
 
 	@Override
-	public @NotNull FluidState getFluidState(BlockPos blockPos) {
+	public @NotNull FluidState getFluidState(@NotNull BlockPos blockPos) {
 		return Fluids.EMPTY.defaultFluidState();
 	}
 

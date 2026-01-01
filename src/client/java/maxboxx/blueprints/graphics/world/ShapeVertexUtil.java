@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.core.Direction;
 import org.joml.Matrix4f;
 
+import java.util.function.Consumer;
+
 public class ShapeVertexUtil {
 	public static void createBox(PoseStack stack, VertexConsumer consumer, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float r, float g, float b, float a) {
 		Matrix4f pose = stack.last().pose();
@@ -44,6 +46,46 @@ public class ShapeVertexUtil {
 		consumer.addVertex(pose, maxX, minY, minZ).setColor(r, g, b, a);
 		consumer.addVertex(pose, maxX, minY, maxZ).setColor(r, g, b, a);
 		consumer.addVertex(pose, minX, minY, maxZ).setColor(r, g, b, a);
+	}
+
+	public static void createBoxWithUV(PoseStack stack, VertexConsumer consumer, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float r, float g, float b, float a, float uMin, float vMin, float uMax, float vMax) {
+		Matrix4f pose = stack.last().pose();
+
+		// Front face
+		consumer.addVertex(pose, minX, minY, maxZ).setColor(r, g, b, a).setUv(uMin, vMin);
+		consumer.addVertex(pose, maxX, minY, maxZ).setColor(r, g, b, a).setUv(uMax, vMin);
+		consumer.addVertex(pose, maxX, maxY, maxZ).setColor(r, g, b, a).setUv(uMax, vMax);
+		consumer.addVertex(pose, minX, maxY, maxZ).setColor(r, g, b, a).setUv(uMin, vMax);
+
+		// Back face
+		consumer.addVertex(pose, maxX, minY, minZ).setColor(r, g, b, a).setUv(uMax, vMin);
+		consumer.addVertex(pose, minX, minY, minZ).setColor(r, g, b, a).setUv(uMin, vMin);
+		consumer.addVertex(pose, minX, maxY, minZ).setColor(r, g, b, a).setUv(uMin, vMax);
+		consumer.addVertex(pose, maxX, maxY, minZ).setColor(r, g, b, a).setUv(uMax, vMax);
+
+		// Left face
+		consumer.addVertex(pose, minX, minY, minZ).setColor(r, g, b, a).setUv(uMin, vMin);
+		consumer.addVertex(pose, minX, minY, maxZ).setColor(r, g, b, a).setUv(uMax, vMin);
+		consumer.addVertex(pose, minX, maxY, maxZ).setColor(r, g, b, a).setUv(uMax, vMax);
+		consumer.addVertex(pose, minX, maxY, minZ).setColor(r, g, b, a).setUv(uMin, vMax);
+
+		// Right face
+		consumer.addVertex(pose, maxX, minY, maxZ).setColor(r, g, b, a).setUv(uMax, vMin);
+		consumer.addVertex(pose, maxX, minY, minZ).setColor(r, g, b, a).setUv(uMin, vMin);
+		consumer.addVertex(pose, maxX, maxY, minZ).setColor(r, g, b, a).setUv(uMin, vMax);
+		consumer.addVertex(pose, maxX, maxY, maxZ).setColor(r, g, b, a).setUv(uMax ,vMax);
+
+		// Top face
+		consumer.addVertex(pose, minX, maxY, maxZ).setColor(r, g, b, a).setUv(uMin, vMax);
+		consumer.addVertex(pose, maxX, maxY, maxZ).setColor(r, g, b, a).setUv(uMax, vMax);
+		consumer.addVertex(pose, maxX, maxY, minZ).setColor(r, g, b, a).setUv(uMax, vMin);
+		consumer.addVertex(pose, minX, maxY, minZ).setColor(r, g, b, a).setUv(uMin, vMin);
+
+		// Bottom face
+		consumer.addVertex(pose, minX, minY, minZ).setColor(r, g, b, a).setUv(uMin, vMin);
+		consumer.addVertex(pose, maxX, minY, minZ).setColor(r, g, b, a).setUv(uMax, vMin);
+		consumer.addVertex(pose, maxX, minY, maxZ).setColor(r, g, b, a).setUv(uMax, vMax);
+		consumer.addVertex(pose, minX, minY, maxZ).setColor(r, g, b, a).setUv(uMin, vMax);
 	}
 
 	public static void createFace(PoseStack stack, VertexConsumer consumer, Direction side, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float r, float g, float b, float a) {
