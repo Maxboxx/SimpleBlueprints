@@ -5,8 +5,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.Color;
+import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderLayerHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
@@ -70,8 +72,8 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 		}
 	}
 
-	public BlueprintGraphic(Level level, HashMap<BlockPos, BlockState> blocks, RenderPipeline pipeline) {
-		super(pipeline);
+	public BlueprintGraphic(Level level, HashMap<BlockPos, BlockState> blocks) {
+		super(WorldRenderer.TRANSLUCENT_BLOCKS);
 
 		int minX = 100000;
 		int maxX = -100000;
@@ -209,7 +211,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 
 	@Override
 	public void render(WorldRenderer.Context context) {
-		VertexConsumer consumer = RenderLayerHelper.entityDelegate(context.context().consumers()).getBuffer(ChunkSectionLayer.TRANSLUCENT);
+		VertexConsumer consumer = context.builder();RenderLayerHelper.entityDelegate(context.context().consumers()).getBuffer(ChunkSectionLayer.TRANSLUCENT);
 
 		context.matrices().pushPose();
 

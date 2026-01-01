@@ -89,6 +89,8 @@ public class BlueprintManager {
 			}
 
 			while (KeyBinds.VISIBILITY.consumeClick()) {
+				if (active) continue;
+
 				showBlocks = !showBlocks;
 
 				for (BlueprintSelectionData selection : selectionData) {
@@ -227,6 +229,12 @@ public class BlueprintManager {
 
 		player.getInventory().setSelectedSlot(BlueprintTools.indexOfSafe(tool));
 
+		for (BlueprintSelectionData data : selectionData) {
+			if (data.graphic != null) {
+				WorldRenderer.addGraphic(data.graphic);
+			}
+		}
+
 		updateGraphics();
 	}
 
@@ -236,6 +244,14 @@ public class BlueprintManager {
 
 		WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
 		WorldRenderer.removeGraphic(SELECTION_OUTLINE);
+
+		if (!showBlocks) {
+			for (BlueprintSelectionData data : selectionData) {
+				if (data.graphic != null) {
+					WorldRenderer.removeGraphic(data.graphic);
+				}
+			}
+		}
 
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player == null) return;

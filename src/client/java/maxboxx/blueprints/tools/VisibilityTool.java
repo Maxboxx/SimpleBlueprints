@@ -34,10 +34,9 @@ public class VisibilityTool extends BlueprintTool {
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
-			case LEFT  -> Optional.of(SimpleBlueprints.text("visibility.alpha"));
-			case RIGHT -> Optional.of(SimpleBlueprints.text("visibility.color"));
-
-			default -> Optional.empty();
+			case LEFT   -> Optional.of(SimpleBlueprints.text("visibility.alpha"));
+			case RIGHT  -> Optional.of(SimpleBlueprints.text("visibility.color"));
+			case MIDDLE -> Optional.of(SimpleBlueprints.text("visibility.visibility"));
 		};
 	}
 
@@ -64,6 +63,10 @@ public class VisibilityTool extends BlueprintTool {
 				}
 
 				BlueprintManager.setBlockColor(COLORS[colorIndex]);
+			}
+
+			case MIDDLE -> {
+
 			}
 		}
 	}

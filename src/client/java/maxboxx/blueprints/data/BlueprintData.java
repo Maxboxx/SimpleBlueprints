@@ -123,7 +123,7 @@ public class BlueprintData {
 			}
 		}
 
-		return new BlueprintGraphic(level, blockMap, WorldRenderer.FILLED_TEX);
+		return new BlueprintGraphic(level, blockMap);
 	}
 
 	public void rotate() {

@@ -14,7 +14,10 @@ import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.rendertype.OutputTarget;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -62,6 +65,17 @@ public class WorldRenderer {
 		.withDepthWrite(false)
 		.withCull(true)
 		.build()
+	);
+
+	public static final RenderType TRANSLUCENT_BLOCKS = Sheets.translucentBlockItemSheet();
+
+	public static final RenderType TRANSLUCENT_BLOCKS_NO_DEPTH = RenderTypeUtil.createfromPipeline("translucent_block_no_depth",
+		RenderPipelines.register(RenderPipeline.builder(PipelineUtil.convertToSnippet(TRANSLUCENT_BLOCKS.pipeline()))
+			.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/blocks_no_depth"))
+			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+			.build()
+		),
+		TextureAtlas.LOCATION_BLOCKS
 	);
 
 	private static final ByteBufferBuilder allocator = new ByteBufferBuilder(RenderType.SMALL_BUFFER_SIZE);
@@ -116,7 +130,17 @@ public class WorldRenderer {
 		matrices.pushPose();
 		matrices.translate(-camera.x, -camera.y, -camera.z);
 
-		BufferBuilder builder = new BufferBuilder(allocator, graphic.pipeline().getVertexFormatMode(), graphic.pipeline().getVertexFormat());
+		BufferBuilder builder;
+
+		if (graphic.renderType() != null) {
+			builder = new BufferBuilder(allocator, graphic.renderType().mode(), graphic.renderType().format());
+		}
+		else if (graphic.pipeline() != null) {
+			builder = new BufferBuilder(allocator, graphic.pipeline().getVertexFormatMode(), graphic.pipeline().getVertexFormat());
+		}
+		else {
+			builder = null;
+		}
 
 		graphic.render(new Context(matrices, builder, context));
 
@@ -137,7 +161,12 @@ public class WorldRenderer {
 
 		GpuBuffer vertices = upload(drawParameters, format, builtBuffer);
 
-		draw(client, graphic.pipeline(), builtBuffer, drawParameters, vertices, format);
+		if (graphic.renderType() != null) {
+			graphic.renderType().draw(builtBuffer);
+		}
+		else if (graphic.pipeline() != null) {
+			draw(client, graphic.pipeline(), builtBuffer, drawParameters, vertices, format);
+		}
 
 		vertexBuffer.rotate();
 	}
