@@ -96,7 +96,7 @@ public class BlueprintManager {
 				for (BlueprintSelectionData selection : selectionData) {
 					if (selection.graphic == null) continue;
 
-					if (showBlocks && selection.data != null) {
+					if (showBlocks && selection.data != null && selection.isVisible) {
 						selection.graphic.setPosition(selection.min);
 						WorldRenderer.addGraphic(selection.graphic);
 					}
@@ -134,7 +134,7 @@ public class BlueprintManager {
 				selectionData[i].graphic.setMirror(selectionData[i].data.getMirror());
 				selectionData[i].graphic.setRotation(selectionData[i].data.getRotation());
 
-				if (showBlocks) {
+				if (showBlocks && selectionData[i].isVisible) {
 					selectionData[i].graphic.setPosition(selectionData[i].min);
 					WorldRenderer.addGraphic(selectionData[i].graphic);
 				}
@@ -230,7 +230,7 @@ public class BlueprintManager {
 		player.getInventory().setSelectedSlot(BlueprintTools.indexOfSafe(tool));
 
 		for (BlueprintSelectionData data : selectionData) {
-			if (data.graphic != null) {
+			if (data.graphic != null && data.isVisible) {
 				WorldRenderer.addGraphic(data.graphic);
 			}
 		}
@@ -311,6 +311,7 @@ public class BlueprintManager {
 
 	public static void setData(BlueprintData data) {
 		selection.data = data;
+		selection.isVisible = true;
 		selection.markDirty();
 	}
 
@@ -364,7 +365,7 @@ public class BlueprintManager {
 		selection.graphic = graphic;
 		graphic.setPosition(selection.min);
 
-		if (showBlocks) {
+		if (showBlocks && selection.isVisible) {
 			WorldRenderer.addGraphic(graphic);
 		}
 
@@ -407,6 +408,26 @@ public class BlueprintManager {
 
 	public static Color getBlockColor() {
 		return blockColor;
+	}
+
+	public static boolean isVisible() {
+		return selection.isVisible;
+	}
+
+	public static void setVisibility(boolean visible) {
+		if (!hasData()) return;
+
+		selection.isVisible = visible;
+
+		if ((showBlocks || active) && visible) {
+			selection.graphic.setPosition(selection.min);
+			WorldRenderer.addGraphic(selection.graphic);
+		}
+		else {
+			WorldRenderer.removeGraphic(selection.graphic);
+		}
+
+		selection.markDirty();
 	}
 
 	public static int getBlockLayer() {
@@ -506,14 +527,14 @@ public class BlueprintManager {
 			WorldRenderer.removeGraphic(SELECTION_GRAPHIC);
 			WorldRenderer.removeGraphic(SELECTION_OUTLINE);
 
-			if (!selection.isActive && selection.graphic != null) {
+			if (selection.graphic != null) {
 				WorldRenderer.removeGraphic(selection.graphic);
 			}
 
 			return;
 		}
 
-		if (selection.graphic != null && showBlocks) {
+		if (selection.graphic != null && showBlocks && selection.isVisible) {
 			selection.graphic.setPosition(selection.min);
 			WorldRenderer.addGraphic(selection.graphic);
 		}

@@ -36,7 +36,15 @@ public class VisibilityTool extends BlueprintTool {
 		return switch (action) {
 			case LEFT   -> Optional.of(SimpleBlueprints.text("visibility.alpha"));
 			case RIGHT  -> Optional.of(SimpleBlueprints.text("visibility.color"));
-			case MIDDLE -> Optional.of(SimpleBlueprints.text("visibility.visibility"));
+
+			case MIDDLE -> {
+				if (BlueprintManager.hasPlacedData()) {
+					yield Optional.of(SimpleBlueprints.text(BlueprintManager.isVisible() ? "visibility.hide" : "visibility.show"));
+				}
+				else {
+					yield Optional.empty();
+				}
+			}
 		};
 	}
 
@@ -66,7 +74,9 @@ public class VisibilityTool extends BlueprintTool {
 			}
 
 			case MIDDLE -> {
-
+				if (BlueprintManager.hasPlacedData()) {
+					BlueprintManager.setVisibility(!BlueprintManager.isVisible());
+				}
 			}
 		}
 	}

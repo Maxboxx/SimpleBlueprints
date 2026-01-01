@@ -26,6 +26,8 @@ public class BlueprintSelectionData {
 	public BlueprintData data = null;
 	public BlueprintGraphic graphic = null;
 
+	public boolean isVisible = true;
+
 	private boolean dirty = false;
 
 	public boolean isDirty() {
@@ -46,6 +48,7 @@ public class BlueprintSelectionData {
 
 			CompoundTag data = new CompoundTag();
 			data.putBoolean("active", isActive);
+			data.putBoolean("visible", isVisible);
 
 			if (isActive) {
 				data.putIntArray("min", new int[] {min.getX(), min.getY(), min.getZ()});
@@ -72,7 +75,8 @@ public class BlueprintSelectionData {
 
 			CompoundTag data = NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap());
 
-			data.getBoolean("active").ifPresent(active -> isActive = active);
+			isActive  = data.getBooleanOr("active", false);
+			isVisible = data.getBooleanOr("visible", true);
 
 			data.getIntArray("min").ifPresent(values -> {
 				if (values.length < 3) return;

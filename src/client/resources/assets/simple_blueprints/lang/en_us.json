@@ -28,6 +28,8 @@
 
   "simple_blueprints.visibility.alpha": "Change Transparency",
   "simple_blueprints.visibility.color": "Change Color",
+  "simple_blueprints.visibility.show": "Show Blueprint",
+  "simple_blueprints.visibility.hide": "Hide Blueprint",
 
   "simple_blueprints.layers.away": "Move Layer Visibility Away",
   "simple_blueprints.layers.closer": "Move Layer Visibility Closer",
