@@ -28,4 +28,11 @@ public class GuiMixins {
 			info.cancel();
 		}
 	}
+
+	@Inject(at = @At("HEAD"), method = "renderSelectedItemName", cancellable = true)
+	private void renderSelectedItemName(GuiGraphics guiGraphics, CallbackInfo info) {
+		if (BlueprintManager.isActive()) {
+			info.cancel();
+		}
+	}
 }
