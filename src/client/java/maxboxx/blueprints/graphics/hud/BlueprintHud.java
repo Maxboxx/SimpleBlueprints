@@ -75,15 +75,15 @@ public class BlueprintHud extends HudGraphic {
 		if (BlueprintManager.hasData() && BlueprintManager.currentTool() instanceof BlockListTool) {
 			BlueprintData data = BlueprintManager.getData();
 
-			final int blockCount = data.getBlocks().size();
+			final int blockCount = data.getItems().size();
 			final int maxRows = (context.guiHeight() - BLOCK_LIST_Y_OFFSET * 2) / BLOCK_OFFSET;
 			final int cols = Math.ceilDiv(blockCount, maxRows);
 
 			int row = 0;
 			int col = cols - 1;
 
-			for (BlueprintData.BlockData block : data.getBlocks()) {
-				ItemStack stack = new ItemStack(block.block(), block.count());
+			for (BlueprintData.ItemData block : data.getItems()) {
+				ItemStack stack = new ItemStack(block.item(), block.count());
 				if (stack.getCount() <= 0) continue;
 
 				context.renderItem(stack, context.guiWidth() + BLOCK_LIST_X_OFFSET - BLOCK_OFFSET * col, BLOCK_LIST_Y_OFFSET + row * BLOCK_OFFSET);

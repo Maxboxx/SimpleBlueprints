@@ -3,16 +3,15 @@ package maxboxx.blueprints.data;
 import maxboxx.blueprints.mixin.client.StructureTemplateMixins;
 import maxboxx.blueprints.utils.BlockUtil;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
-import maxboxx.blueprints.graphics.world.WorldRenderer;
 import maxboxx.blueprints.utils.PositionUtil;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -30,9 +29,9 @@ public class BlueprintData {
 	private BlockPos pos;
 	private MirrorRotation mirrorRotation = MirrorRotation.NONE;
 
-	private final ArrayList<BlockData> sortedBlocks = new ArrayList<>();
+	private final ArrayList<ItemData> sortedItems = new ArrayList<>();
 
-	public record BlockData(Block block, int count) {
+	public record ItemData(Item item, int count) {
 
 	}
 
@@ -58,27 +57,27 @@ public class BlueprintData {
 		blocks    = new HashSet<>();
 		pos       = position;
 
-		HashMap<Block, Integer> blockData = new HashMap<>();
+		HashMap<Item, Integer> itemData = new HashMap<>();
 
 		for (int x = 0; x < size.getX(); x++) {
 			for (int y = 0; y < size.getY(); y++) {
 				for (int z = 0; z < size.getZ(); z++) {
 					Block block = level.getBlockState(new BlockPos(position.offset(new Vec3i(x, y, z)))).getBlock();
 					blocks.add(block);
-					blockData.put(block, blockData.getOrDefault(block, 0) + 1);
+					itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
 				}
 			}
 		}
 
-		for (Map.Entry<Block, Integer> block : blockData.entrySet()) {
-			if (block.getKey().asItem() == Items.AIR) {
+		for (Map.Entry<Item, Integer> item : itemData.entrySet()) {
+			if (item.getKey() == Items.AIR) {
 				continue;
 			}
 
-			sortedBlocks.add(new BlockData(block.getKey(), block.getValue()));
+			sortedItems.add(new ItemData(item.getKey(), item.getValue()));
 		}
 
-		sortedBlocks.sort((a, b) -> b.count - a.count);
+		sortedItems.sort((a, b) -> b.count - a.count);
 
 		structure.fillFromWorld(
 			level,
@@ -146,8 +145,8 @@ public class BlueprintData {
 		return mirrorRotation.mirror();
 	}
 
-	public List<BlockData> getBlocks() {
-		return sortedBlocks;
+	public List<ItemData> getItems() {
+		return sortedItems;
 	}
 
 	public CompoundTag save() {
@@ -172,7 +171,7 @@ public class BlueprintData {
 
 		structure.load(BuiltInRegistries.BLOCK, blockNbt);
 
-		HashMap<Block, Integer> blockData = new HashMap<>();
+		HashMap<Item, Integer> itemData = new HashMap<>();
 
 		List<StructureTemplate.Palette> palettes = ((StructureTemplateMixins)structure).getStructurePalettes();
 
@@ -180,18 +179,18 @@ public class BlueprintData {
 			for (StructureTemplate.StructureBlockInfo blockInfo : palette.blocks()) {
 				Block block = blockInfo.state().getBlock();
 				blocks.add(block);
-				blockData.put(block, blockData.getOrDefault(block, 0) + 1);
+				itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
 			}
 		}
 
-		for (Map.Entry<Block, Integer> block : blockData.entrySet()) {
-			if (block.getKey().asItem() == Items.AIR) {
+		for (Map.Entry<Item, Integer> item : itemData.entrySet()) {
+			if (item.getKey() == Items.AIR) {
 				continue;
 			}
 
-			sortedBlocks.add(new BlockData(block.getKey(), block.getValue()));
+			sortedItems.add(new ItemData(item.getKey(), item.getValue()));
 		}
 
-		sortedBlocks.sort((a, b) -> b.count - a.count);
+		sortedItems.sort((a, b) -> b.count - a.count);
 	}
 }
