@@ -1,8 +1,10 @@
 package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
+import maxboxx.blueprints.KeyBinds;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -36,9 +38,15 @@ public class MoveTool extends BlueprintTool {
 
 	@Override
 	public void performAction(LocalPlayer player, ToolAction action) {
+		int steps = 1;
+
+		if (KeyBinds.isShiftOrCtrlDown()) {
+			steps = 5;
+		}
+
 		switch (action) {
-			case LEFT  -> BlueprintManager.moveSelection(player.getNearestViewDirection(), 1);
-			case RIGHT -> BlueprintManager.moveSelection(player.getNearestViewDirection().getOpposite(), 1);
+			case LEFT  -> BlueprintManager.moveSelection(player.getNearestViewDirection(), steps);
+			case RIGHT -> BlueprintManager.moveSelection(player.getNearestViewDirection().getOpposite(), steps);
 		}
 	}
 }

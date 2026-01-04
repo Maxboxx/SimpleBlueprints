@@ -1,6 +1,7 @@
 package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
+import maxboxx.blueprints.KeyBinds;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
 import net.minecraft.client.player.LocalPlayer;
@@ -50,14 +51,20 @@ public class ResizeTool extends BlueprintTool {
 			return;
 		}
 
+		int steps = 1;
+
+		if (KeyBinds.isShiftOrCtrlDown()) {
+			steps = 5;
+		}
+
 		Direction side = targetCloserSide ? player.getNearestViewDirection().getOpposite() : player.getNearestViewDirection();
 		boolean moveAway = action == ToolAction.LEFT;
 
 		if (moveAway == targetCloserSide) {
-			BlueprintManager.shrinkSelection(side.getOpposite(), 1);
+			BlueprintManager.shrinkSelection(side.getOpposite(), steps);
 		}
 		else {
-			BlueprintManager.expandSelection(side, 1);
+			BlueprintManager.expandSelection(side, steps);
 		}
 	}
 }

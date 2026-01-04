@@ -2,6 +2,8 @@ package maxboxx.blueprints;
 
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -38,5 +40,10 @@ public class KeyBinds {
 
 		key.setDown(false);
 		return consumed;
+	}
+
+	public static boolean isShiftOrCtrlDown() {
+		Options options = Minecraft.getInstance().options;
+		return options.keyShift.isDown() || options.keySprint.isDown();
 	}
 }
