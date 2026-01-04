@@ -12,7 +12,6 @@ import maxboxx.blueprints.tools.*;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -38,9 +37,20 @@ public class BlueprintManager {
 	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_QUADS, false);
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
 
+	private static final float ALPHA_STEP_SIZE = 0.2f;
+	private static final float DEFAULT_ALPHA = ALPHA_STEP_SIZE * 3f;
+
+	private static final Color[] COLORS = {
+		Color.WHITE,
+		new Color(0.5f, 1f, 1f),
+		new Color(1f, 1f, 0f),
+		new Color(1f, 0.7f, 1f)
+	};
+
 	private static boolean showBlocks = true;
 	private static Color blockColor = Color.WHITE;
-	private static float blockAlpha = VisibilityTool.DEFAULT_ALPHA;
+	private static float blockAlpha = DEFAULT_ALPHA;
+	private static int colorIndex = 0;
 
 	private static BlockListTool.CountMode blockListMode = BlockListTool.CountMode.TOTAL;
 
@@ -111,6 +121,14 @@ public class BlueprintManager {
 
 			while (KeyBinds.LAYER_DOWN.consumeClick()) {
 				setBlockLayer(getBlockLayer() - 1);
+			}
+
+			while (KeyBinds.CHANGE_ALPHA.consumeClick()) {
+				cycleBlockAlpha();
+			}
+
+			while (KeyBinds.CHANGE_COLOR.consumeClick()) {
+				cycleBlockColor();
 			}
 
 			if (active) {
@@ -391,6 +409,18 @@ public class BlueprintManager {
 		}
 	}
 
+	public static void cycleBlockAlpha() {
+		float alpha = BlueprintManager.getBlockAlpha();
+
+		alpha -= ALPHA_STEP_SIZE;
+
+		if (alpha < 0f) {
+			alpha = 1f;
+		}
+
+		BlueprintManager.setBlockAlpha(alpha);
+	}
+
 	public static float getBlockAlpha() {
 		return blockAlpha;
 	}
@@ -403,6 +433,16 @@ public class BlueprintManager {
 				selection.graphic.setTint(color);
 			}
 		}
+	}
+
+	public static void cycleBlockColor() {
+		colorIndex++;
+
+		if (colorIndex >= COLORS.length) {
+			colorIndex = 0;
+		}
+
+		BlueprintManager.setBlockColor(COLORS[colorIndex]);
 	}
 
 	public static Color getBlockColor() {

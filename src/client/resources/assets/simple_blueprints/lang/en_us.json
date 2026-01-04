@@ -5,6 +5,8 @@
   "simple_blueprints.keys.visibility": "Show/Hide Blueprints",
   "simple_blueprints.keys.layer_up": "Layer Visibility Up",
   "simple_blueprints.keys.layer_down": "Layer Visibility Down",
+  "simple_blueprints.keys.change_alpha": "Change Transparency",
+  "simple_blueprints.keys.change_color": "Change Color",
 
   "simple_blueprints.tool.unavailable": "Tool Unavailable",
 

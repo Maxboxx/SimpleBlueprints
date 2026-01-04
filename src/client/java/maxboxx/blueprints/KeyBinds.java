@@ -15,6 +15,8 @@ public class KeyBinds {
 	public static final KeyMapping VISIBILITY = create_key("visibility", GLFW.GLFW_KEY_UNKNOWN, mainCategory);
 	public static final KeyMapping LAYER_UP = create_key("layer_up", GLFW.GLFW_KEY_UNKNOWN, quickCategory);
 	public static final KeyMapping LAYER_DOWN = create_key("layer_down", GLFW.GLFW_KEY_UNKNOWN, quickCategory);
+	public static final KeyMapping CHANGE_ALPHA = create_key("change_alpha", GLFW.GLFW_KEY_UNKNOWN, quickCategory);
+	public static final KeyMapping CHANGE_COLOR = create_key("change_color", GLFW.GLFW_KEY_UNKNOWN, quickCategory);
 
 	private static KeyMapping.Category create_category(String name) {
 		return KeyMapping.Category.register(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, name));
@@ -29,6 +31,8 @@ public class KeyBinds {
 		KeyBindingHelper.registerKeyBinding(VISIBILITY);
 		KeyBindingHelper.registerKeyBinding(LAYER_UP);
 		KeyBindingHelper.registerKeyBinding(LAYER_DOWN);
+		KeyBindingHelper.registerKeyBinding(CHANGE_ALPHA);
+		KeyBindingHelper.registerKeyBinding(CHANGE_COLOR);
 	}
 
 	public static boolean consume(KeyMapping key) {
