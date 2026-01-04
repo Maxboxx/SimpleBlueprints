@@ -91,8 +91,7 @@ public class BlueprintHud extends HudGraphic {
 				context.pose().pushMatrix();
 				context.pose().scale(0.5f);
 
-				String count = String.valueOf(stack.getCount());
-				context.drawString(font, count, (context.guiWidth() + BLOCK_LIST_X_OFFSET + BLOCK_OFFSET - 2 - BLOCK_OFFSET * col) * 2 - font.width(count), (BLOCK_LIST_Y_OFFSET + row * BLOCK_OFFSET + 12) * 2, 0xffffffff);
+				drawCountText(context, font, stack, col, row, BlueprintManager.getBlockListMode());
 
 				context.pose().popMatrix();
 
@@ -104,6 +103,59 @@ public class BlueprintHud extends HudGraphic {
 				}
 			}
 		}
+	}
+
+	private void drawCountText(GuiGraphics context, Font font, ItemStack stack, int col, int row, BlockListTool.CountMode mode) {
+		int textX = (context.guiWidth() + BLOCK_LIST_X_OFFSET + BLOCK_OFFSET - 2 - BLOCK_OFFSET * col) * 2;
+		int textY = (BLOCK_LIST_Y_OFFSET + row * BLOCK_OFFSET + 12) * 2;
+
+		switch (mode) {
+			case TOTAL -> drawRightString(context, font, String.valueOf(stack.getCount()), textX, textY);
+
+			case STACKS -> {
+				int stackSize = stack.getMaxStackSize();
+
+				int stacks = stack.getCount() / stackSize;
+				int items  = stack.getCount() - stacks * stackSize;
+
+				if (items > 0) {
+					drawRightString(context, font, String.valueOf(items), textX, textY);
+					textY -= 10;
+				}
+
+				if (stacks > 0) {
+					drawRightString(context, font, stacks + "s", textX, textY);
+				}
+			}
+
+			case CHESTS -> {
+				int chestSize = 27;
+				int stackSize = stack.getMaxStackSize();
+
+				int stacks = stack.getCount() / stackSize;
+				int chests = stacks / chestSize;
+				int items  = stack.getCount() - stacks * stackSize;
+				stacks -= chests * chestSize;
+
+				if (items > 0) {
+					drawRightString(context, font, String.valueOf(items), textX, textY);
+					textY -= 10;
+				}
+
+				if (stacks > 0) {
+					drawRightString(context, font, stacks + "s", textX, textY);
+					textY -= 10;
+				}
+
+				if (chests > 0) {
+					drawRightString(context, font, chests + "c", textX, textY);
+				}
+			}
+		}
+	}
+
+	private void drawRightString(GuiGraphics context, Font font, String text, int x, int y) {
+		context.drawString(font, text, x - font.width(text), y, 0xffffffff);
 	}
 
 	private void drawAction(GuiGraphics context, int y, Identifier icon, Component text) {

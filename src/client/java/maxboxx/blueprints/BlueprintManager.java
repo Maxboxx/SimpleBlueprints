@@ -8,10 +8,7 @@ import maxboxx.blueprints.graphics.hud.HudRegistry;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
 import maxboxx.blueprints.graphics.world.WorldRenderer;
-import maxboxx.blueprints.tools.BlueprintTool;
-import maxboxx.blueprints.tools.ToolAction;
-import maxboxx.blueprints.tools.BlueprintTools;
-import maxboxx.blueprints.tools.VisibilityTool;
+import maxboxx.blueprints.tools.*;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -44,6 +41,8 @@ public class BlueprintManager {
 	private static boolean showBlocks = true;
 	private static Color blockColor = Color.WHITE;
 	private static float blockAlpha = VisibilityTool.DEFAULT_ALPHA;
+
+	private static BlockListTool.CountMode blockListMode = BlockListTool.CountMode.TOTAL;
 
 	static {
 		for (int i = 0; i < selectionData.length; i++) {
@@ -456,6 +455,14 @@ public class BlueprintManager {
 		if (selection.graphic != null) {
 			selection.graphic.setLayerMode(mode);
 		}
+	}
+
+	public static BlockListTool.CountMode getBlockListMode() {
+		return blockListMode;
+	}
+
+	public static void setBlockListMode(BlockListTool.CountMode mode) {
+		blockListMode = mode;
 	}
 
 	public static void moveSelection(Direction direction, int steps) {
