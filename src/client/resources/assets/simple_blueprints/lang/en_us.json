@@ -54,8 +54,19 @@
   "simple_blueprints.slots.next_used": "Select Next Used Slot",
   "simple_blueprints.slots.first_empty": "Select First Empty Slot",
   "simple_blueprints.slots.select": "Select",
+  "simple_blueprints.slots.import": "Import/Export",
 
   "simple_blueprints.bounds.min": "Min: %1$s, %2$s, %3$s",
   "simple_blueprints.bounds.max": "Max: %1$s, %2$s, %3$s",
-  "simple_blueprints.bounds.size": "Size: %1$s, %2$s, %3$s"
+  "simple_blueprints.bounds.size": "Size: %1$s, %2$s, %3$s",
+
+  "simple_blueprints.import.import": "Import",
+  "simple_blueprints.import.export": "Export",
+  "simple_blueprints.import.cancel": "Cancel",
+  "simple_blueprints.import.select_import": "Select Blueprint",
+  "simple_blueprints.import.select_export": "Select Export Location",
+  "simple_blueprints.import.import_desc": "Imports a blueprint from a file. This will replace the blueprint data for slot %1$s.",
+  "simple_blueprints.import.export_desc": "Exports the blueprint data in slot %1$s to a file.",
+  "simple_blueprints.import.import_warning": "Slot %1$s currently has data. This will be lost if you import.",
+  "simple_blueprints.import.export_warning": "Slot %1$s can not be exported since it has no data."
 }

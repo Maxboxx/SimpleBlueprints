@@ -1,25 +1,18 @@
 package maxboxx.blueprints.data;
 
-import com.google.common.io.Files;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Optional;
 
 public class BlueprintSelectionData {
+	public static final String[] FILE_FILTERS = new String[] {"*.dat"};
+
 	public boolean isActive = false;
 	public BlockPos min, max;
 

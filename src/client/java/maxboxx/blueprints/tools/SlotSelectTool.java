@@ -2,10 +2,12 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.graphics.screens.ImportExportScreen;
+import maxboxx.blueprints.utils.FileUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,8 +108,8 @@ public class SlotSelectTool extends BlueprintTool {
 		@Override
 		public Optional<Component> getAction(ToolAction action) {
 			return switch (action) {
-				case LEFT -> Optional.of(SimpleBlueprints.text("slots.select"));
-
+				case LEFT   -> Optional.of(SimpleBlueprints.text("slots.select"));
+				case MIDDLE -> Optional.of(SimpleBlueprints.text("slots.import"));
 				default -> Optional.empty();
 			};
 		}
@@ -119,6 +121,11 @@ public class SlotSelectTool extends BlueprintTool {
 					BlueprintTools.clearSubTools();
 					BlueprintManager.setToolSlot(BlueprintTools.indexOfSafe(PARENT_TOOL));
 					BlueprintManager.setBlueprintSlot(SLOT);
+				}
+
+				case MIDDLE -> {
+					BlueprintManager.setBlueprintSlot(SLOT);
+					Minecraft.getInstance().setScreen(new ImportExportScreen());
 				}
 			}
 		}

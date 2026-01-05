@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 
+import java.io.File;
 import java.nio.file.Path;
 
 public class BlueprintManager {
@@ -145,16 +146,7 @@ public class BlueprintManager {
 				Path path = configPath.resolve("selection" + (i + 1) + ".dat");
 				selectionData[i].loadData(path);
 
-				if (selectionData[i].data == null) continue;
-
-				selectionData[i].graphic = selectionData[i].data.toGraphic(Minecraft.getInstance().level);
-				selectionData[i].graphic.setMirror(selectionData[i].data.getMirror());
-				selectionData[i].graphic.setRotation(selectionData[i].data.getRotation());
-
-				if (showBlocks && selectionData[i].isVisible) {
-					selectionData[i].graphic.setPosition(selectionData[i].min);
-					WorldRenderer.addGraphic(selectionData[i].graphic);
-				}
+				setupData(selectionData[i]);
 			}
 
 			hasLoaded = true;
@@ -567,6 +559,45 @@ public class BlueprintManager {
 
 		selection.markDirty();
 		updateGraphics();
+	}
+
+	public static void importFrom(Path file) {
+		BlueprintSelectionData newData = new BlueprintSelectionData();
+		newData.loadData(file);
+
+		if (selection.graphic != null) {
+			WorldRenderer.removeGraphic(selection.graphic);
+		}
+
+		selection = newData;
+		selectionData[selectedSlot] = newData;
+
+		setupData(selection);
+
+		selection.markDirty();
+		updateGraphics();
+	}
+
+	private static void setupData(BlueprintSelectionData data) {
+		if (data.data == null) return;
+
+		data.graphic = data.data.toGraphic(Minecraft.getInstance().level);
+		data.graphic.setMirror(data.data.getMirror());
+		data.graphic.setRotation(data.data.getRotation());
+		data.graphic.setTint(blockColor);
+		data.graphic.setAlpha(blockAlpha);
+
+		if (showBlocks && data.isVisible) {
+			data.graphic.setPosition(data.min);
+			WorldRenderer.addGraphic(data.graphic);
+		}
+	}
+
+	public static void exportTo(Path file) {
+		if (selection.data != null) {
+			selection.saveData(file);
+			selection.markDirty();
+		}
 	}
 
 	private static void updateGraphics() {
