@@ -5,7 +5,6 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class PipelineUtil {

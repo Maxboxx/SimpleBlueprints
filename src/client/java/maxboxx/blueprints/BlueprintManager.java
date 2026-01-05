@@ -18,7 +18,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 
-import java.io.File;
 import java.nio.file.Path;
 
 public class BlueprintManager {

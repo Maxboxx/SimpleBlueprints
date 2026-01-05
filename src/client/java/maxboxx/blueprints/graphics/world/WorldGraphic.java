@@ -1,7 +1,6 @@
 package maxboxx.blueprints.graphics.world;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
 public abstract class WorldGraphic {

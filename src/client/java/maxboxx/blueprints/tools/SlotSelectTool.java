@@ -3,7 +3,6 @@ package maxboxx.blueprints.tools;
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.graphics.screens.ImportExportScreen;
-import maxboxx.blueprints.utils.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;

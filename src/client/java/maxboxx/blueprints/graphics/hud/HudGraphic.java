@@ -1,7 +1,6 @@
 package maxboxx.blueprints.graphics.hud;
 
 import maxboxx.blueprints.SimpleBlueprints;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.Identifier;
 

@@ -5,8 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.core.Direction;
 import org.joml.Matrix4f;
 
-import java.util.function.Consumer;
-
 public class ShapeVertexUtil {
 	public static void createBox(PoseStack stack, VertexConsumer consumer, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float r, float g, float b, float a) {
 		Matrix4f pose = stack.last().pose();

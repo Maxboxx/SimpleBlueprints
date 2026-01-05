@@ -17,7 +17,7 @@ public class SimpleBlueprints implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("Blueprints Loaded");
+		LOGGER.info("Simple Blueprints Initialized");
 	}
 
 	public static Path configPath() {

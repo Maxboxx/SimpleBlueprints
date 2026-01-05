@@ -17,9 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-
-import java.util.Optional;
 
 public class BlueprintHud extends HudGraphic {
 	private static final Identifier LEFT_ICON   = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_left");

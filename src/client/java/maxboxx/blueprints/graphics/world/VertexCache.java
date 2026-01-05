@@ -7,7 +7,6 @@ import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.Mirror;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
 

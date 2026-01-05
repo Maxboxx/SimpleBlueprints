@@ -57,10 +57,6 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 	private Color color;
 	private float alpha = 0.5f;
 
-	private record Entity(BlockPos pos, BlockState block) {
-
-	}
-
 	public enum LayerMode {
 		SHOW_ALL,
 		SHOW_BELOW,

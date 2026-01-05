@@ -4,9 +4,7 @@ import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.KeyBinds;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 
 import java.util.Optional;

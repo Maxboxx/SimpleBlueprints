@@ -14,8 +14,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.rendertype.OutputTarget;
-import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
@@ -69,7 +67,7 @@ public class WorldRenderer {
 
 	public static final RenderType TRANSLUCENT_BLOCKS = Sheets.translucentBlockItemSheet();
 
-	public static final RenderType TRANSLUCENT_BLOCKS_NO_DEPTH = RenderTypeUtil.createfromPipeline("translucent_block_no_depth",
+	public static final RenderType TRANSLUCENT_BLOCKS_NO_DEPTH = RenderTypeUtil.createFromPipeline("translucent_block_no_depth",
 		RenderPipelines.register(RenderPipeline.builder(PipelineUtil.convertToSnippet(TRANSLUCENT_BLOCKS.pipeline()))
 			.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/blocks_no_depth"))
 			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
