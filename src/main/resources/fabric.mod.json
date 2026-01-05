@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "simple-blueprints",
+	"id": "simple_blueprints",
 	"version": "${version}",
 	"name": "Simple Blueprints",
 	"description": "A simple mod for copying and building structures",
@@ -8,11 +8,10 @@
 		"Maxboxx"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+
 	},
 	"license": "MIT",
-	"icon": "assets/simple-blueprints/icon.png",
+	"icon": "assets/simple_blueprints/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
@@ -23,15 +22,15 @@
 		]
 	},
 	"mixins": [
-		"simple-blueprints.mixins.json",
+		"simple_blueprints.mixins.json",
 		{
-			"config": "simple-blueprints.client.mixins.json",
+			"config": "simple_blueprints.client.mixins.json",
 			"environment": "client"
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.18.1",
-		"minecraft": "~1.21.10",
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.11",
 		"java": ">=21",
 		"fabric-api": "*"
 	},
