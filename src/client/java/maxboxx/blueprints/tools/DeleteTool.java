@@ -3,6 +3,7 @@ package maxboxx.blueprints.tools;
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.utils.BlockUtil;
+import maxboxx.blueprints.utils.TickUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -38,7 +39,9 @@ public class DeleteTool extends BlueprintTool {
 		switch (action) {
 			case MIDDLE -> {
 				if (BlueprintManager.hasSelection()) {
+					TickUtil.TemporaryFreeze freeze = TickUtil.temporaryFreeze(player);
 					BlockUtil.fillBlocks(player, BlueprintManager.getSelectionMin(), BlueprintManager.getSelectionMax(), Blocks.AIR.defaultBlockState());
+					freeze.unfreeze();
 				}
 			}
 		}

@@ -32,7 +32,7 @@ public class ClipboardTool extends BlueprintTool {
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
 			case LEFT -> {
-				if (BlueprintManager.hasSelection()) {
+				if (BlueprintManager.hasSelection() && !BlueprintManager.hasData()) {
 					yield Optional.of(SimpleBlueprints.text("clipboard.copy"));
 				}
 				else {
@@ -66,7 +66,7 @@ public class ClipboardTool extends BlueprintTool {
 	public void performAction(LocalPlayer player, ToolAction action) {
 		switch (action) {
 			case LEFT -> {
-				if (!BlueprintManager.hasSelection()) break;
+				if (!BlueprintManager.hasSelection() || BlueprintManager.hasData()) break;
 
 				BlueprintData data = new BlueprintData();
 

@@ -4,6 +4,7 @@ import maxboxx.blueprints.mixin.client.StructureTemplateMixins;
 import maxboxx.blueprints.utils.BlockUtil;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
 import maxboxx.blueprints.utils.PositionUtil;
+import maxboxx.blueprints.utils.TickUtil;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -96,6 +97,8 @@ public class BlueprintData {
 		if (structure == null) return;
 		if (!player.isCreative()) return;
 
+		TickUtil.TemporaryFreeze freeze = TickUtil.temporaryFreeze(player);
+
 		for (Block block : blocks) {
 			List<StructureTemplate.StructureBlockInfo> blockInfos = structure.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), block);
 
@@ -107,6 +110,8 @@ public class BlueprintData {
 				);
 			}
 		}
+
+		freeze.unfreeze();
 	}
 
 	public BlueprintGraphic toGraphic(Level level) {

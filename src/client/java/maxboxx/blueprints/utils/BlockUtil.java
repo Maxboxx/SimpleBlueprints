@@ -49,8 +49,7 @@ public class BlockUtil {
 			throw new RuntimeException(e);
 		}
 
-		String posString = position.getX() + " " + position.getY() + " " + position.getZ();
-		player.connection.sendCommand("setblock " + posString + " " + blockIdAndProperties(block));
+		CommandUtil.sendCommand(player, "setblock", position.getX(), position.getY(), position.getZ(), blockIdAndProperties(block));
 	}
 
 	public static void fillBlocks(LocalPlayer player, BlockPos min, BlockPos max, BlockState block) {
