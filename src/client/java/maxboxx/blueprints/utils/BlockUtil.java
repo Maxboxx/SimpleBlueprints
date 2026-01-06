@@ -5,8 +5,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Property;
 
 import java.io.IOException;
@@ -37,6 +42,30 @@ public class BlockUtil {
 
 		props.append("]");
 		return blockId(block.getBlock()) + props;
+	}
+
+	public static boolean isDoubleBlock(BlockState block) {
+		if (block.getProperties().contains(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
+			return true;
+		}
+
+		if (block.getBlock() instanceof BedBlock) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isPrimaryBlock(BlockState block) {
+		if (block.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
+			return block.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.LOWER;
+		}
+
+		if (block.getBlock() instanceof BedBlock) {
+			return block.getValue(BedBlock.PART) == BedPart.FOOT;
+		}
+
+		return true;
 	}
 
 	public static void placeBlock(LocalPlayer player, BlockPos position, BlockState block) {

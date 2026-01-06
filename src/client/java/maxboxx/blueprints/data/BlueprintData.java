@@ -63,9 +63,13 @@ public class BlueprintData {
 		for (int x = 0; x < size.getX(); x++) {
 			for (int y = 0; y < size.getY(); y++) {
 				for (int z = 0; z < size.getZ(); z++) {
-					Block block = level.getBlockState(new BlockPos(position.offset(new Vec3i(x, y, z)))).getBlock();
-					blocks.add(block);
-					itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
+					BlockState state = level.getBlockState(new BlockPos(position.offset(new Vec3i(x, y, z))));
+
+					if (BlockUtil.isPrimaryBlock(state)) {
+						Block block = state.getBlock();
+						blocks.add(block);
+						itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
+					}
 				}
 			}
 		}
@@ -182,9 +186,11 @@ public class BlueprintData {
 
 		for (StructureTemplate.Palette palette : palettes) {
 			for (StructureTemplate.StructureBlockInfo blockInfo : palette.blocks()) {
-				Block block = blockInfo.state().getBlock();
-				blocks.add(block);
-				itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
+				if (BlockUtil.isPrimaryBlock(blockInfo.state())) {
+					Block block = blockInfo.state().getBlock();
+					blocks.add(block);
+					itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
+				}
 			}
 		}
 

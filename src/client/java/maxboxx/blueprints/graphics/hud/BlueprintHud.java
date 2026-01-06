@@ -115,6 +115,11 @@ public class BlueprintHud extends HudGraphic {
 				int stacks = stack.getCount() / stackSize;
 				int items  = stack.getCount() - stacks * stackSize;
 
+				if (stackSize <= 1) {
+					stacks = 0;
+					items = stack.getCount();
+				}
+
 				if (items > 0) {
 					drawRightString(context, font, String.valueOf(items), textX, textY);
 					textY -= 10;
@@ -133,6 +138,11 @@ public class BlueprintHud extends HudGraphic {
 				int chests = stacks / chestSize;
 				int items  = stack.getCount() - stacks * stackSize;
 				stacks -= chests * chestSize;
+
+				if (stackSize <= 1) {
+					items = stacks;
+					stacks = 0;
+				}
 
 				if (items > 0) {
 					drawRightString(context, font, String.valueOf(items), textX, textY);
