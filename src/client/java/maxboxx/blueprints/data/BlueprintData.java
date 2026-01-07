@@ -13,6 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -32,7 +33,7 @@ public class BlueprintData {
 
 	private final ArrayList<ItemData> sortedItems = new ArrayList<>();
 
-	public record ItemData(Item item, int count) {
+	public record ItemData(ItemStack stack, boolean visible) {
 
 	}
 
@@ -79,10 +80,10 @@ public class BlueprintData {
 				continue;
 			}
 
-			sortedItems.add(new ItemData(item.getKey(), item.getValue()));
+			sortedItems.add(new ItemData(new ItemStack(item.getKey(), item.getValue()), true));
 		}
 
-		sortedItems.sort((a, b) -> b.count - a.count);
+		sortedItems.sort((a, b) -> b.stack.getCount() - a.stack.getCount());
 
 		structure.fillFromWorld(
 			level,
@@ -199,9 +200,9 @@ public class BlueprintData {
 				continue;
 			}
 
-			sortedItems.add(new ItemData(item.getKey(), item.getValue()));
+			sortedItems.add(new ItemData(new ItemStack(item.getKey(), item.getValue()), true));
 		}
 
-		sortedItems.sort((a, b) -> b.count - a.count);
+		sortedItems.sort((a, b) -> b.stack.getCount() - a.stack.getCount());
 	}
 }

@@ -1,4 +1,4 @@
-package maxboxx.blueprints.graphics.hud;
+package maxboxx.blueprints.graphics.ui.hud;
 
 import maxboxx.blueprints.SimpleBlueprints;
 import net.minecraft.client.gui.GuiGraphics;

@@ -2,20 +2,22 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.graphics.ui.screens.ItemListScreen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 
 import java.util.Optional;
 
-public class BlockListTool extends BlueprintTool {
+public class ItemListTool extends BlueprintTool {
 	public enum CountMode {
 		TOTAL,
 		STACKS,
 		CHESTS
 	}
 
-	public BlockListTool() {
-		super("block_list");
+	public ItemListTool() {
+		super("item_list");
 	}
 
 	@Override
@@ -27,10 +29,12 @@ public class BlockListTool extends BlueprintTool {
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
 			case LEFT -> switch (BlueprintManager.getBlockListMode()) {
-				case TOTAL  -> Optional.of(SimpleBlueprints.text("block_list.show_stacks"));
-				case STACKS -> Optional.of(SimpleBlueprints.text("block_list.show_chests"));
-				case CHESTS -> Optional.of(SimpleBlueprints.text("block_list.show_total"));
+				case TOTAL  -> Optional.of(SimpleBlueprints.text("item_list.show_stacks"));
+				case STACKS -> Optional.of(SimpleBlueprints.text("item_list.show_chests"));
+				case CHESTS -> Optional.of(SimpleBlueprints.text("item_list.show_total"));
 			};
+
+			case RIGHT -> Optional.of(SimpleBlueprints.text("item_list.edit_items"));
 
 			default -> Optional.empty();
 		};
@@ -46,6 +50,10 @@ public class BlockListTool extends BlueprintTool {
 
 					default -> CountMode.TOTAL;
 				});
+			}
+
+			case RIGHT -> {
+				Minecraft.getInstance().setScreen(new ItemListScreen());
 			}
 		}
 	}

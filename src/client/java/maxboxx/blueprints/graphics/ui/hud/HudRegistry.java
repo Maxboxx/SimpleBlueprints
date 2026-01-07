@@ -1,4 +1,4 @@
-package maxboxx.blueprints.graphics.hud;
+package maxboxx.blueprints.graphics.ui.hud;
 
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 

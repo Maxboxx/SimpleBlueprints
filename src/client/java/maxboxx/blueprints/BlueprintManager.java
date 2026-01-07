@@ -3,8 +3,8 @@ package maxboxx.blueprints;
 import maxboxx.blueprints.data.BlueprintData;
 import maxboxx.blueprints.data.BlueprintSelectionData;
 import maxboxx.blueprints.data.Color;
-import maxboxx.blueprints.graphics.hud.BlueprintHud;
-import maxboxx.blueprints.graphics.hud.HudRegistry;
+import maxboxx.blueprints.graphics.ui.hud.BlueprintHud;
+import maxboxx.blueprints.graphics.ui.hud.HudRegistry;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
 import maxboxx.blueprints.graphics.world.WorldRenderer;
@@ -52,7 +52,7 @@ public class BlueprintManager {
 	private static float blockAlpha = DEFAULT_ALPHA;
 	private static int colorIndex = 0;
 
-	private static BlockListTool.CountMode blockListMode = BlockListTool.CountMode.TOTAL;
+	private static ItemListTool.CountMode blockListMode = ItemListTool.CountMode.TOTAL;
 
 	static {
 		for (int i = 0; i < selectionData.length; i++) {
@@ -488,11 +488,11 @@ public class BlueprintManager {
 		}
 	}
 
-	public static BlockListTool.CountMode getBlockListMode() {
+	public static ItemListTool.CountMode getBlockListMode() {
 		return blockListMode;
 	}
 
-	public static void setBlockListMode(BlockListTool.CountMode mode) {
+	public static void setBlockListMode(ItemListTool.CountMode mode) {
 		blockListMode = mode;
 	}
 

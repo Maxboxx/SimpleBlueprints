@@ -1,4 +1,4 @@
-package maxboxx.blueprints.graphics.screens;
+package maxboxx.blueprints.graphics.ui.screens;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;

@@ -46,9 +46,11 @@
 
   "simple_blueprints.delete.clear": "Delete All Blocks",
 
-  "simple_blueprints.block_list.show_total": "Show Total Items",
-  "simple_blueprints.block_list.show_stacks": "Show Stacks+Items",
-  "simple_blueprints.block_list.show_chests": "Show Chests+Stacks+Items",
+  "simple_blueprints.item_list.show_total": "Show Total Items",
+  "simple_blueprints.item_list.show_stacks": "Show Stacks+Items",
+  "simple_blueprints.item_list.show_chests": "Show Chests+Stacks+Items",
+  "simple_blueprints.item_list.edit_items": "Edit Items",
+  "simple_blueprints.item_list.close": "Close",
 
   "simple_blueprints.slots.change": "Change Slot",
   "simple_blueprints.slots.next_used": "Select Next Used Slot",
