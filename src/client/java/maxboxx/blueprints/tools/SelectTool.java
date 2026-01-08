@@ -8,14 +8,22 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import java.util.Optional;
 
 public class SelectTool extends BlueprintTool {
+	private static final Identifier PLACE_ICON = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/place");
+
 	public SelectTool() {
 		super("select");
+	}
+
+	@Override
+	public Identifier getIcon() {
+		return BlueprintManager.hasData() ? PLACE_ICON : super.getIcon();
 	}
 
 	@Override
