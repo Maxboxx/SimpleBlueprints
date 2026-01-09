@@ -46,6 +46,10 @@ public abstract class BlueprintTool {
 		return true;
 	}
 
+	public Optional<Component> getTooltip() {
+		return Optional.empty();
+	}
+
 	public abstract Optional<Component> getAction(ToolAction action);
 	public abstract void performAction(LocalPlayer player, ToolAction action);
 }

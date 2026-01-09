@@ -24,7 +24,7 @@ A simple Minecraft client mod that provides tools for copying and building struc
 
 ## Tools
 
-The toolbar can be opened by pressing the `B` key. This replaces your hotbar with various blueprint tools. A selection must be copied for most tools to be available.
+The toolbar can be opened by pressing the `B` key. This replaces your hotbar with various blueprint tools.
 
 ![](assets/toolbar.png)
 

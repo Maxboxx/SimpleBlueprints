@@ -56,6 +56,7 @@
   "simple_blueprints.slots.next_used": "Select Next Used Slot",
   "simple_blueprints.slots.first_empty": "Select First Empty Slot",
   "simple_blueprints.slots.select": "Select",
+  "simple_blueprints.slots.options": "Edit Properties",
   "simple_blueprints.slots.import": "Import/Export",
 
   "simple_blueprints.bounds.min": "Min: %1$s, %2$s, %3$s",
@@ -70,5 +71,11 @@
   "simple_blueprints.import.import_desc": "Imports a blueprint from a file. This will replace the blueprint data for slot %1$s.",
   "simple_blueprints.import.export_desc": "Exports the blueprint data in slot %1$s to a file.",
   "simple_blueprints.import.import_warning": "Slot %1$s currently has data. This will be lost if you import.",
-  "simple_blueprints.import.export_warning": "Slot %1$s can not be exported since it has no data."
+  "simple_blueprints.import.export_warning": "Slot %1$s can not be exported since it has no data.",
+
+  "simple_blueprints.slot_options.close": "Close",
+  "simple_blueprints.slot_options.name": "Slot Name",
+  "simple_blueprints.slot_options.persistent_on": "Persistent: ON",
+  "simple_blueprints.slot_options.persistent_off": "Persistent: OFF",
+  "simple_blueprints.slot_options.persistent_desc": "Persistent slots are saved between sessions."
 }

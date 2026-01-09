@@ -2,7 +2,9 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.data.SlotProperties;
 import maxboxx.blueprints.graphics.ui.screens.ImportExportScreen;
+import maxboxx.blueprints.graphics.ui.screens.SlotOptionsScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -31,6 +33,17 @@ public class SlotSelectTool extends BlueprintTool {
 	@Override
 	public Identifier getIcon() {
 		return icons[BlueprintManager.getBlueprintSlot()];
+	}
+
+	@Override
+	public Optional<Component> getTooltip() {
+		SlotProperties.SlotData data = BlueprintManager.getSlotProperties(BlueprintManager.getBlueprintSlot());
+
+		if (data.hasName()) {
+			return Optional.of(Component.literal(data.name()));
+		}
+
+		return Optional.empty();
 	}
 
 	@Override
@@ -105,11 +118,22 @@ public class SlotSelectTool extends BlueprintTool {
 		}
 
 		@Override
+		public Optional<Component> getTooltip() {
+			SlotProperties.SlotData data = BlueprintManager.getSlotProperties(SLOT);
+
+			if (data.hasName()) {
+				return Optional.of(Component.literal(data.name()));
+			}
+
+			return Optional.empty();
+		}
+
+		@Override
 		public Optional<Component> getAction(ToolAction action) {
 			return switch (action) {
 				case LEFT   -> Optional.of(SimpleBlueprints.text("slots.select"));
+				case RIGHT  -> Optional.of(SimpleBlueprints.text("slots.options"));
 				case MIDDLE -> Optional.of(SimpleBlueprints.text("slots.import"));
-				default -> Optional.empty();
 			};
 		}
 
@@ -120,6 +144,10 @@ public class SlotSelectTool extends BlueprintTool {
 					BlueprintTools.clearSubTools();
 					BlueprintManager.setToolSlot(BlueprintTools.indexOfSafe(PARENT_TOOL));
 					BlueprintManager.setBlueprintSlot(SLOT);
+				}
+
+				case RIGHT -> {
+					Minecraft.getInstance().setScreen(new SlotOptionsScreen(SLOT));
 				}
 
 				case MIDDLE -> {

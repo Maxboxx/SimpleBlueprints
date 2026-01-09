@@ -12,6 +12,7 @@ import java.util.List;
 public class ItemRenderer {
 	private static final int ITEM_GRID_X_OFFSET = -20;
 	private static final int ITEM_GRID_Y_OFFSET = 5;
+	private static final int ITEM_GRID_BOTTOM_OFFSET = 26;
 	private static final int ITEM_OFFSET = 18;
 
 	public static void render(GuiGraphics context, Font font, BlueprintData.ItemData item, int x, int y, ItemListTool.CountMode mode) {
@@ -38,7 +39,7 @@ public class ItemRenderer {
 			}
 		}
 
-		final int maxRows = (context.guiHeight() - ITEM_GRID_Y_OFFSET * 2) / ITEM_OFFSET;
+		final int maxRows = (context.guiHeight() - ITEM_GRID_Y_OFFSET - ITEM_GRID_BOTTOM_OFFSET) / ITEM_OFFSET;
 		final int cols = Math.ceilDiv(visibleCount, maxRows);
 
 		int row = 0;
@@ -75,7 +76,7 @@ public class ItemRenderer {
 			}
 		}
 
-		final int maxRows = (height - ITEM_GRID_Y_OFFSET * 2) / ITEM_OFFSET;
+		final int maxRows = (height - ITEM_GRID_Y_OFFSET - ITEM_GRID_BOTTOM_OFFSET) / ITEM_OFFSET;
 		final int cols = Math.ceilDiv(visibleCount, maxRows);
 
 		int row = 0;

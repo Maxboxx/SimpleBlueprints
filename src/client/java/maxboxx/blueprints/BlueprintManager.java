@@ -3,6 +3,7 @@ package maxboxx.blueprints;
 import maxboxx.blueprints.data.BlueprintData;
 import maxboxx.blueprints.data.BlueprintSelectionData;
 import maxboxx.blueprints.data.Color;
+import maxboxx.blueprints.data.SlotProperties;
 import maxboxx.blueprints.graphics.ui.hud.BlueprintHud;
 import maxboxx.blueprints.graphics.ui.hud.HudRegistry;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
@@ -53,6 +54,8 @@ public class BlueprintManager {
 	private static int colorIndex = 0;
 
 	private static ItemListTool.CountMode blockListMode = ItemListTool.CountMode.TOTAL;
+
+	private static SlotProperties slotProperties = new SlotProperties();
 
 	static {
 		for (int i = 0; i < selectionData.length; i++) {
@@ -141,6 +144,8 @@ public class BlueprintManager {
 
 			Path configPath = SimpleBlueprints.configPath();
 
+			slotProperties.load(configPath.resolve("slots.properties"));
+
 			for (int i = 0; i < selectionData.length; i++) {
 				Path path = configPath.resolve("selection" + (i + 1) + ".dat");
 				selectionData[i].loadData(path);
@@ -161,9 +166,15 @@ public class BlueprintManager {
 			Path configPath = SimpleBlueprints.configPath();
 
 			for (int i = 0; i < selectionData.length; i++) {
+				Path path = configPath.resolve("selection" + (i + 1) + ".dat");
+
+				if (!slotProperties.getData(i).persistent()) {
+					path.toFile().delete();
+					continue;
+				}
+
 				if (!selectionData[i].isDirty()) continue;
 
-				Path path = configPath.resolve("selection" + (i + 1) + ".dat");
 				selectionData[i].saveData(path);
 
 				if (selectionData[i].graphic != null) {
@@ -175,6 +186,15 @@ public class BlueprintManager {
 
 	public static boolean isActive() {
 		return active;
+	}
+
+	public static SlotProperties.SlotData getSlotProperties(int slot) {
+		return slotProperties.getData(slot);
+	}
+
+	public static void setSlotProperties(int slot, SlotProperties.SlotData data) {
+		slotProperties.setData(slot, data);
+		slotProperties.save(SimpleBlueprints.configPath().resolve("slots.properties"));
 	}
 
 	public static BlueprintTool currentTool() {
