@@ -80,18 +80,18 @@ public class SelectTool extends BlueprintTool {
 
 		BlueprintManager.clearSelection();
 
-		Vec3i halfSize = data.halfSize();
+		Vec3i halfSize = data.transformedHalfSize();
 
 		BlockPos placePos = switch (normal) {
 			case UP    -> pos.offset(-halfSize.getX(), 1, -halfSize.getZ());
-			case DOWN  -> pos.offset(-halfSize.getX(), -data.size().getY(), -halfSize.getZ());
-			case WEST  -> pos.offset(-data.size().getX(), -halfSize.getY(), -halfSize.getZ());
+			case DOWN  -> pos.offset(-halfSize.getX(), -data.transformedSize().getY(), -halfSize.getZ());
+			case WEST  -> pos.offset(-data.transformedSize().getX(), -halfSize.getY(), -halfSize.getZ());
 			case EAST  -> pos.offset(1, -halfSize.getY(), -halfSize.getZ());
-			case NORTH -> pos.offset(-halfSize.getX(), -halfSize.getY(), -data.size().getZ());
+			case NORTH -> pos.offset(-halfSize.getX(), -halfSize.getY(), -data.transformedSize().getZ());
 			case SOUTH -> pos.offset(-halfSize.getX(), -halfSize.getY(), 1);
 		};
 
 		BlueprintManager.addToSelection(placePos);
-		BlueprintManager.addToSelection(placePos.offset(data.size()).offset(-1, -1, -1));
+		BlueprintManager.addToSelection(placePos.offset(data.transformedSize()).offset(-1, -1, -1));
 	}
 }

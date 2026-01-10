@@ -50,6 +50,11 @@ public class BlueprintData {
 		return structure.getSize(mirrorRotation.rotation());
 	}
 
+	public Vec3i transformedHalfSize() {
+		Vec3i size = transformedSize();
+		return new Vec3i(size.getX() / 2, size.getY() / 2, size.getZ() / 2);
+	}
+
 	public BlockPos position() {
 		return pos;
 	}
