@@ -40,7 +40,7 @@ public class DeleteTool extends BlueprintTool {
 			case MIDDLE -> {
 				if (BlueprintManager.hasSelection()) {
 					TickUtil.TemporaryFreeze freeze = TickUtil.temporaryFreeze(player);
-					BlockUtil.fillBlocks(player, BlueprintManager.getSelectionMin(), BlueprintManager.getSelectionMax(), Blocks.AIR.defaultBlockState());
+					BlockUtil.fillBlocks(player, BlueprintManager.getSelectionMin(), BlueprintManager.getSelectionMax(), Blocks.AIR.defaultBlockState(), BlockUtil.PlaceMode.REPLACE_ALL);
 					freeze.unfreeze();
 				}
 			}

@@ -1,8 +1,10 @@
 package maxboxx.blueprints.utils;
 
+import maxboxx.blueprints.SimpleBlueprints;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
@@ -17,6 +19,20 @@ import java.io.IOException;
 import java.util.Map;
 
 public class BlockUtil {
+	public enum PlaceMode {
+		REPLACE_ALL,
+		PLACE_IN_AIR,
+		IGNORE_AIR;
+
+		public Component asText() {
+			return switch (this) {
+				case REPLACE_ALL  -> SimpleBlueprints.text("paste_mode.replace");
+				case PLACE_IN_AIR -> SimpleBlueprints.text("paste_mode.place_in_air");
+				case IGNORE_AIR   -> SimpleBlueprints.text("paste_mode.ignore_air");
+			};
+		}
+	}
+
 	public static String blockId(Block block) {
 		return BuiltInRegistries.BLOCK.getKey(block).toString();
 	}
@@ -67,9 +83,17 @@ public class BlockUtil {
 		return true;
 	}
 
-	public static void placeBlock(LocalPlayer player, BlockPos position, BlockState block) {
+	public static void placeBlock(LocalPlayer player, BlockPos position, BlockState block, PlaceMode mode) {
 		try (Level level = player.level()) {
-			if (level.getBlockState(position).getBlock() == block.getBlock()) {
+			BlockState current = level.getBlockState(position);
+
+			boolean shouldPlace = switch (mode) {
+				case REPLACE_ALL  -> true;
+				case PLACE_IN_AIR -> current.isAir();
+				case IGNORE_AIR   -> !block.isAir();
+			};
+
+			if (!shouldPlace || current.equals(block)) {
 				return;
 			}
 		}
@@ -80,11 +104,11 @@ public class BlockUtil {
 		CommandUtil.sendCommand(player, "setblock", position.getX(), position.getY(), position.getZ(), blockIdAndProperties(block));
 	}
 
-	public static void fillBlocks(LocalPlayer player, BlockPos min, BlockPos max, BlockState block) {
+	public static void fillBlocks(LocalPlayer player, BlockPos min, BlockPos max, BlockState block, PlaceMode mode) {
 		for (int x = min.getX(); x <= max.getX(); x++) {
 			for (int y = min.getY(); y <= max.getY(); y++) {
 				for (int z = min.getZ(); z <= max.getZ(); z++) {
-					placeBlock(player, new BlockPos(x, y, z), block);
+					placeBlock(player, new BlockPos(x, y, z), block, mode);
 				}
 			}
 		}

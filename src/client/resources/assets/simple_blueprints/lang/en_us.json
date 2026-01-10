@@ -26,6 +26,7 @@
 
   "simple_blueprints.clipboard.copy": "Copy",
   "simple_blueprints.clipboard.paste": "Paste",
+  "simple_blueprints.clipboard.paste_mode": "Paste Mode (Current: %1$s)",
   "simple_blueprints.clipboard.clear": "Clear",
 
   "simple_blueprints.visibility.alpha": "Change Transparency",
@@ -77,5 +78,9 @@
   "simple_blueprints.slot_options.name": "Slot Name",
   "simple_blueprints.slot_options.persistent_on": "Persistent: ON",
   "simple_blueprints.slot_options.persistent_off": "Persistent: OFF",
-  "simple_blueprints.slot_options.persistent_desc": "Persistent slots are saved between sessions."
+  "simple_blueprints.slot_options.persistent_desc": "Persistent slots are saved between sessions.",
+
+  "simple_blueprints.paste_mode.replace": "Replace",
+  "simple_blueprints.paste_mode.place_in_air": "Paste in Air",
+  "simple_blueprints.paste_mode.ignore_air": "Ignore Air"
 }

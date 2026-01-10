@@ -103,7 +103,7 @@ public class BlueprintData {
 		return structure != null && player.isCreative();
 	}
 
-	public void placeInWorld(LocalPlayer player, BlockPos position) {
+	public void placeInWorld(LocalPlayer player, BlockPos position, BlockUtil.PlaceMode mode) {
 		if (structure == null) return;
 		if (!player.isCreative()) return;
 
@@ -116,7 +116,8 @@ public class BlueprintData {
 				BlockUtil.placeBlock(
 					player,
 					PositionUtil.mirrorAndRotateInBox(info.pos(), size(), mirrorRotation.mirror(), mirrorRotation.rotation()).offset(position),
-					info.state().mirror(mirrorRotation.mirror()).rotate(mirrorRotation.rotation())
+					info.state().mirror(mirrorRotation.mirror()).rotate(mirrorRotation.rotation()),
+					mode
 				);
 			}
 		}
