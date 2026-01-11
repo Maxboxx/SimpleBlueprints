@@ -55,7 +55,7 @@ public class BlueprintManager {
 
 	private static ItemListTool.CountMode blockListMode = ItemListTool.CountMode.TOTAL;
 
-	private static SlotProperties slotProperties = new SlotProperties();
+	private static final SlotProperties slotProperties = new SlotProperties();
 
 	static {
 		for (int i = 0; i < selectionData.length; i++) {
@@ -206,6 +206,12 @@ public class BlueprintManager {
 		if (player == null) return;
 
 		player.getInventory().setSelectedSlot(i);
+	}
+
+	public static int getToolSlot() {
+		LocalPlayer player = Minecraft.getInstance().player;
+		if (player == null) return 0;
+		return player.getInventory().getSelectedSlot();
 	}
 
 	public static int getBlueprintSlot() {

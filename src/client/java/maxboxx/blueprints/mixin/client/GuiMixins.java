@@ -27,15 +27,6 @@ public class GuiMixins {
 				guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, tool.getIcon(), i, j, 16, 16, tool.getColor());
 			}
 
-			if (BlueprintManager.currentTool() == tool) {
-				tool.getTooltip().ifPresent(tooltip -> {
-					Font font = Minecraft.getInstance().font;
-
-					guiGraphics.fill(i + 6 - font.width(tooltip) / 2, j - 18, i + 10 + font.width(tooltip) / 2, j - 6, 0xbb000000);
-					guiGraphics.drawCenteredString(font, tooltip, i + 8, j - 16, 0xffffffff);
-				});
-			}
-
 			info.cancel();
 		}
 	}

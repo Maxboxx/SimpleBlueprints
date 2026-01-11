@@ -8,7 +8,6 @@ import maxboxx.blueprints.graphics.ui.screens.ItemListScreen;
 import maxboxx.blueprints.tools.ItemListTool;
 import maxboxx.blueprints.tools.BlueprintTool;
 import maxboxx.blueprints.tools.ToolAction;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -25,30 +24,30 @@ public class BlueprintHud extends HudGraphic {
 	private static final Identifier MIDDLE_ICON = Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "hud/mouse_middle");
 
 	public BlueprintHud() {
-		super("hud", VanillaHudElements.HOTBAR);
+		super("hud", null);
 	}
 
 	@Override
 	public void render(GuiGraphics context) {
 		BlueprintTool tool = BlueprintManager.currentTool();
 
-		if (tool.isAvailable()) {
-			tool.getAction(ToolAction.LEFT).ifPresent(action -> drawAction(context, 84, LEFT_ICON, action));
-			tool.getAction(ToolAction.RIGHT).ifPresent(action -> drawAction(context, 72, RIGHT_ICON, action));
-			tool.getAction(ToolAction.MIDDLE).ifPresent(action -> drawAction(context, 60, MIDDLE_ICON, action));
-		}
-		else {
-			context.drawCenteredString(
-				Minecraft.getInstance().font,
-				SimpleBlueprints.text("tool.unavailable"),
-				context.guiWidth() / 2,
-				context.guiHeight() - 72,
-				0xffff8888
-			);
-		}
+		renderActions(context, tool);
 
 		Font font = Minecraft.getInstance().font;
 
+		renderTooltip(context, tool);
+		renderSelectionData(context, font);
+		renderItems(context);
+	}
+
+	private static void renderItems(GuiGraphics context) {
+		if (BlueprintManager.hasData() && BlueprintManager.currentTool() instanceof ItemListTool && !(Minecraft.getInstance().screen instanceof ItemListScreen)) {
+			BlueprintData data = BlueprintManager.getData();
+			ItemRenderer.renderGrid(context, data.getItems(), BlueprintManager.getBlockListMode(), false);
+		}
+	}
+
+	private static void renderSelectionData(GuiGraphics context, Font font) {
 		if (BlueprintManager.hasSelection()) {
 			BlockPos min = BlueprintManager.getSelectionMin();
 			BlockPos max = BlueprintManager.getSelectionMax();
@@ -65,10 +64,34 @@ public class BlueprintHud extends HudGraphic {
 			context.drawString(font, maxText, 10, 20, 0xffffffff);
 			context.drawString(font, sizeText, 10, 30, 0xffffffff);
 		}
+	}
 
-		if (BlueprintManager.hasData() && BlueprintManager.currentTool() instanceof ItemListTool && !(Minecraft.getInstance().screen instanceof ItemListScreen)) {
-			BlueprintData data = BlueprintManager.getData();
-			ItemRenderer.renderGrid(context, data.getItems(), BlueprintManager.getBlockListMode(), false);
+	private static void renderTooltip(GuiGraphics context, BlueprintTool tool) {
+		tool.getTooltip().ifPresent(tooltip -> {
+			Font font = Minecraft.getInstance().font;
+
+			int x = context.guiWidth() / 2 + (BlueprintManager.getToolSlot() * 20 - 80);
+			int y = context.guiHeight() - 18;
+
+			context.fill(x - 2 - font.width(tooltip) / 2, y - 18, x + 2 + font.width(tooltip) / 2, y - 6, 0xbb000000);
+			context.drawCenteredString(font, tooltip, x, y - 16, 0xffffffff);
+		});
+	}
+
+	private void renderActions(GuiGraphics context, BlueprintTool tool) {
+		if (tool.isAvailable()) {
+			tool.getAction(ToolAction.LEFT).ifPresent(action -> drawAction(context, 84, LEFT_ICON, action));
+			tool.getAction(ToolAction.RIGHT).ifPresent(action -> drawAction(context, 72, RIGHT_ICON, action));
+			tool.getAction(ToolAction.MIDDLE).ifPresent(action -> drawAction(context, 60, MIDDLE_ICON, action));
+		}
+		else {
+			context.drawCenteredString(
+				Minecraft.getInstance().font,
+				SimpleBlueprints.text("tool.unavailable"),
+				context.guiWidth() / 2,
+				context.guiHeight() - 72,
+				0xffff8888
+			);
 		}
 	}
 
