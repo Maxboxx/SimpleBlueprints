@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.apache.logging.log4j.core.pattern.AbstractStyleNameConverter;
 import org.jetbrains.annotations.NotNull;
 
 public class SlotOptionsScreen extends Screen {
@@ -21,6 +22,7 @@ public class SlotOptionsScreen extends Screen {
 	private Button closeButton;
 
 	private final int slot;
+	private final String slotName;
 	private final SlotProperties.SlotData slotData;
 	private boolean persistent;
 
@@ -29,6 +31,7 @@ public class SlotOptionsScreen extends Screen {
 		this.slot = slot;
 		this.slotData = BlueprintManager.getSlotProperties(slot);
 		this.persistent = slotData.persistent();
+		this.slotName = BlueprintManager.getSlotName(slot);
 	}
 
 	@Override
@@ -36,7 +39,7 @@ public class SlotOptionsScreen extends Screen {
 		nameField = new EditBox(font, 0, 0, Component.empty());
 		nameField.setWidth(WIDGET_WIDTH);
 		nameField.setHeight(20);
-		nameField.setValue(slotData.name());
+		nameField.setValue(slotName);
 
 		persistenceButton = Button.builder(SimpleBlueprints.text(persistent ? "slot_options.persistent_on" : "slot_options.persistent_off"), b -> {
 			persistent = !persistent;
@@ -46,9 +49,12 @@ public class SlotOptionsScreen extends Screen {
 		closeButton = Button.builder(SimpleBlueprints.text("slot_options.close"), b -> {
 			String newName = nameField.getValue();
 
-			if (!newName.equals(slotData.name()) || persistent != slotData.persistent()) {
+			if (!newName.equals(slotName)) {
+				BlueprintManager.setSlotName(slot, newName);
+			}
+
+			if ( persistent != slotData.persistent()) {
 				BlueprintManager.setSlotProperties(slot, new SlotProperties.SlotData(
-					nameField.getValue(),
 					persistent
 				));
 			}

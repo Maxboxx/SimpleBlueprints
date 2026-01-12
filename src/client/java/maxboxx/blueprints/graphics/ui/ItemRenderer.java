@@ -1,6 +1,6 @@
 package maxboxx.blueprints.graphics.ui;
 
-import maxboxx.blueprints.data.BlueprintData;
+import maxboxx.blueprints.data.BlueprintBlockData;
 import maxboxx.blueprints.tools.ItemListTool;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -15,7 +15,7 @@ public class ItemRenderer {
 	private static final int ITEM_GRID_BOTTOM_OFFSET = 26;
 	private static final int ITEM_OFFSET = 18;
 
-	public static void render(GuiGraphics context, Font font, BlueprintData.ItemData item, int x, int y, ItemListTool.CountMode mode) {
+	public static void render(GuiGraphics context, Font font, BlueprintBlockData.ItemData item, int x, int y, ItemListTool.CountMode mode) {
 		context.renderItem(item.stack(), x, y);
 
 		context.pose().pushMatrix();
@@ -30,10 +30,10 @@ public class ItemRenderer {
 		}
 	}
 
-	public static void renderGrid(GuiGraphics context, List<BlueprintData.ItemData> items, ItemListTool.CountMode mode, boolean showHidden) {
+	public static void renderGrid(GuiGraphics context, List<BlueprintBlockData.ItemData> items, ItemListTool.CountMode mode, boolean showHidden) {
 		int visibleCount = 0;
 
-		for (BlueprintData.ItemData item : items) {
+		for (BlueprintBlockData.ItemData item : items) {
 			if (showHidden || item.visible()) {
 				visibleCount++;
 			}
@@ -47,7 +47,7 @@ public class ItemRenderer {
 
 		Font font = Minecraft.getInstance().font;
 
-		for (BlueprintData.ItemData data : items) {
+		for (BlueprintBlockData.ItemData data : items) {
 			if (!showHidden && !data.visible()) continue;
 
 			ItemStack stack = data.stack();
@@ -67,10 +67,10 @@ public class ItemRenderer {
 		}
 	}
 
-	public static int getItemIndexAtPosition(int width, int height, List<BlueprintData.ItemData> items, int x, int y, boolean showHidden) {
+	public static int getItemIndexAtPosition(int width, int height, List<BlueprintBlockData.ItemData> items, int x, int y, boolean showHidden) {
 		int visibleCount = 0;
 
-		for (BlueprintData.ItemData item : items) {
+		for (BlueprintBlockData.ItemData item : items) {
 			if (showHidden || item.visible()) {
 				visibleCount++;
 			}

@@ -13,13 +13,9 @@ import java.util.Properties;
 public class SlotProperties {
 	private final SlotData[] slots = new SlotData[BlueprintManager.SLOT_COUNT];
 
-	public record SlotData(String name, boolean persistent) {
-		public boolean hasName() {
-			return !name.isBlank();
-		}
-
+	public record SlotData(boolean persistent) {
 		public static SlotData empty() {
-			return new SlotData("", true);
+			return new SlotData(true);
 		}
 	}
 
@@ -60,7 +56,6 @@ public class SlotProperties {
 
 		for (int i = 0; i < slots.length; i++) {
 			slots[i] = new SlotData(
-				props.getProperty("name" + (i + 1), ""),
 				Objects.equals(props.getProperty("persistent" + (i + 1), "true"), "true")
 			);
 		}
@@ -70,7 +65,6 @@ public class SlotProperties {
 		Properties props = new Properties();
 
 		for (int i = 0; i < slots.length; i++) {
-			props.setProperty("name" + (i + 1), slots[i].name);
 			props.setProperty("persistent" + (i + 1), slots[i].persistent ? "true" : "false");
 		}
 

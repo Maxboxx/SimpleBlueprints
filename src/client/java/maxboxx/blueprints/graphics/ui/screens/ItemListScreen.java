@@ -2,7 +2,7 @@ package maxboxx.blueprints.graphics.ui.screens;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
-import maxboxx.blueprints.data.BlueprintData;
+import maxboxx.blueprints.data.BlueprintBlockData;
 import maxboxx.blueprints.graphics.ui.ItemRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemListScreen extends Screen {
-	private List<BlueprintData.ItemData> items;
+	private List<BlueprintBlockData.ItemData> items;
 
 	private Button closeButton;
 
@@ -60,7 +60,7 @@ public class ItemListScreen extends Screen {
 		int index = ItemRenderer.getItemIndexAtPosition(width, height, items, (int)event.x(), (int)event.y(), true);
 
 		if (index >= 0) {
-			items.set(index, new BlueprintData.ItemData(items.get(index).stack(), !items.get(index).visible()));
+			items.set(index, new BlueprintBlockData.ItemData(items.get(index).stack(), !items.get(index).visible()));
 			return true;
 		}
 

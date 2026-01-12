@@ -2,7 +2,7 @@ package maxboxx.blueprints.graphics.ui.hud;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
-import maxboxx.blueprints.data.BlueprintData;
+import maxboxx.blueprints.data.BlueprintBlockData;
 import maxboxx.blueprints.graphics.ui.ItemRenderer;
 import maxboxx.blueprints.graphics.ui.screens.ItemListScreen;
 import maxboxx.blueprints.tools.ItemListTool;
@@ -42,7 +42,7 @@ public class BlueprintHud extends HudGraphic {
 
 	private static void renderItems(GuiGraphics context) {
 		if (BlueprintManager.hasData() && BlueprintManager.currentTool() instanceof ItemListTool && !(Minecraft.getInstance().screen instanceof ItemListScreen)) {
-			BlueprintData data = BlueprintManager.getData();
+			BlueprintBlockData data = BlueprintManager.getData();
 			ItemRenderer.renderGrid(context, data.getItems(), BlueprintManager.getBlockListMode(), false);
 		}
 	}

@@ -2,7 +2,7 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
-import maxboxx.blueprints.data.BlueprintData;
+import maxboxx.blueprints.data.BlueprintBlockData;
 import maxboxx.blueprints.utils.BlockUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -84,7 +84,7 @@ public class ClipboardTool extends BlueprintTool {
 
 				if (!BlueprintManager.hasSelection()) break;
 
-				BlueprintData data = new BlueprintData();
+				BlueprintBlockData data = new BlueprintBlockData();
 
 				data.loadFromWorld(
 					player.level(),

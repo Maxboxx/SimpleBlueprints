@@ -37,10 +37,10 @@ public class SlotSelectTool extends BlueprintTool {
 
 	@Override
 	public Optional<Component> getTooltip() {
-		SlotProperties.SlotData data = BlueprintManager.getSlotProperties(BlueprintManager.getBlueprintSlot());
+		String name = BlueprintManager.getSlotName(BlueprintManager.getBlueprintSlot());
 
-		if (data.hasName()) {
-			return Optional.of(Component.literal(data.name()));
+		if (!name.isBlank()) {
+			return Optional.of(Component.literal(name));
 		}
 
 		return Optional.empty();
@@ -119,10 +119,10 @@ public class SlotSelectTool extends BlueprintTool {
 
 		@Override
 		public Optional<Component> getTooltip() {
-			SlotProperties.SlotData data = BlueprintManager.getSlotProperties(SLOT);
+			String name = BlueprintManager.getSlotName(SLOT);
 
-			if (data.hasName()) {
-				return Optional.of(Component.literal(data.name()));
+			if (!name.isBlank()) {
+				return Optional.of(Component.literal(name));
 			}
 
 			return Optional.empty();

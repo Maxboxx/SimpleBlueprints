@@ -1,11 +1,12 @@
 package maxboxx.blueprints;
 
+import maxboxx.blueprints.data.BlueprintBlockData;
 import maxboxx.blueprints.data.BlueprintData;
-import maxboxx.blueprints.data.BlueprintSelectionData;
 import maxboxx.blueprints.data.Color;
 import maxboxx.blueprints.data.SlotProperties;
 import maxboxx.blueprints.graphics.ui.hud.BlueprintHud;
 import maxboxx.blueprints.graphics.ui.hud.HudRegistry;
+import maxboxx.blueprints.graphics.ui.screens.ItemListScreen;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
 import maxboxx.blueprints.graphics.world.WorldRenderer;
@@ -32,8 +33,8 @@ public class BlueprintManager {
 
 	private static int hotbarSlot = 0;
 	private static int selectedSlot = 0;
-	private static BlueprintSelectionData selection;
-	private static final BlueprintSelectionData[] selectionData = new BlueprintSelectionData[SLOT_COUNT];
+	private static BlueprintData selection;
+	private static final BlueprintData[] selectionData = new BlueprintData[SLOT_COUNT];
 
 	private static final BoxGraphic SELECTION_GRAPHIC = new BoxGraphic(WorldRenderer.FILLED_QUADS, false);
 	private static final BoxGraphic SELECTION_OUTLINE = new BoxGraphic(WorldRenderer.FILLED_NO_DEPTH, true);
@@ -59,7 +60,7 @@ public class BlueprintManager {
 
 	static {
 		for (int i = 0; i < selectionData.length; i++) {
-			selectionData[i] = new BlueprintSelectionData();
+			selectionData[i] = new BlueprintData();
 		}
 
 		selection = selectionData[0];
@@ -105,7 +106,7 @@ public class BlueprintManager {
 
 				showBlocks = !showBlocks;
 
-				for (BlueprintSelectionData selection : selectionData) {
+				for (BlueprintData selection : selectionData) {
 					if (selection.graphic == null) continue;
 
 					if (showBlocks && selection.data != null && selection.isVisible) {
@@ -132,6 +133,12 @@ public class BlueprintManager {
 
 			while (KeyBinds.CHANGE_COLOR.consumeClick()) {
 				cycleBlockColor();
+			}
+
+			while (KeyBinds.EDIT_ITEMS.consumeClick()) {
+				if (hasData()) {
+					Minecraft.getInstance().setScreen(new ItemListScreen());
+				}
 			}
 
 			if (active) {
@@ -214,6 +221,15 @@ public class BlueprintManager {
 		return player.getInventory().getSelectedSlot();
 	}
 
+	public static String getSlotName(int slot) {
+		return selectionData[slot].name;
+	}
+
+	public static void setSlotName(int slot, String name) {
+		selectionData[slot].name = name;
+		selectionData[slot].markDirty();
+	}
+
 	public static int getBlueprintSlot() {
 		return selectedSlot;
 	}
@@ -263,7 +279,7 @@ public class BlueprintManager {
 
 		player.getInventory().setSelectedSlot(BlueprintTools.indexOfSafe(tool));
 
-		for (BlueprintSelectionData data : selectionData) {
+		for (BlueprintData data : selectionData) {
 			if (data.graphic != null && data.isVisible) {
 				WorldRenderer.addGraphic(data.graphic);
 			}
@@ -280,7 +296,7 @@ public class BlueprintManager {
 		WorldRenderer.removeGraphic(SELECTION_OUTLINE);
 
 		if (!showBlocks) {
-			for (BlueprintSelectionData data : selectionData) {
+			for (BlueprintData data : selectionData) {
 				if (data.graphic != null) {
 					WorldRenderer.removeGraphic(data.graphic);
 				}
@@ -301,7 +317,7 @@ public class BlueprintManager {
 		tool.performAction(player, action);
 	}
 
-	public static BlueprintData getData() {
+	public static BlueprintBlockData getData() {
 		return selection.data;
 	}
 
@@ -334,7 +350,7 @@ public class BlueprintManager {
 	}
 
 	public static boolean hasAnyPlacedData() {
-		for (BlueprintSelectionData selection : selectionData) {
+		for (BlueprintData selection : selectionData) {
 			if (selection.isActive && selection.data != null) {
 				return true;
 			}
@@ -343,9 +359,14 @@ public class BlueprintManager {
 		return false;
 	}
 
-	public static void setData(BlueprintData data) {
+	public static void setData(BlueprintBlockData data) {
 		selection.data = data;
 		selection.isVisible = true;
+
+		if (data == null) {
+			selection.name = "";
+		}
+
 		selection.markDirty();
 	}
 
@@ -419,7 +440,7 @@ public class BlueprintManager {
 	public static void setBlockAlpha(float alpha) {
 		blockAlpha = alpha;
 
-		for (BlueprintSelectionData selection : selectionData) {
+		for (BlueprintData selection : selectionData) {
 			if (selection.graphic != null) {
 				selection.graphic.setAlpha(alpha);
 			}
@@ -445,7 +466,7 @@ public class BlueprintManager {
 	public static void setBlockColor(Color color) {
 		blockColor = color;
 
-		for (BlueprintSelectionData selection : selectionData) {
+		for (BlueprintData selection : selectionData) {
 			if (selection.graphic != null) {
 				selection.graphic.setTint(color);
 			}
@@ -587,7 +608,7 @@ public class BlueprintManager {
 	}
 
 	public static void importFrom(Path file) {
-		BlueprintSelectionData newData = new BlueprintSelectionData();
+		BlueprintData newData = new BlueprintData();
 		newData.loadData(file);
 
 		if (selection.graphic != null) {
@@ -603,7 +624,7 @@ public class BlueprintManager {
 		updateGraphics();
 	}
 
-	private static void setupData(BlueprintSelectionData data) {
+	private static void setupData(BlueprintData data) {
 		if (data.data == null) return;
 
 		data.graphic = data.data.toGraphic(Minecraft.getInstance().level);

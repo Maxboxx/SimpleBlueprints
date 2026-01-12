@@ -2,7 +2,7 @@ package maxboxx.blueprints.graphics.ui.screens;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
-import maxboxx.blueprints.data.BlueprintSelectionData;
+import maxboxx.blueprints.data.BlueprintData;
 import maxboxx.blueprints.utils.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -30,7 +30,7 @@ public class ImportExportScreen extends Screen {
 	@Override
 	protected void init() {
 		importButton = Button.builder(SimpleBlueprints.text("import.import"), b -> {
-			FileUtil.openFileDialogAsync(SimpleBlueprints.text("import.select_import").getString(), BlueprintSelectionData.FILE_FILTERS, path -> {
+			FileUtil.openFileDialogAsync(SimpleBlueprints.text("import.select_import").getString(), BlueprintData.FILE_FILTERS, path -> {
 				if (!path.endsWith(".dat")) {
 					return;
 				}
@@ -41,7 +41,7 @@ public class ImportExportScreen extends Screen {
 		}).width(COL_WIDTH).build();
 
 		exportButton = Button.builder(SimpleBlueprints.text("import.export"), b -> {
-			FileUtil.saveFileDialogAsync(SimpleBlueprints.text("import.select_export").getString(), BlueprintSelectionData.FILE_FILTERS, path -> {
+			FileUtil.saveFileDialogAsync(SimpleBlueprints.text("import.select_export").getString(), BlueprintData.FILE_FILTERS, path -> {
 				if (!path.endsWith(".dat")) {
 					return;
 				}

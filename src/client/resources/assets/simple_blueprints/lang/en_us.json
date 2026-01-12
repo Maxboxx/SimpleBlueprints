@@ -7,6 +7,7 @@
   "simple_blueprints.keys.layer_down": "Layer Visibility Down",
   "simple_blueprints.keys.change_alpha": "Change Transparency",
   "simple_blueprints.keys.change_color": "Change Color",
+  "simple_blueprints.keys.edit_items": "Edit Items",
 
   "simple_blueprints.tool.unavailable": "Tool Unavailable",
 

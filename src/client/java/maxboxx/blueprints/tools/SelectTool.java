@@ -2,7 +2,7 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
-import maxboxx.blueprints.data.BlueprintData;
+import maxboxx.blueprints.data.BlueprintBlockData;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,7 +71,7 @@ public class SelectTool extends BlueprintTool {
 	}
 
 	private void selectPosition(BlockPos pos, Direction normal) {
-		BlueprintData data = BlueprintManager.getData();
+		BlueprintBlockData data = BlueprintManager.getData();
 
 		if (data == null) {
 			BlueprintManager.addToSelection(pos);
