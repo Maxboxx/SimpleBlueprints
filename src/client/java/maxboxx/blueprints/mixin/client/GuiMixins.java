@@ -4,8 +4,6 @@ import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.tools.BlueprintTool;
 import maxboxx.blueprints.tools.BlueprintTools;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;

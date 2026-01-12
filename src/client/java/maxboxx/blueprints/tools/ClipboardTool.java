@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component;
 import java.util.*;
 
 public class ClipboardTool extends BlueprintTool {
-	private BlockUtil.PlaceMode pasteMode = BlockUtil.PlaceMode.REPLACE_ALL;
+	private BlockUtil.PlaceMode pasteMode = BlockUtil.PlaceMode.EVERYTHING;
 
 	public ClipboardTool() {
 		super("clipboard");
@@ -74,9 +74,9 @@ public class ClipboardTool extends BlueprintTool {
 			case LEFT -> {
 				if (BlueprintManager.hasData()) {
 					pasteMode = switch (pasteMode) {
-						case REPLACE_ALL -> BlockUtil.PlaceMode.PLACE_IN_AIR;
-						case PLACE_IN_AIR -> BlockUtil.PlaceMode.IGNORE_AIR;
-						default -> BlockUtil.PlaceMode.REPLACE_ALL;
+						case EVERYTHING -> BlockUtil.PlaceMode.BLOCKS;
+						case BLOCKS     -> BlockUtil.PlaceMode.IN_AIR;
+						default -> BlockUtil.PlaceMode.EVERYTHING;
 					};
 
 					break;

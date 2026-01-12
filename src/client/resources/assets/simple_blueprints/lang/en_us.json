@@ -80,7 +80,7 @@
   "simple_blueprints.slot_options.persistent_off": "Persistent: OFF",
   "simple_blueprints.slot_options.persistent_desc": "Persistent slots are saved between sessions.",
 
-  "simple_blueprints.paste_mode.replace": "Replace",
-  "simple_blueprints.paste_mode.place_in_air": "Paste in Air",
-  "simple_blueprints.paste_mode.ignore_air": "Ignore Air"
+  "simple_blueprints.paste_mode.everything": "Everything",
+  "simple_blueprints.paste_mode.in_air": "In Air",
+  "simple_blueprints.paste_mode.blocks": "Blocks"
 }

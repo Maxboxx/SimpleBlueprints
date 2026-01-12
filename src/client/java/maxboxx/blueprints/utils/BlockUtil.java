@@ -20,15 +20,15 @@ import java.util.Map;
 
 public class BlockUtil {
 	public enum PlaceMode {
-		REPLACE_ALL,
-		PLACE_IN_AIR,
-		IGNORE_AIR;
+		EVERYTHING,
+		IN_AIR,
+		BLOCKS;
 
 		public Component asText() {
 			return switch (this) {
-				case REPLACE_ALL  -> SimpleBlueprints.text("paste_mode.replace");
-				case PLACE_IN_AIR -> SimpleBlueprints.text("paste_mode.place_in_air");
-				case IGNORE_AIR   -> SimpleBlueprints.text("paste_mode.ignore_air");
+				case EVERYTHING -> SimpleBlueprints.text("paste_mode.everything");
+				case IN_AIR     -> SimpleBlueprints.text("paste_mode.in_air");
+				case BLOCKS     -> SimpleBlueprints.text("paste_mode.blocks");
 			};
 		}
 	}
@@ -88,9 +88,9 @@ public class BlockUtil {
 			BlockState current = level.getBlockState(position);
 
 			boolean shouldPlace = switch (mode) {
-				case REPLACE_ALL  -> true;
-				case PLACE_IN_AIR -> current.isAir();
-				case IGNORE_AIR   -> !block.isAir();
+				case EVERYTHING -> true;
+				case IN_AIR -> current.isAir();
+				case BLOCKS -> !block.isAir();
 			};
 
 			if (!shouldPlace || current.equals(block)) {
