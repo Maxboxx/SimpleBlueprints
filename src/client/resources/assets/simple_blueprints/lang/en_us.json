@@ -76,7 +76,7 @@
   "simple_blueprints.import.export_warning": "Slot %1$s can not be exported since it has no data.",
 
   "simple_blueprints.slot_options.close": "Close",
-  "simple_blueprints.slot_options.name": "Slot Name",
+  "simple_blueprints.slot_options.name": "Blueprint Name",
   "simple_blueprints.slot_options.persistent_on": "Persistent: ON",
   "simple_blueprints.slot_options.persistent_off": "Persistent: OFF",
   "simple_blueprints.slot_options.persistent_desc": "Persistent slots are saved between sessions.",
