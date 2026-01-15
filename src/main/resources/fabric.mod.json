@@ -3,7 +3,7 @@
 	"id": "simple_blueprints",
 	"version": "${version}",
 	"name": "Simple Blueprints",
-	"description": "A simple mod for copying and building structures",
+	"description": "A simple schematic mod for building structures",
 	"authors": [
 		"Maxboxx"
 	],
