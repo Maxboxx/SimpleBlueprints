@@ -14,7 +14,7 @@ public class BlueprintData {
 	public static final String[] FILE_FILTERS = new String[] {"*.dat"};
 
 	public boolean isActive = false;
-	public BlockPos min, max;
+	public BlockPos min = BlockPos.ZERO, max = BlockPos.ZERO;
 
 	public BlueprintBlockData data = null;
 	public BlueprintGraphic graphic = null;
