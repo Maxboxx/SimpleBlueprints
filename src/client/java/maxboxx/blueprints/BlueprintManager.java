@@ -182,7 +182,7 @@ public class BlueprintManager {
 
 				if (!selectionData[i].isDirty()) continue;
 
-				selectionData[i].saveData(path);
+				selectionData[i].saveData(path, false);
 
 				if (selectionData[i].graphic != null) {
 					WorldRenderer.removeGraphic(selectionData[i].graphic);
@@ -639,9 +639,9 @@ public class BlueprintManager {
 		}
 	}
 
-	public static void exportTo(Path file) {
+	public static void exportTo(Path file, boolean asSchematic) {
 		if (selection.data != null) {
-			selection.saveData(file);
+			selection.saveData(file, asSchematic);
 			selection.markDirty();
 		}
 	}

@@ -28,7 +28,7 @@ import java.util.*;
 public class BlueprintBlockData {
 	private StructureTemplate structure;
 	private HashSet<Block> blocks;
-	private BlockPos pos;
+	private BlockPos pos = BlockPos.ZERO;
 	private MirrorRotation mirrorRotation = MirrorRotation.NONE;
 
 	private final ArrayList<ItemData> sortedItems = new ArrayList<>();
@@ -104,7 +104,7 @@ public class BlueprintBlockData {
 	}
 
 	public void placeInWorld(LocalPlayer player, BlockPos position, BlockUtil.PlaceMode mode) {
-		if (structure == null) return;
+		if (structure == null || blocks == null) return;
 		if (!player.isCreative()) return;
 
 		TickUtil.TemporaryFreeze freeze = TickUtil.temporaryFreeze(player);
@@ -126,6 +126,10 @@ public class BlueprintBlockData {
 	}
 
 	public BlueprintGraphic toGraphic(Level level) {
+		if (structure == null || blocks == null) {
+			return new BlueprintGraphic(level, new HashMap<>());
+		}
+
 		HashMap<BlockPos, BlockState> blockMap = new HashMap<>();
 
 		for (Block block : blocks) {
@@ -168,8 +172,20 @@ public class BlueprintBlockData {
 	public CompoundTag save() {
 		CompoundTag tag = new CompoundTag();
 		tag.putInt("rot", mirrorRotation.encode());
-		tag.put("blocks", structure.save(new CompoundTag()));
+
+		if (structure != null) {
+			tag.put("blocks", structure.save(new CompoundTag()));
+		}
+
 		return tag;
+	}
+
+	public CompoundTag saveSchematic() {
+		if (structure != null) {
+			return structure.save(new CompoundTag());
+		}
+
+		return new CompoundTag();
 	}
 
 	public void load(CompoundTag tag, BlockPos position) {
@@ -186,6 +202,37 @@ public class BlueprintBlockData {
 		}
 
 		structure.load(BuiltInRegistries.BLOCK, blockNbt);
+
+		HashMap<Item, Integer> itemData = new HashMap<>();
+
+		List<StructureTemplate.Palette> palettes = ((StructureTemplateMixins)structure).getStructurePalettes();
+
+		for (StructureTemplate.Palette palette : palettes) {
+			for (StructureTemplate.StructureBlockInfo blockInfo : palette.blocks()) {
+				if (BlockUtil.isPrimaryBlock(blockInfo.state())) {
+					Block block = blockInfo.state().getBlock();
+					blocks.add(block);
+					itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
+				}
+			}
+		}
+
+		for (Map.Entry<Item, Integer> item : itemData.entrySet()) {
+			if (item.getKey() == Items.AIR) {
+				continue;
+			}
+
+			sortedItems.add(new ItemData(new ItemStack(item.getKey(), item.getValue()), true));
+		}
+
+		sortedItems.sort((a, b) -> b.stack.getCount() - a.stack.getCount());
+	}
+
+	public void loadSchematic(CompoundTag tag) {
+		structure = new StructureTemplate();
+		blocks    = new HashSet<>();
+		pos       = BlockPos.ZERO;
+		structure.load(BuiltInRegistries.BLOCK, tag);
 
 		HashMap<Item, Integer> itemData = new HashMap<>();
 

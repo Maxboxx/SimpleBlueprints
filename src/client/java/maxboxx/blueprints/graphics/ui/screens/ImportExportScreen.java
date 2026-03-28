@@ -7,6 +7,7 @@ import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +22,7 @@ public class ImportExportScreen extends Screen {
 
 	private Button importButton;
 	private Button exportButton;
+	private Button exportSchematicButton;
 	private Button cancelButton;
 
 	public ImportExportScreen() {
@@ -30,8 +32,8 @@ public class ImportExportScreen extends Screen {
 	@Override
 	protected void init() {
 		importButton = Button.builder(Txt.key("import.import"), b -> {
-			FileUtil.openFileDialogAsync(Txt.key("import.select_import").getString(), BlueprintData.FILE_FILTERS, path -> {
-				if (!path.endsWith(".dat")) {
+			FileUtil.openFileDialogAsync(Txt.key("import.select_import").getString(), BlueprintData.IMPORT_FILTERS, path -> {
+				if (!path.endsWith(".dat") && !path.endsWith(".nbt")) {
 					return;
 				}
 
@@ -41,15 +43,30 @@ public class ImportExportScreen extends Screen {
 		}).width(COL_WIDTH).build();
 
 		exportButton = Button.builder(Txt.key("import.export"), b -> {
-			FileUtil.saveFileDialogAsync(Txt.key("import.select_export").getString(), BlueprintData.FILE_FILTERS, path -> {
+			FileUtil.saveFileDialogAsync(Txt.key("import.select_export").getString(), BlueprintData.BLUEPRINT_FILTERS, path -> {
 				if (!path.endsWith(".dat")) {
 					return;
 				}
 
-				BlueprintManager.exportTo(Path.of(path));
+				BlueprintManager.exportTo(Path.of(path), false);
 				Minecraft.getInstance().setScreen(null);
 			});
 		}).width(COL_WIDTH).build();
+
+		exportButton.setTooltip(Tooltip.create(Txt.key("import.export_tooltip")));
+
+		exportSchematicButton = Button.builder(Txt.key("import.export_schematic"), b -> {
+			FileUtil.saveFileDialogAsync(Txt.key("import.select_export").getString(), BlueprintData.SCHEMATIC_FILTERS, path -> {
+				if (!path.endsWith(".dat") && !path.endsWith(".nbt")) {
+					return;
+				}
+
+				BlueprintManager.exportTo(Path.of(path), true);
+				Minecraft.getInstance().setScreen(null);
+			});
+		}).width(COL_WIDTH).build();
+
+		exportSchematicButton.setTooltip(Tooltip.create(Txt.key("import.export_schematic_tooltip")));
 
 		cancelButton = Button.builder(Txt.key("import.cancel"), b -> {
 			Minecraft.getInstance().setScreen(null);
@@ -57,6 +74,7 @@ public class ImportExportScreen extends Screen {
 
 		addRenderableWidget(importButton);
 		addRenderableWidget(exportButton);
+		addRenderableWidget(exportSchematicButton);
 		addRenderableWidget(cancelButton);
 	}
 
@@ -66,10 +84,12 @@ public class ImportExportScreen extends Screen {
 		int originY = context.guiHeight() / 2 + 30;
 
 		importButton.setPosition(originX - COL_WIDTH_GAP, originY);
-		exportButton.setPosition(originX + HALF_GAP, originY);
+		exportButton.setPosition(originX + HALF_GAP, originY - 25);
+		exportSchematicButton.setPosition(originX + HALF_GAP, originY);
 		cancelButton.setPosition(originX - COL_WIDTH / 2, originY + 40);
 
 		exportButton.visible = BlueprintManager.hasData();
+		exportSchematicButton.visible = BlueprintManager.hasData();
 
 		context.fill(originX - COL_WIDTH_GAP - 5, originY - 105, originX - HALF_GAP + 5, originY + 25, 0x44000000);
 		context.fill(originX + HALF_GAP - 5, originY - 105, originX + HALF_GAP + COL_WIDTH + 5, originY + 25, 0x44000000);
@@ -85,7 +105,7 @@ public class ImportExportScreen extends Screen {
 			context.textWithWordWrap(this.font, Txt.key("import.import_warning", selectedSlot), originX - COL_WIDTH_GAP, originY - 45, COL_WIDTH, 0xffff8888);
 		}
 		else {
-			context.textWithWordWrap(this.font, Txt.key("import.export_warning", selectedSlot), originX + HALF_GAP, originY - 45, COL_WIDTH, 0xffff8888);
+			context.textWithWordWrap(this.font, Txt.key("import.export_warning", selectedSlot), originX + HALF_GAP, originY - 65, COL_WIDTH, 0xffff8888);
 		}
 	}
 }
