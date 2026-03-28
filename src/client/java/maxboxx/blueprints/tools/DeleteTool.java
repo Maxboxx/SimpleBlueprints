@@ -4,6 +4,7 @@ import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.utils.BlockUtil;
 import maxboxx.blueprints.utils.TickUtil;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -27,7 +28,7 @@ public class DeleteTool extends BlueprintTool {
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
-			case MIDDLE -> Optional.of(SimpleBlueprints.text("delete.clear"));
+			case MIDDLE -> Optional.of(Txt.key("delete.clear"));
 			default -> Optional.empty();
 		};
 	}

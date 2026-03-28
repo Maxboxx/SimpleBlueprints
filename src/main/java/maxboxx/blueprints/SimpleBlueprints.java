@@ -3,7 +3,6 @@ package maxboxx.blueprints;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +37,5 @@ public class SimpleBlueprints implements ModInitializer {
 
 	public static Path configFilePath(String fileName) {
 		return configPath().resolve(fileName);
-	}
-
-	public static Component text(String key) {
-		return Component.translatable(MOD_ID + "." + key);
-	}
-
-	public static Component text(String key, Object... objects) {
-		return Component.translatable(MOD_ID + "." + key, objects);
 	}
 }

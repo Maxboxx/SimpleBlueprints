@@ -1,6 +1,6 @@
 package maxboxx.blueprints;
 
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -28,13 +28,13 @@ public class KeyBinds {
 	}
 
 	public static void init() {
-		KeyBindingHelper.registerKeyBinding(TOGGLE);
-		KeyBindingHelper.registerKeyBinding(VISIBILITY);
-		KeyBindingHelper.registerKeyBinding(LAYER_UP);
-		KeyBindingHelper.registerKeyBinding(LAYER_DOWN);
-		KeyBindingHelper.registerKeyBinding(CHANGE_ALPHA);
-		KeyBindingHelper.registerKeyBinding(CHANGE_COLOR);
-		KeyBindingHelper.registerKeyBinding(EDIT_ITEMS);
+		KeyMappingHelper.registerKeyMapping(TOGGLE);
+		KeyMappingHelper.registerKeyMapping(VISIBILITY);
+		KeyMappingHelper.registerKeyMapping(LAYER_UP);
+		KeyMappingHelper.registerKeyMapping(LAYER_DOWN);
+		KeyMappingHelper.registerKeyMapping(CHANGE_ALPHA);
+		KeyMappingHelper.registerKeyMapping(CHANGE_COLOR);
+		KeyMappingHelper.registerKeyMapping(EDIT_ITEMS);
 	}
 
 	public static boolean consume(KeyMapping key) {

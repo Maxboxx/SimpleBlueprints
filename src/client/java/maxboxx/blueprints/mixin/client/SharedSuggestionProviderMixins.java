@@ -24,7 +24,7 @@ public interface SharedSuggestionProviderMixins {
 	}
 
 	@Inject(at = @At("HEAD"), method = "suggestCoordinates", cancellable = true)
-	private static void suggestCoordinates(String string, Collection<SharedSuggestionProvider.TextCoordinates> collection, SuggestionsBuilder suggestionsBuilder, Predicate<String> predicate, CallbackInfoReturnable<CompletableFuture<Suggestions>> callBackInfo) {
+	private static void suggestCoordinates(final String currentInput, final Collection<SharedSuggestionProvider.TextCoordinates> allSuggestions, final SuggestionsBuilder builder, final Predicate<String> validator, CallbackInfoReturnable<CompletableFuture<Suggestions>> callBackInfo) {
 		if (BlueprintManager.isActive() && BlueprintManager.hasSelection()) {
 			ArrayList<String> list = new ArrayList<>();
 
@@ -34,7 +34,7 @@ public interface SharedSuggestionProviderMixins {
 			list.add(min.getX() + " " + min.getY() + " " + min.getZ());
 			list.add(max.getX() + " " + max.getY() + " " + max.getZ());
 
-			callBackInfo.setReturnValue(invokeSuggest(list, suggestionsBuilder));
+			callBackInfo.setReturnValue(invokeSuggest(list, builder));
 		}
 	}
 }

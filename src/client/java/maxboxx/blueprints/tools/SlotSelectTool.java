@@ -2,9 +2,9 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
-import maxboxx.blueprints.data.SlotProperties;
 import maxboxx.blueprints.graphics.ui.screens.ImportExportScreen;
 import maxboxx.blueprints.graphics.ui.screens.SlotOptionsScreen;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -49,9 +49,9 @@ public class SlotSelectTool extends BlueprintTool {
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
-			case LEFT   -> Optional.of(SimpleBlueprints.text("slots.change"));
-			case RIGHT  -> Optional.of(SimpleBlueprints.text("slots.next_used"));
-			case MIDDLE -> Optional.of(SimpleBlueprints.text("slots.first_empty"));
+			case LEFT   -> Optional.of(Txt.key("slots.change"));
+			case RIGHT  -> Optional.of(Txt.key("slots.next_used"));
+			case MIDDLE -> Optional.of(Txt.key("slots.first_empty"));
 		};
 	}
 
@@ -131,9 +131,9 @@ public class SlotSelectTool extends BlueprintTool {
 		@Override
 		public Optional<Component> getAction(ToolAction action) {
 			return switch (action) {
-				case LEFT   -> Optional.of(SimpleBlueprints.text("slots.select"));
-				case RIGHT  -> Optional.of(SimpleBlueprints.text("slots.options"));
-				case MIDDLE -> Optional.of(SimpleBlueprints.text("slots.import"));
+				case LEFT   -> Optional.of(Txt.key("slots.select"));
+				case RIGHT  -> Optional.of(Txt.key("slots.options"));
+				case MIDDLE -> Optional.of(Txt.key("slots.import"));
 			};
 		}
 

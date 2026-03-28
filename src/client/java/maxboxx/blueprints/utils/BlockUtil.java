@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Property;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 
 public class BlockUtil {
@@ -26,9 +27,9 @@ public class BlockUtil {
 
 		public Component asText() {
 			return switch (this) {
-				case EVERYTHING -> SimpleBlueprints.text("paste_mode.everything");
-				case IN_AIR     -> SimpleBlueprints.text("paste_mode.in_air");
-				case BLOCKS     -> SimpleBlueprints.text("paste_mode.blocks");
+				case EVERYTHING -> Txt.key("paste_mode.everything");
+				case IN_AIR     -> Txt.key("paste_mode.in_air");
+				case BLOCKS     -> Txt.key("paste_mode.blocks");
 			};
 		}
 	}
@@ -40,7 +41,9 @@ public class BlockUtil {
 	public static String blockIdAndProperties(BlockState block) {
 		StringBuilder props = new StringBuilder();
 
-		for (Map.Entry<Property<?>, Comparable<?>> entry : block.getValues().entrySet()) {
+		for (Iterator<Property.Value<?>> it = block.getValues().iterator(); it.hasNext(); ) {
+			Property.Value<?> prop = it.next();
+
 			if (props.isEmpty()) {
 				props.append("[");
 			}
@@ -48,7 +51,7 @@ public class BlockUtil {
 				props.append(",");
 			}
 
-			props.append(getPropertyValueString(entry));
+			props.append(getPropertyValueString(prop));
 		}
 
 		if (props.isEmpty()) {
@@ -114,9 +117,9 @@ public class BlockUtil {
 		}
 	}
 
-	private static String getPropertyValueString(Map.Entry<Property<?>, Comparable<?>> entry) {
-		Property<?> key = entry.getKey();
-		Comparable<?> value = entry.getValue();
+	private static String getPropertyValueString(Property.Value<?> entry) {
+		Property<?> key = entry.property();
+		Comparable<?> value = entry.value();
 		String valueName = Util.getPropertyName(key, value);
 		return key.getName() + "=" + valueName;
 	}

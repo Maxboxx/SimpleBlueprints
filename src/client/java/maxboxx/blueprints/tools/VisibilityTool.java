@@ -2,6 +2,7 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 
@@ -20,12 +21,12 @@ public class VisibilityTool extends BlueprintTool {
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
-			case LEFT   -> Optional.of(SimpleBlueprints.text("visibility.alpha"));
-			case RIGHT  -> Optional.of(SimpleBlueprints.text("visibility.color"));
+			case LEFT   -> Optional.of(Txt.key("visibility.alpha"));
+			case RIGHT  -> Optional.of(Txt.key("visibility.color"));
 
 			case MIDDLE -> {
 				if (BlueprintManager.hasPlacedData()) {
-					yield Optional.of(SimpleBlueprints.text(BlueprintManager.isVisible() ? "visibility.hide" : "visibility.show"));
+					yield Optional.of(Txt.key(BlueprintManager.isVisible() ? "visibility.hide" : "visibility.show"));
 				}
 				else {
 					yield Optional.empty();

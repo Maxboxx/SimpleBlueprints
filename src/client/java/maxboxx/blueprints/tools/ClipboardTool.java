@@ -4,6 +4,7 @@ import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.BlueprintBlockData;
 import maxboxx.blueprints.utils.BlockUtil;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -36,10 +37,10 @@ public class ClipboardTool extends BlueprintTool {
 		return switch (action) {
 			case LEFT -> {
 				if (BlueprintManager.hasData()) {
-					yield Optional.of(SimpleBlueprints.text("clipboard.paste_mode", pasteMode.asText()));
+					yield Optional.of(Txt.key("clipboard.paste_mode", pasteMode.asText()));
 				}
 				else if (BlueprintManager.hasSelection()) {
-					yield Optional.of(SimpleBlueprints.text("clipboard.copy"));
+					yield Optional.of(Txt.key("clipboard.copy"));
 				}
 				else {
 					yield Optional.empty();
@@ -50,7 +51,7 @@ public class ClipboardTool extends BlueprintTool {
 				if (!BlueprintManager.hasSelection()) yield Optional.empty();
 
 				if (BlueprintManager.hasData() && Minecraft.getInstance().player != null && BlueprintManager.getData().canPlace(Minecraft.getInstance().player)) {
-					yield Optional.of(SimpleBlueprints.text("clipboard.paste"));
+					yield Optional.of(Txt.key("clipboard.paste"));
 				}
 				else {
 					yield Optional.empty();
@@ -59,7 +60,7 @@ public class ClipboardTool extends BlueprintTool {
 
 			case MIDDLE -> {
 				if (BlueprintManager.hasData()) {
-					yield Optional.of(SimpleBlueprints.text("clipboard.clear"));
+					yield Optional.of(Txt.key("clipboard.clear"));
 				}
 				else {
 					yield Optional.empty();

@@ -1,11 +1,11 @@
 package maxboxx.blueprints.graphics.ui.screens;
 
 import maxboxx.blueprints.BlueprintManager;
-import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.BlueprintData;
 import maxboxx.blueprints.utils.FileUtil;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -29,8 +29,8 @@ public class ImportExportScreen extends Screen {
 
 	@Override
 	protected void init() {
-		importButton = Button.builder(SimpleBlueprints.text("import.import"), b -> {
-			FileUtil.openFileDialogAsync(SimpleBlueprints.text("import.select_import").getString(), BlueprintData.FILE_FILTERS, path -> {
+		importButton = Button.builder(Txt.key("import.import"), b -> {
+			FileUtil.openFileDialogAsync(Txt.key("import.select_import").getString(), BlueprintData.FILE_FILTERS, path -> {
 				if (!path.endsWith(".dat")) {
 					return;
 				}
@@ -40,8 +40,8 @@ public class ImportExportScreen extends Screen {
 			});
 		}).width(COL_WIDTH).build();
 
-		exportButton = Button.builder(SimpleBlueprints.text("import.export"), b -> {
-			FileUtil.saveFileDialogAsync(SimpleBlueprints.text("import.select_export").getString(), BlueprintData.FILE_FILTERS, path -> {
+		exportButton = Button.builder(Txt.key("import.export"), b -> {
+			FileUtil.saveFileDialogAsync(Txt.key("import.select_export").getString(), BlueprintData.FILE_FILTERS, path -> {
 				if (!path.endsWith(".dat")) {
 					return;
 				}
@@ -51,7 +51,7 @@ public class ImportExportScreen extends Screen {
 			});
 		}).width(COL_WIDTH).build();
 
-		cancelButton = Button.builder(SimpleBlueprints.text("import.cancel"), b -> {
+		cancelButton = Button.builder(Txt.key("import.cancel"), b -> {
 			Minecraft.getInstance().setScreen(null);
 		}).width(COL_WIDTH).build();
 
@@ -61,7 +61,7 @@ public class ImportExportScreen extends Screen {
 	}
 
 	@Override
-	public void render(@NotNull GuiGraphics context, int mouseX, int mouseY, float delta) {
+	public void extractBackground(@NotNull GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
 		int originX = context.guiWidth() / 2;
 		int originY = context.guiHeight() / 2 + 30;
 
@@ -74,18 +74,18 @@ public class ImportExportScreen extends Screen {
 		context.fill(originX - COL_WIDTH_GAP - 5, originY - 105, originX - HALF_GAP + 5, originY + 25, 0x44000000);
 		context.fill(originX + HALF_GAP - 5, originY - 105, originX + HALF_GAP + COL_WIDTH + 5, originY + 25, 0x44000000);
 
-		super.render(context, mouseX, mouseY, delta);
+		super.extractBackground(context, mouseX, mouseY, delta);
 
 		int selectedSlot = BlueprintManager.getBlueprintSlot() + 1;
 
-		context.drawWordWrap(this.font, SimpleBlueprints.text("import.import_desc", selectedSlot), originX - COL_WIDTH_GAP, originY - 100, COL_WIDTH, 0xffffffff);
-		context.drawWordWrap(this.font, SimpleBlueprints.text("import.export_desc", selectedSlot), originX + HALF_GAP, originY - 100, COL_WIDTH, 0xffffffff);
+		context.textWithWordWrap(this.font, Txt.key("import.import_desc", selectedSlot), originX - COL_WIDTH_GAP, originY - 100, COL_WIDTH, 0xffffffff);
+		context.textWithWordWrap(this.font, Txt.key("import.export_desc", selectedSlot), originX + HALF_GAP, originY - 100, COL_WIDTH, 0xffffffff);
 
 		if (BlueprintManager.hasData()) {
-			context.drawWordWrap(this.font, SimpleBlueprints.text("import.import_warning", selectedSlot), originX - COL_WIDTH_GAP, originY - 45, COL_WIDTH, 0xffff8888);
+			context.textWithWordWrap(this.font, Txt.key("import.import_warning", selectedSlot), originX - COL_WIDTH_GAP, originY - 45, COL_WIDTH, 0xffff8888);
 		}
 		else {
-			context.drawWordWrap(this.font, SimpleBlueprints.text("import.export_warning", selectedSlot), originX + HALF_GAP, originY - 45, COL_WIDTH, 0xffff8888);
+			context.textWithWordWrap(this.font, Txt.key("import.export_warning", selectedSlot), originX + HALF_GAP, originY - 45, COL_WIDTH, 0xffff8888);
 		}
 	}
 }

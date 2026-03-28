@@ -4,7 +4,7 @@ import maxboxx.blueprints.data.BlueprintBlockData;
 import maxboxx.blueprints.tools.ItemListTool;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -15,8 +15,8 @@ public class ItemRenderer {
 	private static final int ITEM_GRID_BOTTOM_OFFSET = 26;
 	private static final int ITEM_OFFSET = 18;
 
-	public static void render(GuiGraphics context, Font font, BlueprintBlockData.ItemData item, int x, int y, ItemListTool.CountMode mode) {
-		context.renderItem(item.stack(), x, y);
+	public static void render(GuiGraphicsExtractor context, Font font, BlueprintBlockData.ItemData item, int x, int y, ItemListTool.CountMode mode) {
+		context.item(item.stack(), x, y);
 
 		context.pose().pushMatrix();
 		context.pose().scale(0.5f);
@@ -30,7 +30,7 @@ public class ItemRenderer {
 		}
 	}
 
-	public static void renderGrid(GuiGraphics context, List<BlueprintBlockData.ItemData> items, ItemListTool.CountMode mode, boolean showHidden) {
+	public static void renderGrid(GuiGraphicsExtractor context, List<BlueprintBlockData.ItemData> items, ItemListTool.CountMode mode, boolean showHidden) {
 		int visibleCount = 0;
 
 		for (BlueprintBlockData.ItemData item : items) {
@@ -104,7 +104,7 @@ public class ItemRenderer {
 		return -1;
 	}
 
-	private static void drawCountText(GuiGraphics context, Font font, ItemStack stack, int x, int y, ItemListTool.CountMode mode) {
+	private static void drawCountText(GuiGraphicsExtractor context, Font font, ItemStack stack, int x, int y, ItemListTool.CountMode mode) {
 		int textX = (x + ITEM_OFFSET - 2) * 2;
 		int textY = (y + 12) * 2;
 
@@ -163,7 +163,7 @@ public class ItemRenderer {
 		}
 	}
 
-	private static void drawRightString(GuiGraphics context, Font font, String text, int x, int y) {
-		context.drawString(font, text, x - font.width(text), y, 0xffffffff);
+	private static void drawRightString(GuiGraphicsExtractor context, Font font, String text, int x, int y) {
+		context.text(font, text, x - font.width(text), y, 0xffffffff);
 	}
 }

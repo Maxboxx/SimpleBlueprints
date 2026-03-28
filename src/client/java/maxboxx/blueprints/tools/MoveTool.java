@@ -4,6 +4,7 @@ import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.KeyBinds;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 
@@ -27,8 +28,8 @@ public class MoveTool extends BlueprintTool {
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return switch (action) {
-			case LEFT  -> Optional.of(SimpleBlueprints.text("move.away"));
-			case RIGHT -> Optional.of(SimpleBlueprints.text("move.closer"));
+			case LEFT  -> Optional.of(Txt.key("move.away"));
+			case RIGHT -> Optional.of(Txt.key("move.closer"));
 
 			default -> Optional.empty();
 		};

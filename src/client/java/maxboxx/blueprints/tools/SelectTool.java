@@ -3,6 +3,7 @@ package maxboxx.blueprints.tools;
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.BlueprintBlockData;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,16 +35,16 @@ public class SelectTool extends BlueprintTool {
 
 		if (BlueprintManager.getData() == null) {
 			return Optional.of(switch (action) {
-				case LEFT   -> SimpleBlueprints.text("select.target");
-				case RIGHT  -> SimpleBlueprints.text("select.player");
-				case MIDDLE -> SimpleBlueprints.text("select.clear");
+				case LEFT   -> Txt.key("select.target");
+				case RIGHT  -> Txt.key("select.player");
+				case MIDDLE -> Txt.key("select.clear");
 			});
 		}
 
 		return Optional.of(switch (action) {
-			case LEFT   -> SimpleBlueprints.text("select.target_place");
-			case RIGHT  -> SimpleBlueprints.text("select.player_place");
-			case MIDDLE -> SimpleBlueprints.text("select.clear_place");
+			case LEFT   -> Txt.key("select.target_place");
+			case RIGHT  -> Txt.key("select.player_place");
+			case MIDDLE -> Txt.key("select.clear_place");
 		});
 	}
 

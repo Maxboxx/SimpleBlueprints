@@ -3,15 +3,17 @@ package maxboxx.blueprints.graphics.world;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.DepthTestFunction;
+import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import maxboxx.blueprints.SimpleBlueprints;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -29,8 +31,8 @@ public class WorldRenderer {
 	public static final RenderPipeline FILLED_NO_DEPTH = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
 		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
-		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-		.withBlend(BlendFunction.TRANSLUCENT)
+		.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+		.withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
 		.withCull(true)
 		.build()
 	);
@@ -38,8 +40,7 @@ public class WorldRenderer {
 	public static final RenderPipeline FILLED = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
 		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
-		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-		.withBlend(BlendFunction.TRANSLUCENT)
+		.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 		.withCull(true)
 		.build()
 	);
@@ -47,9 +48,7 @@ public class WorldRenderer {
 	public static final RenderPipeline FILLED_QUADS = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
 		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled2"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
-		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
-		.withBlend(BlendFunction.TRANSLUCENT)
-		.withDepthWrite(false)
+		.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 		.withCull(true)
 		.build()
 	);
@@ -58,9 +57,7 @@ public class WorldRenderer {
 		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_tex"))
 		.withVertexFormat(DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS)
 		.withSampler("Sampler0")
-		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
-		.withBlend(BlendFunction.TRANSLUCENT)
-		.withDepthWrite(false)
+		.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 		.withCull(true)
 		.build()
 	);
@@ -70,7 +67,7 @@ public class WorldRenderer {
 	public static final RenderType TRANSLUCENT_BLOCKS_NO_DEPTH = RenderTypeUtil.createFromPipeline("translucent_block_no_depth",
 		RenderPipelines.register(RenderPipeline.builder(PipelineUtil.convertToSnippet(TRANSLUCENT_BLOCKS.pipeline()))
 			.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/blocks_no_depth"))
-			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+			.withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
 			.build()
 		),
 		TextureAtlas.LOCATION_BLOCKS
@@ -85,12 +82,12 @@ public class WorldRenderer {
 
 	private static final HashSet<WorldGraphic> activeGraphics = new HashSet<>();
 
-	public record Context(PoseStack matrices, BufferBuilder builder, WorldRenderContext context) {
+	public record Context(PoseStack matrices, BufferBuilder builder, LevelRenderContext context) {
 
 	}
 
 	public static void init() {
-		WorldRenderEvents.BEFORE_TRANSLUCENT.register(WorldRenderer::renderGraphics);
+		LevelRenderEvents.BEFORE_TRANSLUCENT_TERRAIN.register(WorldRenderer::renderGraphics);
 	}
 
 	public static void cleanup() {
@@ -110,20 +107,20 @@ public class WorldRenderer {
 		activeGraphics.remove(graphic);
 	}
 
-	private static void renderGraphics(WorldRenderContext context) {
+	private static void renderGraphics(LevelRenderContext context) {
 		for (WorldGraphic graphic : activeGraphics) {
 			renderGraphic(context, graphic);
 		}
 	}
 
-	private static void renderGraphic(WorldRenderContext context, WorldGraphic graphic) {
+	private static void renderGraphic(LevelRenderContext context, WorldGraphic graphic) {
 		BufferBuilder builder = buildGraphic(context, graphic);
 		drawGraphic(Minecraft.getInstance(), builder, graphic);
 	}
 
-	private static BufferBuilder buildGraphic(WorldRenderContext context, WorldGraphic graphic) {
-		PoseStack matrices = context.matrices();
-		Vec3 camera = context.worldState().cameraRenderState.pos;
+	private static BufferBuilder buildGraphic(LevelRenderContext context, WorldGraphic graphic) {
+		PoseStack matrices = context.poseStack();
+		Vec3 camera = context.levelState().cameraRenderState.pos;
 
 		matrices.pushPose();
 		matrices.translate(-camera.x, -camera.y, -camera.z);

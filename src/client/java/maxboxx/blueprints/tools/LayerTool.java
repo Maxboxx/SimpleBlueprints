@@ -3,6 +3,7 @@ package maxboxx.blueprints.tools;
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 
@@ -21,9 +22,9 @@ public class LayerTool extends BlueprintTool {
 	@Override
 	public Optional<Component> getAction(ToolAction action) {
 		return Optional.of(switch (action) {
-			case LEFT -> SimpleBlueprints.text("layers.away");
-			case RIGHT -> SimpleBlueprints.text("layers.closer");
-			case MIDDLE -> SimpleBlueprints.text("layers.mode", BlueprintManager.getBlockLayerMode().getText());
+			case LEFT -> Txt.key("layers.away");
+			case RIGHT -> Txt.key("layers.closer");
+			case MIDDLE -> Txt.key("layers.mode", BlueprintManager.getBlockLayerMode().getText());
 		});
 	}
 

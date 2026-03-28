@@ -1,7 +1,7 @@
 package maxboxx.blueprints.graphics.ui.hud;
 
 import maxboxx.blueprints.SimpleBlueprints;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 
 public abstract class HudGraphic {
@@ -39,5 +39,5 @@ public abstract class HudGraphic {
 		hidden = !visible;
 	}
 
-	public abstract void render(GuiGraphics context);
+	public abstract void render(GuiGraphicsExtractor context);
 }

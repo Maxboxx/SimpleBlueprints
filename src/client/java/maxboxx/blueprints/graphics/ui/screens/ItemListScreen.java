@@ -1,11 +1,11 @@
 package maxboxx.blueprints.graphics.ui.screens;
 
 import maxboxx.blueprints.BlueprintManager;
-import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.BlueprintBlockData;
 import maxboxx.blueprints.graphics.ui.ItemRenderer;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -33,7 +33,7 @@ public class ItemListScreen extends Screen {
 			items = new ArrayList<>();
 		}
 
-		closeButton = Button.builder(SimpleBlueprints.text("item_list.close"), b -> {
+		closeButton = Button.builder(Txt.key("item_list.close"),b -> {
 			Minecraft.getInstance().setScreen(null);
 		}).width(120).build();
 
@@ -41,10 +41,10 @@ public class ItemListScreen extends Screen {
 	}
 
 	@Override
-	public void render(@NotNull GuiGraphics context, int mouseX, int mouseY, float delta) {
+	public void extractBackground(@NotNull GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
 		closeButton.setPosition(context.guiWidth() / 2 - closeButton.getWidth() / 2, context.guiHeight() - 25);
 
-		super.render(context, mouseX, mouseY, delta);
+		super.extractBackground(context, mouseX, mouseY, delta);
 
 		ItemRenderer.renderGrid(context, items, BlueprintManager.getBlockListMode(), true);
 

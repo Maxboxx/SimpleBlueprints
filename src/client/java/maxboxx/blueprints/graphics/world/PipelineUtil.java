@@ -1,6 +1,7 @@
 package maxboxx.blueprints.graphics.world;
 
 import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
@@ -14,16 +15,13 @@ public class PipelineUtil {
 
 	public static RenderPipeline.Snippet convertToSnippet(RenderPipeline pipeline) {
 		RenderPipeline.Builder builder = RenderPipeline.builder(RenderPipelines.TERRAIN_SNIPPET);
-		builder.withDepthWrite(pipeline.isWriteDepth());
 		builder.withCull(pipeline.isCull());
-		builder.withDepthTestFunction(pipeline.getDepthTestFunction());
-		builder.withColorWrite(pipeline.isWriteColor(), pipeline.isWriteAlpha());
-		builder.withDepthBias(pipeline.getDepthBiasScaleFactor(), pipeline.getDepthBiasConstant());
 		builder.withFragmentShader(pipeline.getFragmentShader());
 		builder.withLocation(pipeline.getLocation());
 		builder.withPolygonMode(pipeline.getPolygonMode());
 		builder.withVertexFormat(pipeline.getVertexFormat(), pipeline.getVertexFormatMode());
 		builder.withVertexShader(pipeline.getVertexShader());
+		builder.withColorTargetState(pipeline.getColorTargetState());
 
 		for (RenderPipeline.UniformDescription uniform : pipeline.getUniforms()) {
 			if (uniform.textureFormat() != null) {
@@ -38,13 +36,10 @@ public class PipelineUtil {
 			builder.withSampler(sampler);
 		}
 
-		Optional<BlendFunction> blend = pipeline.getBlendFunction();
+		DepthStencilState stencil = pipeline.getDepthStencilState();
 
-		if (blend.isPresent()) {
-			builder.withBlend(blend.get());
-		}
-		else {
-			builder.withoutBlend();
+		if (stencil != null) {
+			builder.withDepthStencilState(stencil);
 		}
 
 		return builder.buildSnippet();

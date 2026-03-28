@@ -1,30 +1,26 @@
 package maxboxx.blueprints.graphics.world;
 
-
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.Color;
-import net.fabricmc.fabric.api.renderer.v1.render.RenderLayerHelper;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.block.BlockStateModelSet;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.ColorResolver;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -38,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter {
+public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 	private final ArrayList<HashMap<BlockPos, BlockState>> blocks = new ArrayList<>();
 	private final Level level;
 	private final int minY;
@@ -65,10 +61,10 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 
 		public Component getText() {
 			return switch (this) {
-				case SHOW_ALL      -> SimpleBlueprints.text("layers.mode.show_all");
-				case SHOW_BELOW    -> SimpleBlueprints.text("layers.mode.bottom");
-				case SHOW_ABOVE    -> SimpleBlueprints.text("layers.mode.top");
-				case SHOW_SELECTED -> SimpleBlueprints.text("layers.mode.slice");
+				case SHOW_ALL      -> Txt.key("layers.mode.show_all");
+				case SHOW_BELOW    -> Txt.key("layers.mode.bottom");
+				case SHOW_ABOVE    -> Txt.key("layers.mode.top");
+				case SHOW_SELECTED -> Txt.key("layers.mode.slice");
 			};
 		}
 	}
@@ -164,7 +160,8 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 
 		PoseStack stack = new PoseStack();
 		RandomSource random = RandomSource.create(42L);
-		BlockRenderDispatcher renderer = Minecraft.getInstance().getBlockRenderer();
+
+		BlockStateModelSet renderer = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
 
 		if (diff < 0) {
 			for (int i = selectedLayer - diff; i >= selectedLayer; i--) {
@@ -189,7 +186,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 
 		PoseStack stack = new PoseStack();
 		RandomSource random = RandomSource.create(42L);
-		BlockRenderDispatcher renderer = Minecraft.getInstance().getBlockRenderer();
+		BlockStateModelSet renderer = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
 
 		if (selectedLayer > 0) {
 			setupLayer(stack, renderer, random, selectedLayer - 1);
@@ -212,7 +209,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 
 	@Override
 	public void render(WorldRenderer.Context context) {
-		VertexConsumer consumer = context.builder();RenderLayerHelper.entityDelegate(context.context().consumers()).getBuffer(ChunkSectionLayer.TRANSLUCENT);
+		VertexConsumer consumer = context.builder();
 
 		context.matrices().pushPose();
 
@@ -269,7 +266,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 	}
 
 	private void setupQuads() {
-		BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+		BlockStateModelSet blockRenderer = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
 
 		RandomSource random = RandomSource.create(42L);
 		PoseStack stack = new PoseStack();
@@ -279,20 +276,25 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 		}
 	}
 
-	private void setupLayer(PoseStack stack, BlockRenderDispatcher blockRenderer, RandomSource random, int index) {
+	private void setupLayer(PoseStack stack, BlockStateModelSet blockRenderer, RandomSource random, int index) {
 		VertexCache layer = vertexLayers.get(index);
 		layer.clear();
 
 		boolean isVisible = isLayerVisible(index);
+
+		List<BlockStateModelPart> parts = new ArrayList<>();
 
 		for (Map.Entry<BlockPos, BlockState> block : blocks.get(index).entrySet()) {
 			BlockState state = block.getValue();
 
 			boolean hasQuads = false;
 
-			BlockStateModel model = blockRenderer.getBlockModel(state);
+			BlockStateModel model = blockRenderer.get(state);
 
-			for (BlockModelPart blockModelPart : model.collectParts(random)) {
+			parts.clear();
+			model.collectParts(random, parts);
+
+			for (BlockStateModelPart blockModelPart : parts) {
 				for (Direction direction : Direction.values()) {
 					List<BakedQuad> list = blockModelPart.getQuads(direction);
 
@@ -316,7 +318,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 
 				VoxelShape shape = block.getValue().getShape(this, pos.offset(offset));
 
-				try (TextureAtlasSprite sprite = model.particleIcon()) {
+				try (TextureAtlasSprite sprite = model.particleMaterial().sprite()) {
 					shape.forAllBoxes((a, b, c, d, e, f) -> {
 						ShapeVertexUtil.createBoxWithUV(
 							stack, layer,
@@ -334,6 +336,11 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 	}
 
 	private void setupQuadList(PoseStack stack, BlockPos pos, VertexCache cache, List<BakedQuad> list) {
+		QuadInstance instance = new QuadInstance();
+		instance.setColor(0xffffffff);
+		instance.setLightCoords(0xffffff);
+		instance.setOverlayCoords(OverlayTexture.NO_OVERLAY);
+
 		for (BakedQuad bakedQuad : list) {
 			Direction dir = bakedQuad.direction();
 
@@ -344,25 +351,10 @@ public class BlueprintGraphic extends WorldGraphic implements BlockAndTintGetter
 				pos.getZ() + dir.getStepZ() * -0.005f
 			);
 
-			cache.putBulkData(stack.last(), bakedQuad, 1f, 1f, 1f, 1f,  0xffffff, OverlayTexture.NO_OVERLAY);
+			cache.putBakedQuad(stack.last(), bakedQuad, instance);
 
 			stack.popPose();
 		}
-	}
-
-	@Override
-	public float getShade(@NotNull Direction direction, boolean bl) {
-		return 0;
-	}
-
-	@Override
-	public @NotNull LevelLightEngine getLightEngine() {
-		return level.getLightEngine();
-	}
-
-	@Override
-	public int getBlockTint(BlockPos blockPos, @NotNull ColorResolver colorResolver) {
-		return level.getBlockTint(blockPos.offset(offset), colorResolver);
 	}
 
 	@Nullable

@@ -1,17 +1,15 @@
 package maxboxx.blueprints.graphics.ui.screens;
 
 import maxboxx.blueprints.BlueprintManager;
-import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.SlotProperties;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.apache.logging.log4j.core.pattern.AbstractStyleNameConverter;
 import org.jetbrains.annotations.NotNull;
 
 public class SlotOptionsScreen extends Screen {
@@ -41,12 +39,12 @@ public class SlotOptionsScreen extends Screen {
 		nameField.setHeight(20);
 		nameField.setValue(slotName);
 
-		persistenceButton = Button.builder(SimpleBlueprints.text(persistent ? "slot_options.persistent_on" : "slot_options.persistent_off"), b -> {
+		persistenceButton = Button.builder(Txt.key(persistent ? "slot_options.persistent_on" : "slot_options.persistent_off"), b -> {
 			persistent = !persistent;
-			persistenceButton.setMessage(SimpleBlueprints.text(persistent ? "slot_options.persistent_on" : "slot_options.persistent_off"));
-		}).width(WIDGET_WIDTH).tooltip(Tooltip.create(SimpleBlueprints.text("slot_options.persistent_desc"))).build();
+			persistenceButton.setMessage(Txt.key(persistent ? "slot_options.persistent_on" : "slot_options.persistent_off"));
+		}).width(WIDGET_WIDTH).tooltip(Tooltip.create(Txt.key("slot_options.persistent_desc"))).build();
 
-		closeButton = Button.builder(SimpleBlueprints.text("slot_options.close"), b -> {
+		closeButton = Button.builder(Txt.key("slot_options.close"), b -> {
 			String newName = nameField.getValue();
 
 			if (!newName.equals(slotName)) {
@@ -68,7 +66,7 @@ public class SlotOptionsScreen extends Screen {
 	}
 
 	@Override
-	public void render(@NotNull GuiGraphics context, int mouseX, int mouseY, float delta) {
+	public void extractBackground(@NotNull GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
 		int originX = context.guiWidth() / 2;
 		int originY = context.guiHeight() / 2;
 
@@ -76,8 +74,8 @@ public class SlotOptionsScreen extends Screen {
 		persistenceButton.setPosition(originX - closeButton.getWidth() / 2, originY + 30);
 		closeButton.setPosition(originX - closeButton.getWidth() / 2, originY + 60);
 
-		super.render(context, mouseX, mouseY, delta);
+		super.extractBackground(context, mouseX, mouseY, delta);
 
-		context.drawString(font, SimpleBlueprints.text("slot_options.name"), originX - WIDGET_WIDTH / 2, nameField.getY() - 12, 0xffffffff);
+		context.text(font, Txt.key("slot_options.name"), originX - WIDGET_WIDTH / 2, nameField.getY() - 12, 0xffffffff);
 	}
 }

@@ -4,6 +4,7 @@ import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.KeyBinds;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
+import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -34,9 +35,9 @@ public class ResizeTool extends BlueprintTool {
 		}
 
 		return Optional.of(switch (action) {
-			case LEFT   -> SimpleBlueprints.text(targetCloserSide ? "resize.shrink" : "resize.expand");
-			case RIGHT  -> SimpleBlueprints.text(targetCloserSide ? "resize.expand" : "resize.shrink");
-			case MIDDLE -> SimpleBlueprints.text("resize.switch");
+			case LEFT   -> Txt.key(targetCloserSide ? "resize.shrink" : "resize.expand");
+			case RIGHT  -> Txt.key(targetCloserSide ? "resize.expand" : "resize.shrink");
+			case MIDDLE -> Txt.key("resize.switch");
 		});
 	}
 
