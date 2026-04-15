@@ -1,12 +1,9 @@
 package maxboxx.blueprints.graphics.world;
 
-import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
-
-import java.util.Optional;
 
 public class PipelineUtil {
 	public static RenderPipeline translucentBlock() {

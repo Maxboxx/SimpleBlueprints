@@ -44,7 +44,7 @@ public class SlotOptionsScreen extends Screen {
 			persistenceButton.setMessage(Txt.key(persistent ? "slot_options.persistent_on" : "slot_options.persistent_off"));
 		}).width(WIDGET_WIDTH).tooltip(Tooltip.create(Txt.key("slot_options.persistent_desc"))).build();
 
-		closeButton = Button.builder(Txt.key("slot_options.close"), b -> {
+		closeButton = Button.builder(Txt.key("slot_options.cleanup"), b -> {
 			String newName = nameField.getValue();
 
 			if (!newName.equals(slotName)) {

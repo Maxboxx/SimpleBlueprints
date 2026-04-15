@@ -1,10 +1,10 @@
 package maxboxx.blueprints.graphics.world;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import maxboxx.blueprints.data.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
+import org.joml.Vector3f;
 
 public class BoxGraphic extends WorldGraphic {
 	public float minX, maxX, minY, maxY, minZ, maxZ;
@@ -23,7 +23,7 @@ public class BoxGraphic extends WorldGraphic {
 		FAR_FACE
 	}
 
-	public BoxGraphic(RenderPipeline pipeline, boolean outline) {
+	public BoxGraphic(Pipeline pipeline, boolean outline) {
 		super(pipeline);
 		OUTLINE = outline;
 	}
@@ -41,7 +41,20 @@ public class BoxGraphic extends WorldGraphic {
 	}
 
 	@Override
+	public Vector3f origin() {
+		return new Vector3f(minX, minY, minZ);
+	}
+
+	@Override
+	public RenderMode mode() {
+		return RenderMode.Render;
+	}
+
+	@Override
 	public void render(WorldRenderer.Context context) {
+		context.matrices().pushPose();
+		context.matrices().translate(-minX, -minY, -minZ);
+
 		if (OUTLINE) {
 			renderLine(context, color, minX, minY, minZ, maxX, minY, minZ);
 			renderLine(context, color, minX, maxY, minZ, maxX, maxY, minZ);
@@ -65,29 +78,23 @@ public class BoxGraphic extends WorldGraphic {
 					Direction dir = player.getNearestViewDirection();
 
 					switch (dir.getAxis()) {
-						case X -> {
-							renderLine(
-								context, color2,
-								minX - 0.5f, (minY + maxY) * 0.5f - 0.01f, (minZ + maxZ) * 0.5f - 0.01f,
-								maxX + 0.5f, (minY + maxY) * 0.5f + 0.01f, (minZ + maxZ) * 0.5f + 0.01f
-							);
-						}
+						case X -> renderLine(
+							context, color2,
+							minX - 0.5f, (minY + maxY) * 0.5f - 0.01f, (minZ + maxZ) * 0.5f - 0.01f,
+							maxX + 0.5f, (minY + maxY) * 0.5f + 0.01f, (minZ + maxZ) * 0.5f + 0.01f
+						);
 
-						case Y -> {
-							renderLine(
-								context, color2,
-								(minX + maxX) * 0.5f - 0.01f, minY - 0.5f, (minZ + maxZ) * 0.5f - 0.01f,
-								(minX + maxX) * 0.5f + 0.01f, maxY + 0.5f, (minZ + maxZ) * 0.5f + 0.01f
-							);
-						}
+						case Y -> renderLine(
+							context, color2,
+							(minX + maxX) * 0.5f - 0.01f, minY - 0.5f, (minZ + maxZ) * 0.5f - 0.01f,
+							(minX + maxX) * 0.5f + 0.01f, maxY + 0.5f, (minZ + maxZ) * 0.5f + 0.01f
+						);
 
-						case Z -> {
-							renderLine(
-								context, color2,
-								(minX + maxX) * 0.5f - 0.01f, (minY + maxY) * 0.5f - 0.01f, minZ - 0.5f,
-								(minX + maxX) * 0.5f + 0.01f, (minY + maxY) * 0.5f + 0.01f, maxZ + 0.5f
-							);
-						}
+						case Z -> renderLine(
+							context, color2,
+							(minX + maxX) * 0.5f - 0.01f, (minY + maxY) * 0.5f - 0.01f, minZ - 0.5f,
+							(minX + maxX) * 0.5f + 0.01f, (minY + maxY) * 0.5f + 0.01f, maxZ + 0.5f
+						);
 					}
 				}
 			}
@@ -96,6 +103,8 @@ public class BoxGraphic extends WorldGraphic {
 			renderBox(context, true);
 			renderBox(context, false);
 		}
+
+		context.matrices().popPose();
 	}
 
 	private void renderLine(WorldRenderer.Context context, Color color, float x1, float y1, float z1, float x2, float y2, float z2) {

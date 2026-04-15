@@ -7,6 +7,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.Mirror;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 
@@ -32,17 +33,25 @@ public class VertexCache implements VertexConsumer {
 		}
 	}
 
-	public void transferTo(VertexConsumer consumer, PoseStack.Pose pose, Mirror mirror) {
+	public void transferTo(VertexConsumer consumer, PoseStack.Pose pose, Mirror mirror, boolean applyShade) {
 		Matrix4f mat = pose.pose();
 
 		switch (mirror) {
 			case NONE -> {
 				for (Vertex vert : vertices) {
 					consumer.addVertex(mat, vert.x, vert.y, vert.z);
-					consumer.setColor(r, g, b, a);
+
+					if (applyShade) {
+						Vector3f n = pose.transformNormal(vert.nx, vert.ny, vert.nz, new Vector3f());
+						setColorWithShade(consumer, n.y, n.x);
+					}
+					else {
+						consumer.setColor(r, g, b, a);
+					}
+
 					consumer.setUv(vert.u, vert.v);
-					consumer.setLight(0xffffff);
 					consumer.setOverlay(OverlayTexture.NO_OVERLAY);
+					consumer.setLight(0xf000f0);
 					consumer.setNormal(pose, vert.nx, vert.ny, vert.nz);
 				}
 			}
@@ -50,10 +59,18 @@ public class VertexCache implements VertexConsumer {
 			case LEFT_RIGHT -> {
 				for (Vertex vert : vertices.reversed()) {
 					consumer.addVertex(mat, vert.x, vert.y, -vert.z);
-					consumer.setColor(r, g, b, a);
+
+					if (applyShade) {
+						Vector3f n = pose.transformNormal(vert.nx, vert.ny, vert.nz, new Vector3f());
+						setColorWithShade(consumer, n.y, n.x);
+					}
+					else {
+						consumer.setColor(r, g, b, a);
+					}
+
 					consumer.setUv(vert.u, vert.v);
-					consumer.setLight(0xffffff);
 					consumer.setOverlay(OverlayTexture.NO_OVERLAY);
+					consumer.setLight(0xf000f0);
 					consumer.setNormal(pose, vert.nx, vert.ny, -vert.nz);
 				}
 			}
@@ -61,13 +78,36 @@ public class VertexCache implements VertexConsumer {
 			case FRONT_BACK -> {
 				for (Vertex vert : vertices.reversed()) {
 					consumer.addVertex(mat, -vert.x, vert.y, vert.z);
-					consumer.setColor(r, g, b, a);
+
+					if (applyShade) {
+						Vector3f n = pose.transformNormal(vert.nx, vert.ny, vert.nz, new Vector3f());
+						setColorWithShade(consumer, n.y, n.x);
+					}
+					else {
+						consumer.setColor(r, g, b, a);
+					}
+
 					consumer.setUv(vert.u, vert.v);
-					consumer.setLight(0xffffff);
 					consumer.setOverlay(OverlayTexture.NO_OVERLAY);
+					consumer.setLight(0xf000f0);
 					consumer.setNormal(pose, -vert.nx, vert.ny, vert.nz);
 				}
 			}
+		}
+	}
+
+	private void setColorWithShade(VertexConsumer consumer, float ny, float nx) {
+		if (ny > 0.5f) {
+			consumer.setColor(r, g, b, a);
+		}
+		else if (ny < -0.5f) {
+			consumer.setColor(Math.round((float)r * 0.5f), Math.round((float)g * 0.5f), Math.round((float)b * 0.5f), a);
+		}
+		else if (Math.abs(nx) > 0.5f) {
+			consumer.setColor(Math.round((float)r * 0.6f), Math.round((float)g * 0.6f), Math.round((float)b * 0.6f), a);
+		}
+		else {
+			consumer.setColor(Math.round((float)r * 0.8f), Math.round((float)g * 0.8f), Math.round((float)b * 0.8f), a);
 		}
 	}
 

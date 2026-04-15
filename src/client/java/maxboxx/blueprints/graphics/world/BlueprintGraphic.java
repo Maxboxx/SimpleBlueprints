@@ -53,6 +53,8 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 	private Color color;
 	private float alpha = 0.5f;
 
+	private boolean isModified = true;
+
 	public enum LayerMode {
 		SHOW_ALL,
 		SHOW_BELOW,
@@ -70,7 +72,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 	}
 
 	public BlueprintGraphic(Level level, HashMap<BlockPos, BlockState> blocks) {
-		super(WorldRenderer.TRANSLUCENT_BLOCKS);
+		super(WorldRenderer.BLOCK_PIPELINE);
 
 		int minX = 100000;
 		int maxX = -100000;
@@ -116,6 +118,10 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 		setupQuads();
 	}
 
+	public void markDirty() {
+		this.isModified = true;
+	}
+
 	public void setPosition(BlockPos offset) {
 		this.offset = offset;
 	}
@@ -126,6 +132,8 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 		for (VertexCache layer : vertexLayers) {
 			layer.setColor(color.red(), color.green(), color.blue(), alpha);
 		}
+
+		this.isModified = true;
 	}
 
 	public void setAlpha(float alpha) {
@@ -134,6 +142,8 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 		for (VertexCache layer : vertexLayers) {
 			layer.setColor(color.red(), color.green(), color.blue(), alpha);
 		}
+
+		this.isModified = true;
 	}
 
 	public float getAlpha() {
@@ -173,6 +183,8 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 				setupLayer(stack, renderer, random, i);
 			}
 		}
+
+		this.isModified = true;
 	}
 
 	public LayerMode getLayerMode() {
@@ -197,29 +209,45 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 		if (selectedLayer < vertexLayers.size() - 1) {
 			setupLayer(stack, renderer, random, selectedLayer + 1);
 		}
+
+		this.isModified = true;
 	}
 
 	public void setRotation(Rotation rotation) {
 		this.rotation = rotation;
+		this.isModified = true;
 	}
 
 	public void setMirror(Mirror mirror) {
 		this.mirror = mirror;
+		this.isModified = true;
+	}
+
+	@Override
+	public Vector3f origin() {
+		return new Vector3f(offset.getX(), offset.getY(), offset.getZ());
+	}
+
+	@Override
+	public RenderMode mode() {
+		if (!this.isModified) {
+			return RenderMode.Reuse;
+		}
+
+		return RenderMode.Render;
 	}
 
 	@Override
 	public void render(WorldRenderer.Context context) {
+		this.isModified = false;
+
 		VertexConsumer consumer = context.builder();
 
 		context.matrices().pushPose();
 
 		switch (rotation) {
-			case NONE -> {
-				context.matrices().translate(offset.getX(), offset.getY(), offset.getZ());
-			}
-
 			case CLOCKWISE_90 -> {
-				context.matrices().translate(offset.getX() + sizeZ, offset.getY(), offset.getZ());
+				context.matrices().translate(sizeZ, 0f, 0f);
 
 				context.matrices().rotateAround(
 					new Quaternionf(new AxisAngle4f((float)(Math.PI * -0.5f), 0f, 1f, 0f)),
@@ -228,7 +256,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 			}
 
 			case CLOCKWISE_180 -> {
-				context.matrices().translate(offset.getX() + sizeX, offset.getY(), offset.getZ() + sizeZ);
+				context.matrices().translate(sizeX, 0f, sizeZ);
 
 				context.matrices().rotateAround(
 					new Quaternionf(new AxisAngle4f((float)Math.PI, 0f, 1f, 0f)),
@@ -237,7 +265,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 			}
 
 			case COUNTERCLOCKWISE_90 -> {
-				context.matrices().translate(offset.getX(), offset.getY(), offset.getZ() + sizeX);
+				context.matrices().translate(0f, 0f, sizeX);
 
 				context.matrices().rotateAround(
 					new Quaternionf(new AxisAngle4f((float)(Math.PI * 0.5f), 0f, 1f, 0f)),
@@ -247,19 +275,14 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 		}
 
 		switch (mirror) {
-			case LEFT_RIGHT -> {
-				context.matrices().translate(0f, 0f, sizeZ);
-			}
-
-			case FRONT_BACK -> {
-				context.matrices().translate(sizeX, 0f, 0f);
-			}
+			case LEFT_RIGHT -> context.matrices().translate(0f, 0f, sizeZ);
+			case FRONT_BACK -> context.matrices().translate(sizeX, 0f, 0f);
 		}
 
 		for (int i = 0; i < vertexLayers.size(); i++) {
 			if (!isLayerVisible(i)) continue;
 
-			vertexLayers.get(i).transferTo(consumer, context.matrices().last(), mirror);
+			vertexLayers.get(i).transferTo(consumer, context.matrices().last(), mirror, true);
 		}
 
 		context.matrices().popPose();

@@ -660,6 +660,7 @@ public class BlueprintManager {
 
 		if (selection.graphic != null && showBlocks && selection.isVisible) {
 			selection.graphic.setPosition(selection.min);
+			selection.graphic.markDirty();
 			WorldRenderer.addGraphic(selection.graphic);
 		}
 
