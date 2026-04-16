@@ -64,11 +64,11 @@ public class Pipeline {
 		return pipeline;
 	}
 
-	public void draw(LevelRenderContext context, MeshData mesh, Vector3f origin) {
-		if (mesh == null) return;
+	public void draw(LevelRenderContext context, WorldGraphic graphic, Vector4f color) {
+		if (graphic.cachedMeshData == null) return;
 
 		Vec3 pos = context.levelState().cameraRenderState.pos;
-		Vector3f offset = new Vector3f(-(float)pos.x, -(float)pos.y, -(float)pos.z).add(origin);
+		Vector3f offset = new Vector3f(-(float)pos.x, -(float)pos.y, -(float)pos.z).add(graphic.origin());
 
 		if (!hasModelOffset) {
 			RenderSystem.getModelViewStack().pushMatrix().translate(offset);
@@ -77,24 +77,10 @@ public class Pipeline {
 
 		GpuBufferSlice dynamicTransforms = RenderSystem.getDynamicUniforms().writeTransform(
 			RenderSystem.getModelViewMatrix(),
-			new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
+			color,
 			offset,
 			new Matrix4f()
 		);
-
-		GpuBuffer vertices = this.pipeline.getVertexFormat().uploadImmediateVertexBuffer(mesh.vertexBuffer());
-		GpuBuffer indices;
-		VertexFormat.IndexType indexType;
-
-		if (mesh.indexBuffer() == null) {
-			RenderSystem.AutoStorageIndexBuffer autoIndices = RenderSystem.getSequentialBuffer(mesh.drawState().mode());
-			indices = autoIndices.getBuffer(mesh.drawState().indexCount());
-			indexType = autoIndices.type();
-		}
-		else {
-			indices = this.pipeline.getVertexFormat().uploadImmediateIndexBuffer(mesh.indexBuffer());
-			indexType = mesh.drawState().indexType();
-		}
 
 		RenderTarget renderTarget = this.target.getRenderTarget();
 		GpuTextureView colorTexture = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : renderTarget.getColorTextureView();
@@ -129,10 +115,10 @@ public class Pipeline {
 
 			RenderSystem.bindDefaultUniforms(renderPass);
 			renderPass.setUniform("DynamicTransforms", dynamicTransforms);
-			renderPass.setVertexBuffer(0, vertices);
+			renderPass.setVertexBuffer(0, graphic.vertexBuffer.currentBuffer());
 
-			renderPass.setIndexBuffer(indices, indexType);
-			renderPass.drawIndexed(0, 0, mesh.drawState().indexCount(), 1);
+			renderPass.setIndexBuffer(graphic.indices, graphic.indexType);
+			renderPass.drawIndexed(0, 0, graphic.cachedMeshData.drawState().indexCount(), 1);
 		}
 
 		if (!hasModelOffset) {

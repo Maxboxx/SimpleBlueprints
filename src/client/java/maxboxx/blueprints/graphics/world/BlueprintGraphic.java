@@ -50,8 +50,6 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 	private Mirror mirror = Mirror.NONE;
 
 	private BlockPos offset;
-	private Color color;
-	private float alpha = 0.5f;
 
 	private boolean isModified = true;
 
@@ -112,10 +110,11 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 		this.level = level;
 		this.offset = BlockPos.ZERO;
 
-		this.color = Color.WHITE;
 		layerMode = LayerMode.SHOW_BELOW;
 
 		setupQuads();
+
+		isModified = true;
 	}
 
 	public void markDirty() {
@@ -124,30 +123,6 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 
 	public void setPosition(BlockPos offset) {
 		this.offset = offset;
-	}
-
-	public void setTint(Color color) {
-		this.color = color;
-
-		for (VertexCache layer : vertexLayers) {
-			layer.setColor(color.red(), color.green(), color.blue(), alpha);
-		}
-
-		this.isModified = true;
-	}
-
-	public void setAlpha(float alpha) {
-		this.alpha = alpha;
-
-		for (VertexCache layer : vertexLayers) {
-			layer.setColor(color.red(), color.green(), color.blue(), alpha);
-		}
-
-		this.isModified = true;
-	}
-
-	public float getAlpha() {
-		return alpha;
 	}
 
 	public int getSelectedLayer() {
@@ -347,7 +322,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 							stack, layer,
 							(float)a + pos.getX() + 0.02f, (float)b + pos.getY() + 0.02f, (float)c + pos.getZ() + 0.02f,
 							(float)d + pos.getX() - 0.02f, (float)e + pos.getY() - 0.02f, (float)f + pos.getZ() - 0.02f,
-							color.red(), color.green(), color.blue(), alpha,
+							1f, 1f, 1f, 1f,
 							sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1()
 						);
 					});
@@ -355,7 +330,7 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 			}
 		}
 
-		layer.setColor(color.red(), color.green(), color.blue(), alpha);
+		layer.setColor(1f, 1f, 1f, 1f);
 	}
 
 	private void setupQuadList(PoseStack stack, BlockPos pos, VertexCache cache, List<BakedQuad> list) {

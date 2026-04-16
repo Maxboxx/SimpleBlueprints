@@ -186,6 +186,7 @@ public class BlueprintManager {
 
 				if (selectionData[i].graphic != null) {
 					WorldRenderer.removeGraphic(selectionData[i].graphic);
+					selectionData[i].graphic.cleanup();
 				}
 			}
 		});
@@ -415,6 +416,7 @@ public class BlueprintManager {
 	public static void setBlockGraphic(BlueprintGraphic graphic) {
 		if (selection.graphic != null) {
 			WorldRenderer.removeGraphic(selection.graphic);
+			selection.graphic.cleanup();
 		}
 
 		selection.graphic = graphic;
@@ -425,26 +427,20 @@ public class BlueprintManager {
 		}
 
 		if (selection.graphic != null) {
-			selection.graphic.setTint(blockColor);
-			selection.graphic.setAlpha(blockAlpha);
+			selection.graphic.markDirty();
 		}
 	}
 
 	public static void clearBlockGraphic() {
 		if (selection.graphic != null) {
 			WorldRenderer.removeGraphic(selection.graphic);
+			selection.graphic.cleanup();
 			selection.graphic = null;
 		}
 	}
 
 	public static void setBlockAlpha(float alpha) {
 		blockAlpha = alpha;
-
-		for (BlueprintData selection : selectionData) {
-			if (selection.graphic != null) {
-				selection.graphic.setAlpha(alpha);
-			}
-		}
 	}
 
 	public static void cycleBlockAlpha() {
@@ -465,12 +461,6 @@ public class BlueprintManager {
 
 	public static void setBlockColor(Color color) {
 		blockColor = color;
-
-		for (BlueprintData selection : selectionData) {
-			if (selection.graphic != null) {
-				selection.graphic.setTint(color);
-			}
-		}
 	}
 
 	public static void cycleBlockColor() {
@@ -613,6 +603,7 @@ public class BlueprintManager {
 
 		if (selection.graphic != null) {
 			WorldRenderer.removeGraphic(selection.graphic);
+			selection.graphic.cleanup();
 		}
 
 		selection = newData;
@@ -630,8 +621,6 @@ public class BlueprintManager {
 		data.graphic = data.data.toGraphic(Minecraft.getInstance().level);
 		data.graphic.setMirror(data.data.getMirror());
 		data.graphic.setRotation(data.data.getRotation());
-		data.graphic.setTint(blockColor);
-		data.graphic.setAlpha(blockAlpha);
 
 		if (showBlocks && data.isVisible) {
 			data.graphic.setPosition(data.min);
@@ -660,7 +649,6 @@ public class BlueprintManager {
 
 		if (selection.graphic != null && showBlocks && selection.isVisible) {
 			selection.graphic.setPosition(selection.min);
-			selection.graphic.markDirty();
 			WorldRenderer.addGraphic(selection.graphic);
 		}
 

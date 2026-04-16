@@ -12,9 +12,12 @@ import org.lwjgl.system.MemoryUtil;
 public abstract class WorldGraphic {
 	private final Pipeline pipeline;
 
-	public MeshData cachedMeshData = null;
-	private MappableRingBuffer vertexBuffer = null;
-	private GpuBuffer.MappedView cachedView;
+	MeshData cachedMeshData = null;
+	MappableRingBuffer vertexBuffer = null;
+	GpuBuffer.MappedView cachedView;
+
+	GpuBuffer indices;
+	VertexFormat.IndexType indexType;
 
 	public enum RenderMode {
 		Render,
@@ -65,6 +68,16 @@ public abstract class WorldGraphic {
 			cachedView = mappedView;
 			MemoryUtil.memCopy(cachedMeshData.vertexBuffer(), mappedView.data());
 		}
+
+		if (cachedMeshData.indexBuffer() == null) {
+			RenderSystem.AutoStorageIndexBuffer autoIndices = RenderSystem.getSequentialBuffer(cachedMeshData.drawState().mode());
+			indices = autoIndices.getBuffer(cachedMeshData.drawState().indexCount());
+			indexType = autoIndices.type();
+		}
+		else {
+			indices = this.pipeline.getPipeline().getVertexFormat().uploadImmediateIndexBuffer(cachedMeshData.indexBuffer());
+			indexType = cachedMeshData.drawState().indexType();
+		}
 	}
 
 	public void cleanup() {
@@ -82,5 +95,8 @@ public abstract class WorldGraphic {
 			cachedView.close();
 			cachedView = null;
 		}
+
+		indices = null;
+		indexType = null;
 	}
 }

@@ -6,13 +6,16 @@ import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.vertex.*;
+import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.data.Color;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
+import org.joml.Vector4f;
 
 import java.util.*;
 
@@ -73,7 +76,6 @@ public class WorldRenderer {
 
 	public static void removeGraphic(WorldGraphic graphic) {
 		activeGraphics.remove(graphic);
-		graphic.cleanup();
 	}
 
 	private static void renderGraphics(LevelRenderContext context) {
@@ -92,7 +94,9 @@ public class WorldRenderer {
 			return;
 		}
 
-		graphic.getPipeline().draw(context, graphic.cachedMeshData, graphic.origin());
+		Color c = BlueprintManager.getBlockColor();
+		Vector4f color = new Vector4f(c.red(), c.green(), c.blue(), BlueprintManager.getBlockAlpha());
+		graphic.getPipeline().draw(context, graphic, color);
 	}
 
 	private static void buildGraphic(LevelRenderContext context, WorldGraphic graphic) {
