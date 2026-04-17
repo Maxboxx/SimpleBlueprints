@@ -9,7 +9,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.ScissorState;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuTextureView;
-import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.minecraft.client.Minecraft;
@@ -65,7 +64,11 @@ public class Pipeline {
 	}
 
 	public void draw(LevelRenderContext context, WorldGraphic graphic, Vector4f color) {
-		if (graphic.cachedMeshData == null) return;
+		if (graphic.indexCount <= 0) return;
+
+		RenderSystem.AutoStorageIndexBuffer autoIndices = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
+		GpuBuffer indices = autoIndices.getBuffer(graphic.indexCount);
+		VertexFormat.IndexType indexType = autoIndices.type();
 
 		Vec3 pos = context.levelState().cameraRenderState.pos;
 		Vector3f offset = new Vector3f(-(float)pos.x, -(float)pos.y, -(float)pos.z).add(graphic.origin());
@@ -117,8 +120,8 @@ public class Pipeline {
 			renderPass.setUniform("DynamicTransforms", dynamicTransforms);
 			renderPass.setVertexBuffer(0, graphic.vertexBuffer.currentBuffer());
 
-			renderPass.setIndexBuffer(graphic.indices, graphic.indexType);
-			renderPass.drawIndexed(0, 0, graphic.cachedMeshData.drawState().indexCount(), 1);
+			renderPass.setIndexBuffer(indices, indexType);
+			renderPass.drawIndexed(0, 0, graphic.indexCount, 1);
 		}
 
 		if (!hasModelOffset) {

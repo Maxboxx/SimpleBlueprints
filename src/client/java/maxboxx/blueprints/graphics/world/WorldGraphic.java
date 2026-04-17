@@ -12,12 +12,8 @@ import org.lwjgl.system.MemoryUtil;
 public abstract class WorldGraphic {
 	private final Pipeline pipeline;
 
-	MeshData cachedMeshData = null;
 	MappableRingBuffer vertexBuffer = null;
-	GpuBuffer.MappedView cachedView;
-
-	GpuBuffer indices;
-	VertexFormat.IndexType indexType;
+	int indexCount = 0;
 
 	public enum RenderMode {
 		Render,
@@ -40,10 +36,9 @@ public abstract class WorldGraphic {
 	public abstract void render(WorldRenderer.Context context);
 
 	public void generateMesh(BufferBuilder buffer) {
-		if (cachedMeshData != null) cachedMeshData.close();
-		cachedMeshData = buffer.buildOrThrow();
+		MeshData meshData = buffer.buildOrThrow();
 
-		MeshData.DrawState drawState = cachedMeshData.drawState();
+		MeshData.DrawState drawState = meshData.drawState();
 		VertexFormat format = drawState.format();
 
 		int vertexSize = drawState.vertexCount() * format.getVertexSize();
@@ -59,44 +54,21 @@ public abstract class WorldGraphic {
 
 		CommandEncoder commandEncoder = RenderSystem.getDevice().createCommandEncoder();
 
-		if (cachedView != null) {
-			cachedView.close();
-			cachedView = null;
+		try (GpuBuffer.MappedView mappedView = commandEncoder.mapBuffer(vertexBuffer.currentBuffer().slice(0, meshData.vertexBuffer().remaining()), false, true)) {
+			MemoryUtil.memCopy(meshData.vertexBuffer(), mappedView.data());
 		}
 
-		try (GpuBuffer.MappedView mappedView = commandEncoder.mapBuffer(vertexBuffer.currentBuffer().slice(0, cachedMeshData.vertexBuffer().remaining()), false, true)) {
-			cachedView = mappedView;
-			MemoryUtil.memCopy(cachedMeshData.vertexBuffer(), mappedView.data());
-		}
+		indexCount = drawState.indexCount();
 
-		if (cachedMeshData.indexBuffer() == null) {
-			RenderSystem.AutoStorageIndexBuffer autoIndices = RenderSystem.getSequentialBuffer(cachedMeshData.drawState().mode());
-			indices = autoIndices.getBuffer(cachedMeshData.drawState().indexCount());
-			indexType = autoIndices.type();
-		}
-		else {
-			indices = this.pipeline.getPipeline().getVertexFormat().uploadImmediateIndexBuffer(cachedMeshData.indexBuffer());
-			indexType = cachedMeshData.drawState().indexType();
-		}
+		meshData.close();
 	}
 
 	public void cleanup() {
-		if (cachedMeshData != null) {
-			cachedMeshData.close();
-			cachedMeshData = null;
-		}
-
 		if (vertexBuffer != null) {
 			vertexBuffer.close();
 			vertexBuffer = null;
 		}
 
-		if (cachedView != null) {
-			cachedView.close();
-			cachedView = null;
-		}
-
-		indices = null;
-		indexType = null;
+		indexCount = 0;
 	}
 }
