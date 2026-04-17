@@ -33,7 +33,7 @@ public class ItemListScreen extends Screen {
 			items = new ArrayList<>();
 		}
 
-		closeButton = Button.builder(Txt.key("item_list.cleanup"),b -> {
+		closeButton = Button.builder(Txt.key("item_list.close"),b -> {
 			Minecraft.getInstance().setScreen(null);
 		}).width(120).build();
 

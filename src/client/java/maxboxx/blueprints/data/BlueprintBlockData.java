@@ -31,6 +31,8 @@ public class BlueprintBlockData {
 	private BlockPos pos = BlockPos.ZERO;
 	private MirrorRotation mirrorRotation = MirrorRotation.NONE;
 
+	private int blockCount = 0;
+
 	private final ArrayList<ItemData> sortedItems = new ArrayList<>();
 
 	public record ItemData(ItemStack stack, boolean visible) {
@@ -63,6 +65,7 @@ public class BlueprintBlockData {
 		structure = new StructureTemplate();
 		blocks    = new HashSet<>();
 		pos       = position;
+		blockCount = 0;
 
 		HashMap<Item, Integer> itemData = new HashMap<>();
 
@@ -75,6 +78,10 @@ public class BlueprintBlockData {
 						Block block = state.getBlock();
 						blocks.add(block);
 						itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
+
+						if (!state.isAir()) {
+							blockCount++;
+						}
 					}
 				}
 			}
@@ -169,6 +176,10 @@ public class BlueprintBlockData {
 		return sortedItems;
 	}
 
+	public int getBlockCount() {
+		return blockCount;
+	}
+
 	public CompoundTag save() {
 		CompoundTag tag = new CompoundTag();
 		tag.putInt("rot", mirrorRotation.encode());
@@ -202,6 +213,7 @@ public class BlueprintBlockData {
 		}
 
 		structure.load(BuiltInRegistries.BLOCK, blockNbt);
+		blockCount = 0;
 
 		HashMap<Item, Integer> itemData = new HashMap<>();
 
@@ -213,6 +225,10 @@ public class BlueprintBlockData {
 					Block block = blockInfo.state().getBlock();
 					blocks.add(block);
 					itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
+
+					if (!blockInfo.state().isAir()) {
+						blockCount++;
+					}
 				}
 			}
 		}
@@ -232,6 +248,7 @@ public class BlueprintBlockData {
 		structure = new StructureTemplate();
 		blocks    = new HashSet<>();
 		pos       = BlockPos.ZERO;
+		blockCount = 0;
 		structure.load(BuiltInRegistries.BLOCK, tag);
 
 		HashMap<Item, Integer> itemData = new HashMap<>();
@@ -244,6 +261,10 @@ public class BlueprintBlockData {
 					Block block = blockInfo.state().getBlock();
 					blocks.add(block);
 					itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
+
+					if (!blockInfo.state().isAir()) {
+						blockCount++;
+					}
 				}
 			}
 		}

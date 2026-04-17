@@ -387,6 +387,14 @@ public class BlueprintManager {
 		);
 	}
 
+	public static int getBlockCount() {
+		if (hasPlacedData()) {
+			return selection.data.getBlockCount();
+		}
+
+		return 0;
+	}
+
 	public static boolean hasSelection() {
 		return selection.isActive;
 	}

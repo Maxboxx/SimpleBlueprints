@@ -54,17 +54,27 @@ public class BlueprintHud extends HudGraphic {
 			BlockPos min = BlueprintManager.getSelectionMin();
 			BlockPos max = BlueprintManager.getSelectionMax();
 			Vec3i   size = BlueprintManager.getSelectionSize();
+			int blockCount = BlueprintManager.getBlockCount();
 
-			Component minText  = Txt.key("bounds.min", min.getX(), min.getY(), min.getZ());
-			Component maxText  = Txt.key("bounds.max", max.getX(), max.getY(), max.getZ());
-			Component sizeText = Txt.key("bounds.size", size.getX(), size.getY(), size.getZ());
+			Component minText    = Txt.key("bounds.min", min.getX(), min.getY(), min.getZ());
+			Component maxText    = Txt.key("bounds.max", max.getX(), max.getY(), max.getZ());
+			Component sizeText   = Txt.key("bounds.size", size.getX(), size.getY(), size.getZ());
+			Component volumeText;
 
-			int width = Math.max(Math.max(font.width(minText), font.width(maxText)), font.width(sizeText));
-			context.fill(7, 7, 14 + width, 40, ARGB.color(64, 0, 0, 0));
+			if (blockCount > 0) {
+				volumeText = Txt.key("bounds.volume_blocks", size.getX() * size.getY() * size.getZ(), blockCount);
+			}
+			else {
+				volumeText = Txt.key("bounds.volume", size.getX() * size.getY() * size.getZ());
+			}
+
+			int width = Math.max(Math.max(Math.max(font.width(minText), font.width(maxText)), font.width(sizeText)), font.width(volumeText));
+			context.fill(7, 7, 14 + width, 50, ARGB.color(64, 0, 0, 0));
 
 			context.text(font, minText, 10, 10, 0xffffffff);
 			context.text(font, maxText, 10, 20, 0xffffffff);
 			context.text(font, sizeText, 10, 30, 0xffffffff);
+			context.text(font, volumeText, 10, 40, 0xffffffff);
 		}
 	}
 

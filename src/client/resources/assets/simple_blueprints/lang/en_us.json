@@ -64,6 +64,8 @@
   "simple_blueprints.bounds.min": "Min: %1$s, %2$s, %3$s",
   "simple_blueprints.bounds.max": "Max: %1$s, %2$s, %3$s",
   "simple_blueprints.bounds.size": "Size: %1$s, %2$s, %3$s",
+  "simple_blueprints.bounds.volume": "Volume: %1$s",
+  "simple_blueprints.bounds.volume_blocks": "Volume: %1$s (%2$s blocks)",
 
   "simple_blueprints.import.import": "Import",
   "simple_blueprints.import.export": "Export Blueprint",
