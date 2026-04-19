@@ -1,12 +1,10 @@
 package maxboxx.blueprints;
 
-import maxboxx.blueprints.data.BlueprintBlockData;
-import maxboxx.blueprints.data.BlueprintData;
-import maxboxx.blueprints.data.Color;
-import maxboxx.blueprints.data.SlotProperties;
+import maxboxx.blueprints.data.*;
 import maxboxx.blueprints.graphics.ui.hud.BlueprintHud;
 import maxboxx.blueprints.graphics.ui.hud.HudRegistry;
 import maxboxx.blueprints.graphics.ui.screens.ItemListScreen;
+import maxboxx.blueprints.graphics.ui.screens.SettingsScreen;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
 import maxboxx.blueprints.graphics.world.BoxGraphic;
 import maxboxx.blueprints.graphics.world.WorldRenderer;
@@ -141,6 +139,10 @@ public class BlueprintManager {
 				}
 			}
 
+			while (KeyBinds.SETTINGS.consumeClick()) {
+				Minecraft.getInstance().setScreen(new SettingsScreen());
+			}
+
 			if (active) {
 				updateMode();
 			}
@@ -168,6 +170,8 @@ public class BlueprintManager {
 		});
 
 		ClientLifecycleEvents.CLIENT_STOPPING.register((a) -> {
+			Settings.save();
+
 			if (!hasLoaded) return;
 
 			Path configPath = SimpleBlueprints.configPath();
@@ -187,6 +191,14 @@ public class BlueprintManager {
 				if (selectionData[i].graphic != null) {
 					WorldRenderer.removeGraphic(selectionData[i].graphic);
 					selectionData[i].graphic.cleanup();
+				}
+			}
+		});
+
+		Settings.SLICE_LAYERS.onValueChange((prev, next) -> {
+			for (BlueprintData selection : selectionData) {
+				if (selection.graphic != null) {
+					selection.graphic.updateSliceCount(prev, next);
 				}
 			}
 		});
@@ -660,8 +672,8 @@ public class BlueprintManager {
 			WorldRenderer.addGraphic(selection.graphic);
 		}
 
-		WorldRenderer.addGraphic(SELECTION_GRAPHIC);
-		WorldRenderer.addGraphic(SELECTION_OUTLINE);
+		WorldRenderer.addLateGraphic(SELECTION_GRAPHIC);
+		WorldRenderer.addLateGraphic(SELECTION_OUTLINE);
 
 		SELECTION_GRAPHIC.setMin(selection.min.getX() - 0.001f, selection.min.getY() - 0.001f, selection.min.getZ() - 0.001f);
 		SELECTION_GRAPHIC.setMax(selection.max.getX() + 1.001f, selection.max.getY() + 1.001f, selection.max.getZ() + 1.001f);

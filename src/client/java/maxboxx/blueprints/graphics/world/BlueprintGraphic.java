@@ -3,7 +3,7 @@ package maxboxx.blueprints.graphics.world;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import maxboxx.blueprints.data.Color;
+import maxboxx.blueprints.data.Settings;
 import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockStateModelSet;
@@ -27,12 +27,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.*;
+import org.jspecify.annotations.NonNull;
 
 import java.lang.Math;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 	private final ArrayList<HashMap<BlockPos, BlockState>> blocks = new ArrayList<>();
@@ -57,14 +55,14 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 		SHOW_ALL,
 		SHOW_BELOW,
 		SHOW_ABOVE,
-		SHOW_SELECTED;
+		SHOW_SLICE;
 
 		public Component getText() {
 			return switch (this) {
-				case SHOW_ALL      -> Txt.key("layers.mode.show_all");
-				case SHOW_BELOW    -> Txt.key("layers.mode.bottom");
-				case SHOW_ABOVE    -> Txt.key("layers.mode.top");
-				case SHOW_SELECTED -> Txt.key("layers.mode.slice");
+				case SHOW_ALL   -> Txt.key("layers.mode.show_all");
+				case SHOW_BELOW -> Txt.key("layers.mode.bottom");
+				case SHOW_ABOVE -> Txt.key("layers.mode.top");
+				case SHOW_SLICE -> Txt.key("layers.mode.slice");
 			};
 		}
 	}
@@ -141,22 +139,20 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 
 		if (diff == 0) return;
 
+		Set<Integer> bounds = new HashSet<>();
+		getLayerBounds(bounds);
+
 		selectedLayer = layer;
+
+		getLayerBounds(bounds);
 
 		PoseStack stack = new PoseStack();
 		RandomSource random = RandomSource.create(42L);
 
 		BlockStateModelSet renderer = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
 
-		if (diff < 0) {
-			for (int i = selectedLayer - diff; i >= selectedLayer; i--) {
-				setupLayer(stack, renderer, random, i);
-			}
-		}
-		else {
-			for (int i = selectedLayer - diff; i <= selectedLayer; i++) {
-				setupLayer(stack, renderer, random, i);
-			}
+		for (Integer index : bounds) {
+			setupLayer(stack, renderer, random, index);
 		}
 
 		this.isModified = true;
@@ -169,23 +165,38 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 	public void setLayerMode(LayerMode mode) {
 		if (mode == layerMode) return;
 
+		Set<Integer> bounds = new HashSet<>();
+		getLayerBounds(bounds);
+
 		layerMode = mode;
+
+		getLayerBounds(bounds);
 
 		PoseStack stack = new PoseStack();
 		RandomSource random = RandomSource.create(42L);
 		BlockStateModelSet renderer = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
 
-		if (selectedLayer > 0) {
-			setupLayer(stack, renderer, random, selectedLayer - 1);
-		}
-
-		setupLayer(stack, renderer, random, selectedLayer);
-
-		if (selectedLayer < vertexLayers.size() - 1) {
-			setupLayer(stack, renderer, random, selectedLayer + 1);
+		for (Integer layer : bounds) {
+			setupLayer(stack, renderer, random, layer);
 		}
 
 		this.isModified = true;
+	}
+
+	public void updateSliceCount(int prev, int next) {
+		Set<Integer> bounds = new HashSet<>();
+		getLayerBounds(bounds, prev);
+		getLayerBounds(bounds, next);
+
+		PoseStack stack = new PoseStack();
+		RandomSource random = RandomSource.create(42L);
+		BlockStateModelSet renderer = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
+
+		for (Integer layer : bounds) {
+			setupLayer(stack, renderer, random, layer);
+		}
+
+		isModified = true;
 	}
 
 	public void setRotation(Rotation rotation) {
@@ -196,6 +207,19 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 	public void setMirror(Mirror mirror) {
 		this.mirror = mirror;
 		this.isModified = true;
+	}
+
+	private void getLayerBounds(Set<Integer> layers) {
+		getLayerBounds(layers, Settings.SLICE_LAYERS.getValue());
+	}
+
+	private void getLayerBounds(Set<Integer> layers, int sliceCount) {
+		for (int i = 1; i < this.vertexLayers.size(); i++) {
+			if (isLayerVisible(i - 1, sliceCount) != isLayerVisible(i, sliceCount)) {
+				layers.add(i - 1);
+				layers.add(i);
+			}
+		}
 	}
 
 	@Override
@@ -412,11 +436,15 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 	}
 
 	private boolean isLayerVisible(int layer) {
+		return isLayerVisible(layer, Settings.SLICE_LAYERS.getValue());
+	}
+
+	private boolean isLayerVisible(int layer, int sliceCount) {
 		return switch (layerMode) {
 			case SHOW_ALL -> true;
 			case SHOW_ABOVE -> layer >= selectedLayer;
 			case SHOW_BELOW -> layer <= selectedLayer;
-			case SHOW_SELECTED -> layer == selectedLayer;
+			case SHOW_SLICE -> layer <= selectedLayer && layer >= selectedLayer - (sliceCount - 1);
 		};
 	}
 

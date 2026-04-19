@@ -2,6 +2,7 @@ package maxboxx.blueprints.graphics.world;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import maxboxx.blueprints.utils.LightUtil;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.Mirror;
@@ -51,7 +52,7 @@ public class VertexCache implements VertexConsumer {
 
 					consumer.setUv(vert.u, vert.v);
 					consumer.setOverlay(OverlayTexture.NO_OVERLAY);
-					consumer.setLight(0xf000f0);
+					consumer.setLight(LightUtil.FULL_SKY);
 					consumer.setNormal(pose, vert.nx, vert.ny, vert.nz);
 				}
 			}
@@ -70,7 +71,7 @@ public class VertexCache implements VertexConsumer {
 
 					consumer.setUv(vert.u, vert.v);
 					consumer.setOverlay(OverlayTexture.NO_OVERLAY);
-					consumer.setLight(0xf000f0);
+					consumer.setLight(LightUtil.FULL_SKY);
 					consumer.setNormal(pose, vert.nx, vert.ny, -vert.nz);
 				}
 			}
@@ -89,7 +90,7 @@ public class VertexCache implements VertexConsumer {
 
 					consumer.setUv(vert.u, vert.v);
 					consumer.setOverlay(OverlayTexture.NO_OVERLAY);
-					consumer.setLight(0xf000f0);
+					consumer.setLight(LightUtil.FULL_SKY);
 					consumer.setNormal(pose, -vert.nx, vert.ny, vert.nz);
 				}
 			}

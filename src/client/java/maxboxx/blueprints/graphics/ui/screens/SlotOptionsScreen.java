@@ -12,7 +12,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class SlotOptionsScreen extends Screen {
+public class SlotOptionsScreen extends BaseScreen {
 	private static final int WIDGET_WIDTH = 120;
 
 	private EditBox nameField;
@@ -44,7 +44,7 @@ public class SlotOptionsScreen extends Screen {
 			persistenceButton.setMessage(Txt.key(persistent ? "slot_options.persistent_on" : "slot_options.persistent_off"));
 		}).width(WIDGET_WIDTH).tooltip(Tooltip.create(Txt.key("slot_options.persistent_desc"))).build();
 
-		closeButton = Button.builder(Txt.key("slot_options.cleanup"), b -> {
+		closeButton = Button.builder(Txt.key("slot_options.close"), b -> {
 			String newName = nameField.getValue();
 
 			if (!newName.equals(slotName)) {

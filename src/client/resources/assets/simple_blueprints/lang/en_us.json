@@ -3,6 +3,7 @@
   "key.category.simple_blueprints.quick_keys": "Simple Blueprints Quick Actions",
   "simple_blueprints.keys.toggle": "Open/Close Tools",
   "simple_blueprints.keys.visibility": "Show/Hide Blueprints",
+  "simple_blueprints.keys.settings": "Settings",
   "simple_blueprints.keys.layer_up": "Layer Visibility Up",
   "simple_blueprints.keys.layer_down": "Layer Visibility Down",
   "simple_blueprints.keys.change_alpha": "Change Transparency",
@@ -88,5 +89,8 @@
 
   "simple_blueprints.paste_mode.everything": "Everything",
   "simple_blueprints.paste_mode.in_air": "In Air",
-  "simple_blueprints.paste_mode.blocks": "Blocks"
+  "simple_blueprints.paste_mode.blocks": "Blocks",
+
+  "simple_blueprints.settings.close": "Close",
+  "simple_blueprints.setting.slice_layers": "Slice Layer Count"
 }

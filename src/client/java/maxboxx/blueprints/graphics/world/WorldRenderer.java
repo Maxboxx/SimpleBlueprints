@@ -51,6 +51,7 @@ public class WorldRenderer {
 	private static final ByteBufferBuilder ALLOCATOR = new ByteBufferBuilder(RenderType.SMALL_BUFFER_SIZE);
 
 	private static final HashSet<WorldGraphic> activeGraphics = new HashSet<>();
+	private static final HashSet<WorldGraphic> lateGraphics = new HashSet<>();
 
 	public record Context(PoseStack matrices, BufferBuilder builder, LevelRenderContext context) {
 
@@ -68,18 +69,33 @@ public class WorldRenderer {
 		}
 
 		activeGraphics.clear();
+
+		for (WorldGraphic graphic : lateGraphics) {
+			graphic.cleanup();
+		}
+
+		lateGraphics.clear();
 	}
 
 	public static void addGraphic(WorldGraphic graphic) {
 		activeGraphics.add(graphic);
 	}
 
+	public static void addLateGraphic(WorldGraphic graphic) {
+		lateGraphics.add(graphic);
+	}
+
 	public static void removeGraphic(WorldGraphic graphic) {
 		activeGraphics.remove(graphic);
+		lateGraphics.remove(graphic);
 	}
 
 	private static void renderGraphics(LevelRenderContext context) {
 		for (WorldGraphic graphic : activeGraphics) {
+			renderGraphic(context, graphic);
+		}
+
+		for (WorldGraphic graphic : lateGraphics) {
 			renderGraphic(context, graphic);
 		}
 	}

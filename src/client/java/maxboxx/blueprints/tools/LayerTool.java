@@ -1,7 +1,6 @@
 package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
-import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.graphics.world.BlueprintGraphic;
 import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.player.LocalPlayer;
@@ -42,8 +41,8 @@ public class LayerTool extends BlueprintTool {
 				BlueprintManager.setBlockLayerMode(switch (BlueprintManager.getBlockLayerMode()) {
 					case SHOW_ALL -> BlueprintGraphic.LayerMode.SHOW_BELOW;
 					case SHOW_BELOW -> BlueprintGraphic.LayerMode.SHOW_ABOVE;
-					case SHOW_ABOVE -> BlueprintGraphic.LayerMode.SHOW_SELECTED;
-					case SHOW_SELECTED -> BlueprintGraphic.LayerMode.SHOW_ALL;
+					case SHOW_ABOVE -> BlueprintGraphic.LayerMode.SHOW_SLICE;
+					case SHOW_SLICE -> BlueprintGraphic.LayerMode.SHOW_ALL;
 				});
 			}
 		}

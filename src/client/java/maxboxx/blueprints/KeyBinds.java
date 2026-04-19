@@ -13,6 +13,7 @@ public class KeyBinds {
 
 	public static final KeyMapping TOGGLE = create_key("toggle", GLFW.GLFW_KEY_B, mainCategory);
 	public static final KeyMapping VISIBILITY = create_key("visibility", GLFW.GLFW_KEY_UNKNOWN, mainCategory);
+	public static final KeyMapping SETTINGS = create_key("settings", GLFW.GLFW_KEY_UNKNOWN, mainCategory);
 	public static final KeyMapping LAYER_UP = create_key("layer_up", GLFW.GLFW_KEY_UNKNOWN, quickCategory);
 	public static final KeyMapping LAYER_DOWN = create_key("layer_down", GLFW.GLFW_KEY_UNKNOWN, quickCategory);
 	public static final KeyMapping CHANGE_ALPHA = create_key("change_alpha", GLFW.GLFW_KEY_UNKNOWN, quickCategory);
@@ -30,6 +31,7 @@ public class KeyBinds {
 	public static void init() {
 		KeyMappingHelper.registerKeyMapping(TOGGLE);
 		KeyMappingHelper.registerKeyMapping(VISIBILITY);
+		KeyMappingHelper.registerKeyMapping(SETTINGS);
 		KeyMappingHelper.registerKeyMapping(LAYER_UP);
 		KeyMappingHelper.registerKeyMapping(LAYER_DOWN);
 		KeyMappingHelper.registerKeyMapping(CHANGE_ALPHA);
