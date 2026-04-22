@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import maxboxx.blueprints.SimpleBlueprints;
 import net.minecraft.client.renderer.MappableRingBuffer;
+import net.minecraft.world.phys.AABB;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 
@@ -30,6 +31,8 @@ public abstract class WorldGraphic {
 	}
 
 	public abstract Vector3f origin();
+
+	public abstract AABB bounds();
 
 	public abstract RenderMode mode();
 

@@ -9,12 +9,17 @@ import com.mojang.blaze3d.vertex.*;
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
 import maxboxx.blueprints.data.Color;
+import maxboxx.blueprints.data.Settings;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector4f;
 
 import java.util.*;
@@ -91,16 +96,31 @@ public class WorldRenderer {
 	}
 
 	private static void renderGraphics(LevelRenderContext context) {
+		Frustum frustum = Minecraft.getInstance().gameRenderer.getMainCamera().getCullFrustum();
+		Vec3 camPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+
 		for (WorldGraphic graphic : activeGraphics) {
-			renderGraphic(context, graphic);
+			renderGraphic(context, graphic, frustum, camPos);
 		}
 
 		for (WorldGraphic graphic : lateGraphics) {
-			renderGraphic(context, graphic);
+			renderGraphic(context, graphic, frustum, camPos);
 		}
 	}
 
-	private static void renderGraphic(LevelRenderContext context, WorldGraphic graphic) {
+	private static void renderGraphic(LevelRenderContext context, WorldGraphic graphic, Frustum frustum, Vec3 camPos) {
+		AABB bounds = graphic.bounds();
+
+		if (!frustum.isVisible(bounds)) {
+			return;
+		}
+
+		int renderDist = Settings.RENDER_DISTANCE.getValue();
+
+		if (renderDist > 0 && bounds.distanceToSqr(camPos) > renderDist * renderDist) {
+			return;
+		}
+
 		WorldGraphic.RenderMode mode = graphic.mode();
 
 		if (mode == WorldGraphic.RenderMode.Render) {

@@ -4,6 +4,7 @@ import maxboxx.blueprints.data.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 import org.joml.Vector3f;
 
 public class BoxGraphic extends WorldGraphic {
@@ -43,6 +44,11 @@ public class BoxGraphic extends WorldGraphic {
 	@Override
 	public Vector3f origin() {
 		return new Vector3f(minX, minY, minZ);
+	}
+
+	@Override
+	public AABB bounds() {
+		return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 
 	@Override

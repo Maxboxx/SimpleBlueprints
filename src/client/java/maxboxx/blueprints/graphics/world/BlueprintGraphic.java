@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import maxboxx.blueprints.data.Settings;
 import maxboxx.blueprints.utils.Txt;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.block.BlockStateModelSet;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -23,6 +24,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -225,6 +228,14 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 	@Override
 	public Vector3f origin() {
 		return new Vector3f(offset.getX(), offset.getY(), offset.getZ());
+	}
+
+	@Override
+	public AABB bounds() {
+		return new AABB(
+			offset.getX(), offset.getY(), offset.getZ(),
+			offset.getX() + sizeX, offset.getY() + vertexLayers.size(), offset.getZ() + sizeZ
+		);
 	}
 
 	@Override

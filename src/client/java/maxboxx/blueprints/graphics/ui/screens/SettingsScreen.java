@@ -17,6 +17,7 @@ public class SettingsScreen extends BaseScreen {
 	private final int GAP = 10;
 	private final int LABEL_WIDTH = 120;
 	private final int INPUT_WIDTH = 120;
+	private final int BUTTON_WIDTH = 80;
 	private final int ROW_SPACING = 30;
 	private final int INPUT_HEIGHT = 20;
 	private final int TEXT_Y_OFFSET = 6;
@@ -31,6 +32,10 @@ public class SettingsScreen extends BaseScreen {
 
 	@Override
 	protected void init() {
+		super.init();
+
+		widgets.clear();
+
 		for (Settings.Setting<?> setting : Settings.getSettings()) {
 			if (setting instanceof Settings.IntSetting intSetting) {
 				NumberInput input = new NumberInput(font, INPUT_WIDTH, INPUT_HEIGHT, Component.empty());
@@ -45,9 +50,20 @@ public class SettingsScreen extends BaseScreen {
 				input.setCanLoseFocus(true);
 
 				input.onChange(intSetting::setValue);
-
 				widgets.add(input);
 				addRenderableWidget(input);
+			}
+			else if (setting instanceof Settings.BooleanSetting boolSetting) {
+				Button button = Button.builder(boolSetting.stateText(), b -> {
+					boolSetting.setValue(!boolSetting.getValue());
+					b.setMessage(boolSetting.stateText());
+				}).pos(
+					PADDING + LABEL_WIDTH + GAP,
+					PADDING + ROW_SPACING * widgets.size()
+				).width(BUTTON_WIDTH).build();
+
+				widgets.add(button);
+				addRenderableWidget(button);
 			}
 		}
 
@@ -77,7 +93,6 @@ public class SettingsScreen extends BaseScreen {
 
 		for (Settings.Setting<?> setting : Settings.getSettings()) {
 			context.text(font, setting.name(), PADDING, PADDING + TEXT_Y_OFFSET + ROW_SPACING * row, 0xffffffff);
-
 			row++;
 		}
 	}

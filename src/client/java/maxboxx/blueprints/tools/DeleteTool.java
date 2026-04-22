@@ -2,6 +2,7 @@ package maxboxx.blueprints.tools;
 
 import maxboxx.blueprints.BlueprintManager;
 import maxboxx.blueprints.SimpleBlueprints;
+import maxboxx.blueprints.data.Settings;
 import maxboxx.blueprints.utils.BlockUtil;
 import maxboxx.blueprints.utils.TickUtil;
 import maxboxx.blueprints.utils.Txt;
@@ -19,6 +20,10 @@ public class DeleteTool extends BlueprintTool {
 
 	@Override
 	public boolean isAvailable() {
+		if (!Settings.DELETE_TOOL.getValue()) {
+			return false;
+		}
+
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player == null) return false;
 

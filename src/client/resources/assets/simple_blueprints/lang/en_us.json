@@ -92,5 +92,9 @@
   "simple_blueprints.paste_mode.blocks": "Blocks",
 
   "simple_blueprints.settings.close": "Close",
-  "simple_blueprints.setting.slice_layers": "Slice Layer Count"
+  "simple_blueprints.setting.slice_layers": "Slice Layer Count",
+  "simple_blueprints.setting.render_distance": "Render Distance",
+  "simple_blueprints.setting.delete_tool": "Delete Tool",
+  "simple_blueprints.setting.delete_tool.on": "Enabled",
+  "simple_blueprints.setting.delete_tool.off": "Disabled"
 }

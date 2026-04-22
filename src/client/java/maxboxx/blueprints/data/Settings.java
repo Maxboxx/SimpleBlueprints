@@ -12,16 +12,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class Settings {
 	private static boolean isDirty = false;
 	private static final List<Setting<?>> settings = new ArrayList<>();
 
 	public static final IntSetting SLICE_LAYERS = new IntSetting("slice_layers",1, 1, 32);
+	public static final IntSetting RENDER_DISTANCE = new IntSetting("render_distance",256, 0, 10000);
+	public static final BooleanSetting DELETE_TOOL = new BooleanSetting("delete_tool", true);
 
 	static {
 		settings.add(SLICE_LAYERS);
+		settings.add(RENDER_DISTANCE);
+		settings.add(DELETE_TOOL);
 	}
 
 	public static Iterable<Setting<?>> getSettings() {
@@ -79,6 +82,10 @@ public class Settings {
 
 		public Component name() {
 			return Txt.key("setting." + KEY);
+		}
+
+		protected Component subText(String subKey) {
+			return Txt.key("setting." + KEY + "." + subKey);
 		}
 
 		public void setValue(T value) {
@@ -172,6 +179,44 @@ public class Settings {
 		@Override
 		protected String writeValue(Integer value) {
 			return value.toString();
+		}
+	}
+
+	public static class BooleanSetting extends Setting<Boolean> {
+		public BooleanSetting(String key, Boolean defaultValue) {
+			super(key, defaultValue);
+		}
+
+		public Component onText() {
+			return subText("on");
+		}
+
+		public Component offText() {
+			return subText("off");
+		}
+
+		public Component stateText() {
+			return getValue() ? onText() : offText();
+		}
+
+		@Override
+		protected Boolean validate(Boolean value) {
+			return value;
+		}
+
+		@Override
+		protected @Nullable Boolean readValue(String value) {
+			try {
+				return Objects.equals(value, "true");
+			}
+			catch (NumberFormatException e) {
+				return null;
+			}
+		}
+
+		@Override
+		protected String writeValue(Boolean value) {
+			return value ? "true" : "false";
 		}
 	}
 }
