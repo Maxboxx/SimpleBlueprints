@@ -45,7 +45,11 @@ public class ImportExportScreen extends Screen {
 		exportButton = Button.builder(Txt.key("import.export"), b -> {
 			FileUtil.saveFileDialogAsync(Txt.key("import.select_export").getString(), BlueprintData.BLUEPRINT_FILTERS, path -> {
 				if (!path.endsWith(".dat")) {
-					return;
+					if (path.isEmpty()) {
+						return;
+					}
+
+					path = path + ".dat";
 				}
 
 				BlueprintManager.exportTo(Path.of(path), false);
@@ -57,8 +61,12 @@ public class ImportExportScreen extends Screen {
 
 		exportSchematicButton = Button.builder(Txt.key("import.export_schematic"), b -> {
 			FileUtil.saveFileDialogAsync(Txt.key("import.select_export").getString(), BlueprintData.SCHEMATIC_FILTERS, path -> {
-				if (!path.endsWith(".dat") && !path.endsWith(".nbt")) {
-					return;
+				if (!path.endsWith(".nbt")) {
+					if (path.isEmpty()) {
+						return;
+					}
+
+					path = path + ".nbt";
 				}
 
 				BlueprintManager.exportTo(Path.of(path), true);

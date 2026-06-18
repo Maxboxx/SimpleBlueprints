@@ -232,6 +232,13 @@ public class BlueprintGraphic extends WorldGraphic implements BlockGetter {
 
 	@Override
 	public AABB bounds() {
+		if (rotation == Rotation.CLOCKWISE_90 || rotation == Rotation.COUNTERCLOCKWISE_90) {
+			return new AABB(
+				offset.getX(), offset.getY(), offset.getZ(),
+				offset.getX() + sizeZ, offset.getY() + vertexLayers.size(), offset.getZ() + sizeX
+			);
+		}
+
 		return new AABB(
 			offset.getX(), offset.getY(), offset.getZ(),
 			offset.getX() + sizeX, offset.getY() + vertexLayers.size(), offset.getZ() + sizeZ
