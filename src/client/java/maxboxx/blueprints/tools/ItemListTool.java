@@ -54,7 +54,7 @@ public class ItemListTool extends BlueprintTool {
 			}
 
 			case RIGHT -> {
-				Minecraft.getInstance().setScreen(new ItemListScreen());
+				Minecraft.getInstance().setScreenAndShow(new ItemListScreen());
 			}
 		}
 	}

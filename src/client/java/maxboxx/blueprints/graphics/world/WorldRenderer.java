@@ -1,5 +1,6 @@
 package maxboxx.blueprints.graphics.world;
 
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
@@ -27,7 +28,8 @@ import java.util.*;
 public class WorldRenderer {
 	public static final Pipeline FILLED_NO_DEPTH = new Pipeline(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
 		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled_no_depth"))
-		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+		.withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
+		.withPrimitiveTopology(PrimitiveTopology.QUADS)
 		.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 		.withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
 		.withCull(true)
@@ -36,7 +38,8 @@ public class WorldRenderer {
 
 	public static final Pipeline FILLED_QUADS = new Pipeline(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
 		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/filled2"))
-		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+		.withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
+		.withPrimitiveTopology(PrimitiveTopology.QUADS)
 		.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 		.withCull(true)
 		.build()
@@ -44,8 +47,8 @@ public class WorldRenderer {
 
 	private static final RenderPipeline TRANSLUCENT_BLOCKS = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
 		.withLocation(Identifier.fromNamespaceAndPath(SimpleBlueprints.MOD_ID, "pipeline/block"))
-		.withSampler("Sampler0")
-		.withSampler("Sampler2")
+		//.withSampler("Sampler0")
+		//.withSampler("Sampler2")
 		.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 		.withShaderDefine("ALPHA_CUTOUT", 0.1f)
 		.build()
@@ -96,8 +99,8 @@ public class WorldRenderer {
 	}
 
 	private static void renderGraphics(LevelRenderContext context) {
-		Frustum frustum = Minecraft.getInstance().gameRenderer.getMainCamera().getCullFrustum();
-		Vec3 camPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+		Frustum frustum = Minecraft.getInstance().gameRenderer.mainCamera().getCullFrustum();
+		Vec3 camPos = Minecraft.getInstance().gameRenderer.mainCamera().position();
 
 		for (WorldGraphic graphic : activeGraphics) {
 			renderGraphic(context, graphic, frustum, camPos);
@@ -137,7 +140,7 @@ public class WorldRenderer {
 
 	private static void buildGraphic(LevelRenderContext context, WorldGraphic graphic) {
 		PoseStack matrices = context.poseStack();
-		BufferBuilder builder = new BufferBuilder(ALLOCATOR, graphic.getPipeline().getPipeline().getVertexFormatMode(), graphic.getPipeline().getPipeline().getVertexFormat());
+		BufferBuilder builder = new BufferBuilder(ALLOCATOR, graphic.getPipeline().getPipeline().getPrimitiveTopology(), graphic.getPipeline().getPipeline().getVertexFormatBinding(0));
 
 		graphic.render(new Context(matrices, builder, context));
 		graphic.generateMesh(builder);

@@ -38,7 +38,7 @@ public class ImportExportScreen extends Screen {
 				}
 
 				BlueprintManager.importFrom(Path.of(path));
-				Minecraft.getInstance().setScreen(null);
+				Minecraft.getInstance().gui.setScreen(null);
 			});
 		}).width(COL_WIDTH).build();
 
@@ -49,7 +49,7 @@ public class ImportExportScreen extends Screen {
 				}
 
 				BlueprintManager.exportTo(Path.of(path), false);
-				Minecraft.getInstance().setScreen(null);
+				Minecraft.getInstance().gui.setScreen(null);
 			});
 		}).width(COL_WIDTH).build();
 
@@ -62,14 +62,14 @@ public class ImportExportScreen extends Screen {
 				}
 
 				BlueprintManager.exportTo(Path.of(path), true);
-				Minecraft.getInstance().setScreen(null);
+				Minecraft.getInstance().gui.setScreen(null);
 			});
 		}).width(COL_WIDTH).build();
 
 		exportSchematicButton.setTooltip(Tooltip.create(Txt.key("import.export_schematic_tooltip")));
 
 		cancelButton = Button.builder(Txt.key("import.cancel"), b -> {
-			Minecraft.getInstance().setScreen(null);
+			Minecraft.getInstance().gui.setScreen(null);
 		}).width(COL_WIDTH).build();
 
 		addRenderableWidget(importButton);

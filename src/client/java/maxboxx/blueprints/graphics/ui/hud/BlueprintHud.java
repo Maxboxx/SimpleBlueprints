@@ -43,7 +43,7 @@ public class BlueprintHud extends HudGraphic {
 	}
 
 	private static void renderItems(GuiGraphicsExtractor context) {
-		if (BlueprintManager.hasData() && BlueprintManager.currentTool() instanceof ItemListTool && !(Minecraft.getInstance().screen instanceof ItemListScreen)) {
+		if (BlueprintManager.hasData() && BlueprintManager.currentTool() instanceof ItemListTool && !(Minecraft.getInstance().gui.screen() instanceof ItemListScreen)) {
 			BlueprintBlockData data = BlueprintManager.getData();
 			ItemRenderer.renderGrid(context, data.getItems(), BlueprintManager.getBlockListMode(), false);
 		}

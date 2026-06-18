@@ -1,8 +1,7 @@
 package maxboxx.blueprints.graphics.world;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.systems.CommandEncoder;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.vertex.*;
 import maxboxx.blueprints.SimpleBlueprints;
 import net.minecraft.client.renderer.MappableRingBuffer;
@@ -50,14 +49,12 @@ public abstract class WorldGraphic {
 			if (vertexBuffer != null) vertexBuffer.close();
 			vertexBuffer = new MappableRingBuffer(
 				() -> SimpleBlueprints.MOD_ID + " persistent mesh",
-				GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_MAP_WRITE,
+				GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_MAP_WRITE | GpuBuffer.USAGE_COPY_DST,
 				vertexSize
 			);
 		}
 
-		CommandEncoder commandEncoder = RenderSystem.getDevice().createCommandEncoder();
-
-		try (GpuBuffer.MappedView mappedView = commandEncoder.mapBuffer(vertexBuffer.currentBuffer().slice(0, meshData.vertexBuffer().remaining()), false, true)) {
+		try (GpuBufferSlice.MappedView mappedView = vertexBuffer.currentBuffer().map(false, true)) {
 			MemoryUtil.memCopy(meshData.vertexBuffer(), mappedView.data());
 		}
 

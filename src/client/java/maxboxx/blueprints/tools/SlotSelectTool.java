@@ -147,12 +147,12 @@ public class SlotSelectTool extends BlueprintTool {
 				}
 
 				case RIGHT -> {
-					Minecraft.getInstance().setScreen(new SlotOptionsScreen(SLOT));
+					Minecraft.getInstance().setScreenAndShow(new SlotOptionsScreen(SLOT));
 				}
 
 				case MIDDLE -> {
 					BlueprintManager.setBlueprintSlot(SLOT);
-					Minecraft.getInstance().setScreen(new ImportExportScreen());
+					Minecraft.getInstance().setScreenAndShow(new ImportExportScreen());
 				}
 			}
 		}

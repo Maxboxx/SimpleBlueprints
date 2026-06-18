@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
 public class HandRendererMixins {
-	@Inject(at = @At("HEAD"), method = "renderArmWithItem", cancellable = true)
-	private void renderArmWithItem(final AbstractClientPlayer player, final float frameInterp, final float xRot, final InteractionHand hand, final float attack, final ItemStack itemStack, final float inverseArmHeight, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int lightCoords, CallbackInfo info) {
+	@Inject(at = @At("HEAD"), method = "submitArmWithItem", cancellable = true)
+	private void submitArmWithItem(final AbstractClientPlayer player, final float frameInterp, final float xRot, final InteractionHand hand, final float attack, final ItemStack itemStack, final float inverseArmHeight, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int lightCoords, CallbackInfo info) {
 		if (BlueprintManager.isActive()) {
 			info.cancel();
 		}

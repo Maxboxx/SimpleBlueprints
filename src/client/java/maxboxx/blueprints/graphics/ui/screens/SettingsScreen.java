@@ -69,7 +69,7 @@ public class SettingsScreen extends BaseScreen {
 
 		closeButton = Button.builder(Txt.key("settings.close"), b -> {
 			Settings.save();
-			Minecraft.getInstance().setScreen(null);
+			Minecraft.getInstance().gui.setScreen(null);
 		}).width(INPUT_WIDTH).build();
 
 		addRenderableWidget(closeButton);

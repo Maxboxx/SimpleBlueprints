@@ -135,12 +135,12 @@ public class BlueprintManager {
 
 			while (KeyBinds.EDIT_ITEMS.consumeClick()) {
 				if (hasData()) {
-					Minecraft.getInstance().setScreen(new ItemListScreen());
+					Minecraft.getInstance().setScreenAndShow(new ItemListScreen());
 				}
 			}
 
 			while (KeyBinds.SETTINGS.consumeClick()) {
-				Minecraft.getInstance().setScreen(new SettingsScreen());
+				Minecraft.getInstance().setScreenAndShow(new SettingsScreen());
 			}
 
 			if (active) {

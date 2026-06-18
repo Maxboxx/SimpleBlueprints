@@ -6,6 +6,7 @@ import maxboxx.blueprints.tools.BlueprintTools;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -14,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Gui.class)
-public class GuiMixins {
+@Mixin(Hud.class)
+public class HudMixins {
 	@Inject(at = @At("HEAD"), method = "extractSlot", cancellable = true)
 	private void extractSlot(GuiGraphicsExtractor guiGraphics, int x, int y, DeltaTracker deltaTracker, Player player, ItemStack itemStack, int seed, CallbackInfo info) {
 		if (BlueprintManager.isActive()) {

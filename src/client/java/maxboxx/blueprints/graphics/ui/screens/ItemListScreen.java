@@ -34,7 +34,7 @@ public class ItemListScreen extends Screen {
 		}
 
 		closeButton = Button.builder(Txt.key("item_list.close"),b -> {
-			Minecraft.getInstance().setScreen(null);
+			Minecraft.getInstance().gui.setScreen(null);
 		}).width(120).build();
 
 		addRenderableWidget(closeButton);

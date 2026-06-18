@@ -57,7 +57,7 @@ public class SlotOptionsScreen extends BaseScreen {
 				));
 			}
 
-			Minecraft.getInstance().setScreen(null);
+			Minecraft.getInstance().gui.setScreen(null);
 		}).width(WIDGET_WIDTH).build();
 
 		addRenderableWidget(nameField);

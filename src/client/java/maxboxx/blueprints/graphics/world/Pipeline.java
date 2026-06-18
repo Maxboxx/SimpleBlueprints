@@ -1,5 +1,6 @@
 package maxboxx.blueprints.graphics.world;
 
+import com.mojang.blaze3d.IndexType;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -20,6 +21,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
@@ -66,9 +68,9 @@ public class Pipeline {
 	public void draw(LevelRenderContext context, WorldGraphic graphic, Vector4f color) {
 		if (graphic.indexCount <= 0) return;
 
-		RenderSystem.AutoStorageIndexBuffer autoIndices = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
+		RenderSystem.AutoStorageIndexBuffer autoIndices = RenderSystem.getSequentialBuffer(pipeline.getPrimitiveTopology());
 		GpuBuffer indices = autoIndices.getBuffer(graphic.indexCount);
-		VertexFormat.IndexType indexType = autoIndices.type();
+		IndexType indexType = autoIndices.type();
 
 		Vec3 pos = context.levelState().cameraRenderState.pos;
 		Vector3f offset = new Vector3f(-(float)pos.x, -(float)pos.y, -(float)pos.z).add(graphic.origin());
@@ -79,7 +81,7 @@ public class Pipeline {
 		}
 
 		GpuBufferSlice dynamicTransforms = RenderSystem.getDynamicUniforms().writeTransform(
-			RenderSystem.getModelViewMatrix(),
+			RenderSystem.getModelViewMatrixCopy(),
 			color,
 			offset,
 			new Matrix4f()
@@ -89,7 +91,7 @@ public class Pipeline {
 		GpuTextureView colorTexture = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : renderTarget.getColorTextureView();
 		GpuTextureView depthTexture = renderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride != null ? RenderSystem.outputDepthTextureOverride : renderTarget.getDepthTextureView()) : null;
 
-		try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Pipeline Draw", colorTexture, OptionalInt.empty(), depthTexture, OptionalDouble.empty())) {
+		try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Pipeline Draw", colorTexture, Optional.empty(), depthTexture, OptionalDouble.empty())) {
 			renderPass.setPipeline(this.pipeline);
 
 			ScissorState scissorState = RenderSystem.getScissorStateForRenderTypeDraws();
@@ -118,10 +120,10 @@ public class Pipeline {
 
 			RenderSystem.bindDefaultUniforms(renderPass);
 			renderPass.setUniform("DynamicTransforms", dynamicTransforms);
-			renderPass.setVertexBuffer(0, graphic.vertexBuffer.currentBuffer());
+			renderPass.setVertexBuffer(0, graphic.vertexBuffer.currentBuffer().slice());
 
 			renderPass.setIndexBuffer(indices, indexType);
-			renderPass.drawIndexed(0, 0, graphic.indexCount, 1);
+			renderPass.drawIndexed(graphic.indexCount, 1, 0, 0, 0);
 		}
 
 		if (!hasModelOffset) {
