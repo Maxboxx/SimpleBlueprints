@@ -7,11 +7,13 @@ import maxboxx.blueprints.utils.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
+import java.util.Locale;
 
 public class ImportExportScreen extends Screen {
 	private static final int COL_WIDTH = 120;
@@ -21,6 +23,7 @@ public class ImportExportScreen extends Screen {
 
 	private Button importButton;
 	private Button exportButton;
+	private Button exportSchematicButton;
 	private Button cancelButton;
 
 	public ImportExportScreen() {
@@ -30,8 +33,8 @@ public class ImportExportScreen extends Screen {
 	@Override
 	protected void init() {
 		importButton = Button.builder(SimpleBlueprints.text("import.import"), b -> {
-			FileUtil.openFileDialogAsync(SimpleBlueprints.text("import.select_import").getString(), BlueprintData.FILE_FILTERS, path -> {
-				if (!path.endsWith(".dat")) {
+			FileUtil.openFileDialogAsync(SimpleBlueprints.text("import.select_import").getString(), BlueprintData.IMPORT_FILTERS, path -> {
+				if (!hasExtension(path, ".dat") && !hasExtension(path, ".nbt")) {
 					return;
 				}
 
@@ -41,15 +44,32 @@ public class ImportExportScreen extends Screen {
 		}).width(COL_WIDTH).build();
 
 		exportButton = Button.builder(SimpleBlueprints.text("import.export"), b -> {
-			FileUtil.saveFileDialogAsync(SimpleBlueprints.text("import.select_export").getString(), BlueprintData.FILE_FILTERS, path -> {
-				if (!path.endsWith(".dat")) {
+			FileUtil.saveFileDialogAsync(SimpleBlueprints.text("import.select_export").getString(), BlueprintData.BLUEPRINT_FILTERS, path -> {
+				path = appendExtension(path, ".dat");
+				if (path == null) {
 					return;
 				}
 
-				BlueprintManager.exportTo(Path.of(path));
-				Minecraft.getInstance().setScreen(null);
+				if (BlueprintManager.exportTo(Path.of(path), false)) {
+					Minecraft.getInstance().setScreen(null);
+				}
 			});
 		}).width(COL_WIDTH).build();
+		exportButton.setTooltip(Tooltip.create(SimpleBlueprints.text("import.export_tooltip")));
+
+		exportSchematicButton = Button.builder(SimpleBlueprints.text("import.export_schematic"), b -> {
+			FileUtil.saveFileDialogAsync(SimpleBlueprints.text("import.select_export").getString(), BlueprintData.SCHEMATIC_FILTERS, path -> {
+				path = appendExtension(path, ".nbt");
+				if (path == null) {
+					return;
+				}
+
+				if (BlueprintManager.exportTo(Path.of(path), true)) {
+					Minecraft.getInstance().setScreen(null);
+				}
+			});
+		}).width(COL_WIDTH).build();
+		exportSchematicButton.setTooltip(Tooltip.create(SimpleBlueprints.text("import.export_schematic_tooltip")));
 
 		cancelButton = Button.builder(SimpleBlueprints.text("import.cancel"), b -> {
 			Minecraft.getInstance().setScreen(null);
@@ -57,6 +77,7 @@ public class ImportExportScreen extends Screen {
 
 		addRenderableWidget(importButton);
 		addRenderableWidget(exportButton);
+		addRenderableWidget(exportSchematicButton);
 		addRenderableWidget(cancelButton);
 	}
 
@@ -66,10 +87,12 @@ public class ImportExportScreen extends Screen {
 		int originY = context.guiHeight() / 2 + 30;
 
 		importButton.setPosition(originX - COL_WIDTH_GAP, originY);
-		exportButton.setPosition(originX + HALF_GAP, originY);
+		exportButton.setPosition(originX + HALF_GAP, originY - 25);
+		exportSchematicButton.setPosition(originX + HALF_GAP, originY);
 		cancelButton.setPosition(originX - COL_WIDTH / 2, originY + 40);
 
 		exportButton.visible = BlueprintManager.hasData();
+		exportSchematicButton.visible = BlueprintManager.hasData();
 
 		context.fill(originX - COL_WIDTH_GAP - 5, originY - 105, originX - HALF_GAP + 5, originY + 25, 0x44000000);
 		context.fill(originX + HALF_GAP - 5, originY - 105, originX + HALF_GAP + COL_WIDTH + 5, originY + 25, 0x44000000);
@@ -85,7 +108,18 @@ public class ImportExportScreen extends Screen {
 			context.drawWordWrap(this.font, SimpleBlueprints.text("import.import_warning", selectedSlot), originX - COL_WIDTH_GAP, originY - 45, COL_WIDTH, 0xffff8888);
 		}
 		else {
-			context.drawWordWrap(this.font, SimpleBlueprints.text("import.export_warning", selectedSlot), originX + HALF_GAP, originY - 45, COL_WIDTH, 0xffff8888);
+			context.drawWordWrap(this.font, SimpleBlueprints.text("import.export_warning", selectedSlot), originX + HALF_GAP, originY - 65, COL_WIDTH, 0xffff8888);
 		}
+	}
+
+	private static boolean hasExtension(String path, String extension) {
+		return path.toLowerCase(Locale.ROOT).endsWith(extension);
+	}
+
+	private static String appendExtension(String path, String extension) {
+		if (path.isEmpty()) {
+			return null;
+		}
+		return hasExtension(path, extension) ? path : path + extension;
 	}
 }

@@ -172,6 +172,10 @@ public class BlueprintBlockData {
 		return tag;
 	}
 
+	public CompoundTag saveSchematic() {
+		return structure.save(new CompoundTag());
+	}
+
 	public void load(CompoundTag tag, BlockPos position) {
 		structure = new StructureTemplate();
 		blocks    = new HashSet<>();
@@ -186,6 +190,37 @@ public class BlueprintBlockData {
 		}
 
 		structure.load(BuiltInRegistries.BLOCK, blockNbt);
+
+		HashMap<Item, Integer> itemData = new HashMap<>();
+
+		List<StructureTemplate.Palette> palettes = ((StructureTemplateMixins)structure).getStructurePalettes();
+
+		for (StructureTemplate.Palette palette : palettes) {
+			for (StructureTemplate.StructureBlockInfo blockInfo : palette.blocks()) {
+				if (BlockUtil.isPrimaryBlock(blockInfo.state())) {
+					Block block = blockInfo.state().getBlock();
+					blocks.add(block);
+					itemData.put(block.asItem(), itemData.getOrDefault(block.asItem(), 0) + 1);
+				}
+			}
+		}
+
+		for (Map.Entry<Item, Integer> item : itemData.entrySet()) {
+			if (item.getKey() == Items.AIR) {
+				continue;
+			}
+
+			sortedItems.add(new ItemData(new ItemStack(item.getKey(), item.getValue()), true));
+		}
+
+		sortedItems.sort((a, b) -> b.stack.getCount() - a.stack.getCount());
+	}
+
+	public void loadSchematic(CompoundTag tag) {
+		structure = new StructureTemplate();
+		blocks    = new HashSet<>();
+		pos       = BlockPos.ZERO;
+		structure.load(BuiltInRegistries.BLOCK, tag);
 
 		HashMap<Item, Integer> itemData = new HashMap<>();
 

@@ -66,12 +66,15 @@
   "simple_blueprints.bounds.size": "Size: %1$s, %2$s, %3$s",
 
   "simple_blueprints.import.import": "Import",
-  "simple_blueprints.import.export": "Export",
+  "simple_blueprints.import.export": "Export Blueprint",
+  "simple_blueprints.import.export_schematic": "Export Schematic",
   "simple_blueprints.import.cancel": "Cancel",
   "simple_blueprints.import.select_import": "Select Blueprint",
   "simple_blueprints.import.select_export": "Select Export Location",
-  "simple_blueprints.import.import_desc": "Imports a blueprint from a file. This will replace the blueprint data for slot %1$s.",
+  "simple_blueprints.import.import_desc": "Imports a blueprint or schematic from a file. This will replace the blueprint data for slot %1$s.",
   "simple_blueprints.import.export_desc": "Exports the blueprint data in slot %1$s to a file.",
+  "simple_blueprints.import.export_tooltip": "Exports the blueprint data including world placement and blueprint name. Only compatible with this mod.",
+  "simple_blueprints.import.export_schematic_tooltip": "Exports the blueprint schematic as a vanilla nbt file. Compatible with structure blocks and other mods.",
   "simple_blueprints.import.import_warning": "Slot %1$s currently has data. This will be lost if you import.",
   "simple_blueprints.import.export_warning": "Slot %1$s can not be exported since it has no data.",
 
