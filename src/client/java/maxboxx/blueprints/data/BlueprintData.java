@@ -8,6 +8,7 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class BlueprintData {
@@ -35,12 +36,12 @@ public class BlueprintData {
 		dirty = true;
 	}
 
-	public void saveData(Path file, boolean asSchematic) {
+	public boolean saveData(Path file, boolean asSchematic) {
 		try {
 			if (!isActive && data == null) {
 				file.toFile().delete();
 				dirty = false;
-				return;
+				return true;
 			}
 
 			CompoundTag data;
@@ -65,8 +66,14 @@ public class BlueprintData {
 			}
 
 			NbtIo.writeCompressed(data, file);
+			if (!Files.isRegularFile(file)) {
+				SimpleBlueprints.LOGGER.error("Blueprint export completed without creating a regular file");
+				return false;
+			}
+			return true;
 		} catch (Exception e) {
-			SimpleBlueprints.LOGGER.info("Failed to save blueprint data", e);
+			SimpleBlueprints.LOGGER.error("Failed to save blueprint data", e);
+			return false;
 		}
 	}
 

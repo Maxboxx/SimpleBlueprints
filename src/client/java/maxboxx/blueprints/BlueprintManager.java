@@ -639,11 +639,17 @@ public class BlueprintManager {
 		}
 	}
 
-	public static void exportTo(Path file, boolean asSchematic) {
-		if (selection.data != null) {
-			selection.saveData(file, asSchematic);
-			selection.markDirty();
+	public static boolean exportTo(Path file, boolean asSchematic) {
+		if (selection.data == null) {
+			return false;
 		}
+
+		if (!selection.saveData(file, asSchematic)) {
+			return false;
+		}
+
+		selection.markDirty();
+		return true;
 	}
 
 	private static void updateGraphics() {

@@ -50,8 +50,9 @@ public class ImportExportScreen extends Screen {
 					return;
 				}
 
-				BlueprintManager.exportTo(Path.of(path), false);
-				Minecraft.getInstance().setScreen(null);
+				if (BlueprintManager.exportTo(Path.of(path), false)) {
+					Minecraft.getInstance().setScreen(null);
+				}
 			});
 		}).width(COL_WIDTH).build();
 		exportButton.setTooltip(Tooltip.create(SimpleBlueprints.text("import.export_tooltip")));
@@ -63,8 +64,9 @@ public class ImportExportScreen extends Screen {
 					return;
 				}
 
-				BlueprintManager.exportTo(Path.of(path), true);
-				Minecraft.getInstance().setScreen(null);
+				if (BlueprintManager.exportTo(Path.of(path), true)) {
+					Minecraft.getInstance().setScreen(null);
+				}
 			});
 		}).width(COL_WIDTH).build();
 		exportSchematicButton.setTooltip(Tooltip.create(SimpleBlueprints.text("import.export_schematic_tooltip")));
